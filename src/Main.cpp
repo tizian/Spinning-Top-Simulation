@@ -45,7 +45,7 @@ RigidBody sphere;
 
 void resetSphere() {
     sphere = RigidBody(glm::vec3(0, 5, 0));
-    sphere.setMesh(&Assets::textureSphere);
+    sphere.setMesh(&Assets::sphere);
     sphere.setMaterial(&Assets::sphereMaterial);
     sphere.setTexture(&Assets::checkerboard);
     

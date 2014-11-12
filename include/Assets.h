@@ -10,11 +10,7 @@ namespace Assets {
 	Shader phongShader;
     Shader textureShader;
 
-	Mesh cube;
-	Mesh sphere;
-	Mesh bunny;
-	Mesh suzanne;
-    Mesh textureSphere;
+    Mesh sphere;
     Mesh plane;
     
     Texture blank;
@@ -27,18 +23,9 @@ namespace Assets {
 		phongShader = Shader("shaders/phong_vertex.glsl", "shaders/phong_fragment.glsl");
         textureShader = Shader("shaders/texture_vertex.glsl", "shaders/texture_fragment.glsl");
         
-        cube = Mesh(&phongShader, "Models/cube.dae");
-        
-        sphere = Mesh(&phongShader, "Models/sphere.dae");
-        
-        bunny = Mesh(&phongShader, "Models/bunny.dae");
-        
-        suzanne = Mesh(&phongShader, "Models/suzanne.dae");
-        
         // Sphere model with right texturecoords taken from: https://www.opengl.org/discussion_boards/showthread.php/176762-looking-for-a-simple-sphere-obj-file
-        textureSphere = Mesh(&textureShader, "Models/textureSphere.obj");
-        
-        plane = Mesh(&textureShader, "Models/plane.obj");
+        sphere = Mesh(&textureShader, "models/sphere.obj");
+        plane = Mesh(&textureShader, "models/plane.obj");
         
         blank = Texture("textures/blank.png");
         checkerboard = Texture("textures/checkerboard.png");
@@ -51,9 +38,7 @@ namespace Assets {
 		phongShader.destroy();
         textureShader.destroy();
         
-		cube.destroy();
 		sphere.destroy();
-		bunny.destroy();
-		suzanne.destroy();
+        plane.destroy();
 	}
 };
