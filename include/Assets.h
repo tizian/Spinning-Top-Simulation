@@ -27,8 +27,8 @@ namespace Assets {
         sphere = Mesh(&textureShader, "models/sphere.obj");
         plane = Mesh(&textureShader, "models/plane.obj");
         
-        blank = Texture("textures/blank.png");
-        checkerboard = Texture("textures/checkerboard.png");
+        blank = Texture("textures/blank_low.png");
+        checkerboard = Texture("textures/checkerboard_low.png");
         
         planeMaterial = Material(glm::vec3(0.16, 0.55, 0.16));     // green-ish
         sphereMaterial = Material(glm::vec3(0.25, 0.32, 0.6));      // blue-ish

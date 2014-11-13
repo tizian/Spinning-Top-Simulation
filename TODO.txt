@@ -3,9 +3,9 @@
 - (done) correct normal of lower ground to make it darker
 - (done) change m_orientation of RigidBody to quaternion.
 - (done) change repository to GIT
+- (done) loading screen (or faster loading ^^) (http://www.glfw.org/documentation.html as reference)
 
 - Shadows -> probably quite a bit of refactoring to handle multiple shaders :-/
-- loading screen (or faster loading ^^) (http://www.glfw.org/documentation.html as reference)
 - fix collision handling with plane -> pixar pdf
 - ground friction -> not sure yet.
 - arbitrary mesh-mesh collision: pairwise triangle-triangle intersection tests for detection -> pixar pdf for handling the actual collisions (edge, plane vs edge, edge collisions)

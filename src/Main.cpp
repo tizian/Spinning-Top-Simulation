@@ -94,6 +94,7 @@ int main()
     
     glfwGetFramebufferSize(window, &width, &height);
     printf("Framebuffer width: %d height: %d\n", width, height);
+    
 	while (!glfwWindowShouldClose(window)) {
 		// Timer
 		static double previous = glfwGetTime();
