@@ -56,7 +56,7 @@ public:
     virtual void update(float dt);
     
 protected:
-    glm::vec3 m_position;
+    glm::vec3 m_position; // Should be the center of mass
     glm::quat m_orientation;
 
 private:

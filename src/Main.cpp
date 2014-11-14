@@ -133,14 +133,23 @@ int main()
             addTorque();
         }
         
-		if (glfwGetKey(window, GLFW_KEY_A)) {
-			camera.moveLeftRight(camSpeed * deltaTime);
-			camMoved = true;
-		}
-		if (glfwGetKey(window, GLFW_KEY_D)) {
-			camera.moveLeftRight(-camSpeed * deltaTime);
-			camMoved = true;
-		}
+        if (glfwGetKey(window, GLFW_KEY_U)) {
+            sphere.addForce(glm::vec3(0, 0, -10), sphere.getPosition());
+        }
+        if (glfwGetKey(window, GLFW_KEY_H)) {
+            sphere.addForce(glm::vec3(-10, 0, 0), sphere.getPosition());
+        }
+        if (glfwGetKey(window, GLFW_KEY_J)) {
+            sphere.addForce(glm::vec3(0, 0, 10), sphere.getPosition());
+        }
+        if (glfwGetKey(window, GLFW_KEY_K)) {
+            sphere.addForce(glm::vec3(10, 0, 0), sphere.getPosition());
+        }
+        if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
+            sphere.addForce(glm::vec3(0, 20, 0), sphere.getPosition());
+        }
+        
+		
 		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
 			camera.moveUpDown(-camSpeed * deltaTime);
 			camMoved = true;
@@ -149,15 +158,26 @@ int main()
 			camera.moveUpDown(camSpeed * deltaTime);
 			camMoved = true;
 		}
+        
+        
 		if (glfwGetKey(window, GLFW_KEY_W)) {
 			camera.moveForwardBackward(camSpeed * deltaTime);
 			camMoved = true;
 		}
+        if (glfwGetKey(window, GLFW_KEY_A)) {
+            camera.moveLeftRight(camSpeed * deltaTime);
+            camMoved = true;
+        }
 		if (glfwGetKey(window, GLFW_KEY_S)) {
 			camera.moveForwardBackward(-camSpeed * deltaTime);
 			camMoved = true;
 		}
+        if (glfwGetKey(window, GLFW_KEY_D)) {
+            camera.moveLeftRight(-camSpeed * deltaTime);
+            camMoved = true;
+        }
 
+        
 		if (glfwGetKey(window, GLFW_KEY_UP)) {
 			camera.pitch(-deltaTheta);
 			camMoved = true;
@@ -174,6 +194,7 @@ int main()
 			camera.yaw(deltaTheta);
 			camMoved = true;
 		}
+        
 		if (glfwGetKey(window, GLFW_KEY_0)) {
 			camera.setPosition(glm::vec3());
 			camMoved = true;

@@ -33,12 +33,17 @@ void RigidBody::setDefaults() {
 }
 
 void RigidBody::addForce(const vec3 force) {
-    addForce(force, getCenterOfMass());
+    addForce(force, m_position);
 }
 
 void RigidBody::addForce(const vec3 force, const vec3 position) {
+    // PBS slides
     m_force += force;
-    m_torque += glm::cross(position - getCenterOfMass(), force);  // Add torque: but depends on location of force... ?
+    vec3 taui = glm::cross(position - m_position, force);
+    /*if (taui.x != 0.0f) {
+        printf("position: %f %f %f m_position: %f %f %f force: %f %f %f taui: %f %f %f\n", position.x, position.y, position.z, m_position.x, m_position.y, m_position.z, force.x, force.y, force.z, taui.x, taui.y, taui.z);
+    }*/
+    m_torque += taui;  // Add torque: but depends on location of force... ?
 }
 
 float RigidBody::distanceToGround()
@@ -87,16 +92,16 @@ void RigidBody::update(float dt) {
         // This can't possibly be right...
         
         vec3 normal = vec3(0, 1, 0);
-        vec3 ra = vec3(m_position.x, 0, m_position.z) - (m_position + vec3(0, -1, 0));
+        vec3 ra = vec3(m_position.x, 0, m_position.z) - (m_position + vec3(0, -1, 0)); // Shouldn't this be: ra = vec3(0, -m_position.y, 0);
         vec3 vrel = m_linearMomentum / m_mass;
         
         float dumping = 0.3;
-        float j = -(1+dumping)*length(vrel)/(1 + dot(normal, (getBodyInertiaTensorInv()*cross(cross(ra, normal), ra))));
+        float j = -(1+dumping)*length(vrel)/(1/m_mass + dot(normal, (getBodyInertiaTensorInv()*cross(cross(ra, normal), ra)))); // Shouldn't this be: float j = -(1+dumping)*length(vrel)/(1/m_mass + dot(normal, cross(getBodyInertiaTensorInv()*cross(ra, normal), ra)));
         //printf("vrel: %f %f %f j: %f\n", vrel.x, vrel.y, vrel.z, j);
-        vec3 impulse = j * glm::vec3(0, -1, 0);
+        vec3 impulse = j * glm::vec3(0, -1, 0); // Shouldn't this be: vec3 impulse = j * normal
         m_linearMomentum = m_linearMomentum + impulse;
         
-        vec3 torqueImpulse = cross(ra - getCenterOfMass(), impulse);
+        vec3 torqueImpulse = cross(ra - m_position, impulse); // Shouldn't this be: vec3 torqueImpulse = cross(ra, impulse);
         m_angularMomentum = m_angularMomentum + torqueImpulse;
     }
     
@@ -128,9 +133,5 @@ void RigidBody::update(float dt) {
 }
 
 glm::mat3 RigidBody::getBodyInertiaTensorInv() const {
-    return glm::diagonal3x3(glm::vec3(2.0f/5.0f));
-}
-
-glm::vec3 RigidBody::getCenterOfMass() const {
-    return m_position;
+    return glm::diagonal3x3(glm::vec3(2.0f/5.0f)); // Shouldn't this be: return glm::diagonal3x3(glm::vec3(5.0f/2.0f)); because its the inverse.
 }

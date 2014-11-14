@@ -18,7 +18,6 @@ private:
     
     // constant values
     virtual mat3 getBodyInertiaTensorInv() const;  // Override for all rigid bodies: depends on shape
-    virtual vec3 getCenterOfMass() const;          // Override for all rigid bodies: depends on shape
     float m_mass;  // mass
     
     // state

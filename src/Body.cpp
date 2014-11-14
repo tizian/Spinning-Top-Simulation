@@ -38,7 +38,7 @@ void Body::setPosition(const glm::vec3 & position) {
 }
 
 void Body::setOrientation(const glm::quat & orientation) {
-	m_orientation = orientation;
+	m_orientation = normalize(orientation);
 }
 
 void Body::setScale(const glm::vec3 & scale) {
