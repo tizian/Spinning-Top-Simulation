@@ -59,7 +59,7 @@ void addTorque() {
 
 int main()
 {
-    clock_t begin = clock();
+    time_t begin = time(0);
     
 	setupContext();
 	Assets::init();
@@ -212,8 +212,9 @@ int main()
 
 	Assets::destroy();
 	destroyContext();
-    clock_t endtime = clock();
-    printf("The program ran for %f seconds.\n", double(endtime-begin) / CLOCKS_PER_SEC);
+    time_t endtime = time(0);
+    
+    printf("The program ran for %d seconds.\n", (int)difftime(endtime, begin));
 	return 0;
 }
 
