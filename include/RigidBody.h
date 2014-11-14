@@ -34,4 +34,6 @@ private:
     // computed quantities
     vec3 m_force;               // F(t)
     vec3 m_torque;              // tau(t)
+    
+    float distanceToGround();
 };
