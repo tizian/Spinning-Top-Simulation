@@ -16,16 +16,16 @@ public:
 	Shader() {};
 	Shader(const std::string & vertexShaderPath, const std::string & fragmentShaderPath);
 
-	GLint getAttribute(const std::string & name) const;
+	// GLint getAttribute(const std::string & name) const;
     
-    void setUniform(const std::string & name, float x, float y, float z);
-    void setUniform(const std::string & name, const glm::vec3 & v);
-    void setUniform(const std::string & name, const glm::vec4 & v);
-    void setUniform(const std::string & name, const glm::mat3 & m);
-    void setUniform(const std::string & name, const glm::mat4 & m);
-    void setUniform(const std::string & name, float val);
-    void setUniform(const std::string & name, int val);
-    void setUniform(const std::string & name, bool val);
+    static void setUniform(const std::string & name, float x, float y, float z);
+    static void setUniform(const std::string & name, const glm::vec3 & v);
+    static void setUniform(const std::string & name, const glm::vec4 & v);
+    static void setUniform(const std::string & name, const glm::mat3 & m);
+    static void setUniform(const std::string & name, const glm::mat4 & m);
+    static void setUniform(const std::string & name, float val);
+    static void setUniform(const std::string & name, int val);
+    static void setUniform(const std::string & name, bool val);
     
     GLint getProgramID() const;
 
@@ -34,6 +34,8 @@ public:
 	void destroy();
 
 private:
+    static GLint activeProgramID;
+    
 	char * readFile(const std::string & filename);
 	bool compiledStatus(GLint shaderID);
 	bool linkedStatus(GLint programID);
@@ -41,7 +43,7 @@ private:
 	GLint compileShader(const char * shaderSource, GLenum shaderType);
 	GLint linkShaderProgram(GLint vertexShaderID, GLint fragmentShaderID);
     
-    GLint getUniform(const std::string & name) const;
+    static GLint getUniform(const std::string & name);
     
     GLint m_programID;
 };

@@ -110,8 +110,25 @@ int main()
         
 		glViewport(0, 0, width, height);
 
-        plane.render(&Assets::textureShader);
+        Assets::textureShader.use();
+        
+        testLight.setUniforms();
+        Shader::setUniform("viewMatrix", camera.view());
+        Shader::setUniform("projectionMatrix", camera.projection());
+        Shader::setUniform("cameraPosition", camera.getPosition());
+        
         sphere.render(&Assets::textureShader);
+        
+        Assets::phongShader.use();
+        
+        testLight.setUniforms();
+        Shader::setUniform("viewMatrix", camera.view());
+        Shader::setUniform("projectionMatrix", camera.projection());
+        Shader::setUniform("cameraPosition", camera.getPosition());
+        
+        plane.render(&Assets::textureShader);
+        
+        testLight.setUniforms();
         
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -220,14 +237,7 @@ int main()
             //printf("Camera position: %f %f %f", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
             camera.move(camOffset);
         }
-        
-        Assets::textureShader.use();
-        testLight.setUniforms(&Assets::textureShader);
-        
-        Assets::textureShader.setUniform("viewMatrix", camera.view());
-        Assets::textureShader.setUniform("projectionMatrix", camera.projection());
-        Assets::textureShader.setUniform("cameraPosition", camera.getPosition());
-        
+
         camMoved = false;
 	}
 

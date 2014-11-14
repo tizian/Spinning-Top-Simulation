@@ -20,7 +20,7 @@ public:
     glm::vec3 getColor() const;
 
 	// Sets appropriate uniform values for the given shader program
-	void setUniforms(Shader * shader);
+	void setUniforms();
 
 private:
 	glm::vec3 m_position;

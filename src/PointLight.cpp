@@ -34,8 +34,7 @@ glm::vec3 PointLight::getColor() const {
 	return m_color;
 }
 
-void PointLight::setUniforms(Shader * shader) {
-	shader->use();
-    shader->setUniform("light.position", m_position);
-    shader->setUniform("light.color", m_color);
+void PointLight::setUniforms() {
+    Shader::setUniform("light.position", m_position);
+    Shader::setUniform("light.color", m_color);
 }

@@ -1,5 +1,6 @@
 #include "Shader.h"
 
+GLint Shader::activeProgramID = 0;
 
 Shader::Shader(const std::string & vertexShaderPath, const std::string & fragmentShaderPath) {
 	char * vertexCode = readFile(vertexShaderPath);
@@ -99,27 +100,27 @@ GLint Shader::linkShaderProgram(GLint vertexShaderID, GLint fragmentShaderID) {
 	return -1;
 }
 
-GLint Shader::getAttribute(const std::string & name) const {
-	if (name.empty()) {
-		printf("Could not find attrib location: Invalid name.\n");
-		exit(-1);
-	}
+//GLint Shader::getAttribute(const std::string & name) const {
+//	if (name.empty()) {
+//		printf("Could not find attrib location: Invalid name.\n");
+//		exit(-1);
+//	}
+//
+//	GLint attrib = glGetAttribLocation(m_programID, name.c_str());
+//	if (attrib == -1) {
+//		printf("Could not get attrib location with name: %s.\n", name.c_str());
+//		exit(-1);
+//	}
+//	return attrib;
+//}
 
-	GLint attrib = glGetAttribLocation(m_programID, name.c_str());
-	if (attrib == -1) {
-		printf("Could not get attrib location with name: %s.\n", name.c_str());
-		exit(-1);
-	}
-	return attrib;
-}
-
-GLint Shader::getUniform(const std::string & name) const {
+GLint Shader::getUniform(const std::string & name) {
 	if (name.empty()) {
 		printf("Could not find uniform location: Invalid name.\n");
 		exit(-1);
 	}
 
-	GLint uniform = glGetUniformLocation(m_programID, name.c_str());
+	GLint uniform = glGetUniformLocation(activeProgramID, name.c_str());
 	if (uniform == -1) {
 		printf("Could not get uniform location with name: %s.\n", name.c_str());
 		exit(-1);
@@ -189,6 +190,7 @@ GLint Shader::getProgramID() const {
 
 void Shader::use() {
 	glUseProgram(m_programID);
+    activeProgramID = m_programID;
 }
 
 void Shader::destroy(void) {

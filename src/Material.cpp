@@ -58,10 +58,9 @@ float Material::getShininess() const {
 	return m_shininess;
 }
 
-void Material::setUniforms(Shader * shader) {
-	shader->use();
-    shader->setUniform("material.Ks", m_Ks);
-    shader->setUniform("material.Kd", m_Kd);
-    shader->setUniform("material.Ka", m_Ka);
-    shader->setUniform("material.shininess", m_shininess);
+void Material::setUniforms() {
+    Shader::setUniform("material.Ks", m_Ks);
+    Shader::setUniform("material.Kd", m_Kd);
+    Shader::setUniform("material.Ka", m_Ka);
+    Shader::setUniform("material.shininess", m_shininess);
 }
