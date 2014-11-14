@@ -1,13 +1,13 @@
-#version 150
+#version 330
 
 uniform mat4 projectionMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 
 // In: per vertex information in model space
-in vec3 vPosition;      // In: (x,y,z) position
-in vec3 vNormal;        // In: (x,y,z) normal values
-in vec2 vTexCoord;      // In: (u,v) texture coordinates
+layout(location = 0) in vec3 vPosition;      // In: (x,y,z) position
+layout(location = 1) in vec3 vNormal;        // In: (x,y,z) normal values
+layout(location = 2) in vec2 vTexCoord;      // In: (u,v) texture coordinates
 
 // Out: per fragment information
 out vec4 fPosition;		// Out: (x,y,z) position

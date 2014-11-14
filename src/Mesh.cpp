@@ -7,22 +7,13 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-Mesh::Mesh(Shader * shader, const std::string & filename) {
-	m_shader = shader;
+Mesh::Mesh(const std::string & filename) {
 	glGenVertexArrays(1, &m_vao);		// Generate a VAO
-	glGenBuffers(1, &m_vbo);			// Generate a buffer object
+	glGenBuffers(1, &m_vbo);			// Generate a VBO
 	m_vertices = m_normals = m_uvs = m_colors = NULL;
 	m_numVertices = m_numNormals = m_numUVs = m_numColors = 0;
 
 	loadFromFile(filename);
-}
-
-Mesh::Mesh(Shader * shader) {
-	m_shader = shader;
-	glGenVertexArrays(1, &m_vao);		// Generate a VAO
-	glGenBuffers(1, &m_vbo);			// Generate a buffer object
-	m_vertices = m_normals = m_uvs = m_colors = NULL;
-	m_numVertices = m_numNormals = m_numUVs = m_numColors = 0;
 }
 
 void Mesh::destroy() {
@@ -37,25 +28,21 @@ void Mesh::destroy() {
 void Mesh::setGeometry(GLfloat *vertices, int numVertices) {
 	this->m_vertices = vertices;
 	this->m_numVertices = numVertices;
-	m_vPosition = glGetAttribLocation(m_shader->getProgramID(), "vPosition");
 }
 
 void Mesh::setNormals(GLfloat *normals, int numNormals) {
 	this->m_normals = normals;
 	this->m_numNormals = numNormals;
-	m_vNormal = glGetAttribLocation(m_shader->getProgramID(), "vNormal");
-}
-
-void Mesh::setVertexColors(GLfloat *colors, int numColors) {
-	this->m_colors = colors;
-	this->m_numColors = numColors;
-	m_vColor = glGetAttribLocation(m_shader->getProgramID(), "vColor");
 }
 
 void Mesh::setTextureCoordinates(GLfloat *uvs, int numUVs) {
 	this->m_uvs = uvs;
 	this->m_numUVs = numUVs;
-	m_vTexCoord = glGetAttribLocation(m_shader->getProgramID(), "vTexCoord");
+}
+
+void Mesh::setVertexColors(GLfloat *colors, int numColors) {
+    this->m_colors = colors;
+    this->m_numColors = numColors;
 }
 
 void Mesh::loadVBO() {
@@ -101,7 +88,6 @@ void Mesh::loadVBO() {
 
 void Mesh::render() {
 	glBindVertexArray(m_vao);
-    m_shader->use();
 
 	if (m_vertices) {
 		glEnableVertexAttribArray(m_vPosition);

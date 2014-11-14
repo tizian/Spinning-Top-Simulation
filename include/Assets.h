@@ -20,12 +20,12 @@ namespace Assets {
     Material sphereMaterial;
 
 	void init() {
-		phongShader = Shader("shaders/phong_vertex.glsl", "shaders/phong_fragment.glsl");
-        textureShader = Shader("shaders/texture_vertex.glsl", "shaders/texture_fragment.glsl");
+		phongShader = Shader("shaders/phong.glslv", "shaders/phong.glslf");
+        textureShader = Shader("shaders/texturedPhong.glslv", "shaders/texturedPhong.glslf");
         
         // Sphere model with right texturecoords taken from: https://www.opengl.org/discussion_boards/showthread.php/176762-looking-for-a-simple-sphere-obj-file
-        sphere = Mesh(&textureShader, "models/sphere.obj");
-        plane = Mesh(&textureShader, "models/plane.obj");
+        sphere = Mesh("models/sphere.obj");
+        plane = Mesh("models/plane.obj");
         
         blank = Texture("textures/blank_low.png");
         checkerboard = Texture("textures/checkerboard_low.png");

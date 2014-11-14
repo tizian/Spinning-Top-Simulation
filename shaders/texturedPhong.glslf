@@ -1,4 +1,4 @@
-#version 150
+#version 330
 
 uniform vec3 cameraPosition;
 
@@ -36,20 +36,16 @@ void main() {
     vec3 specular = vec3(0.0, 0.0, 0.0);
     
     vec3 L = normalize(light.position - P);
-    float LN = clamp(dot(L, N), 0.0, 1.0);
-    
-    diffuse += light.color * material.Kd * LN;
-    
-    vec3 H = normalize(L + V);
-    float NH = dot(N, H);
-    
-    float kSpec = 0.0;
-    if (dot(N, L) > 0.0) {
-        kSpec = pow(NH, material.shininess);
+    float LN = dot(L, N);
+    if (LN >= 0.0) {
+        diffuse += light.color * material.Kd * LN;
+
+        vec3 H = normalize(L + V);
+        float NH = dot(N, H);
+        float kSpec = pow(NH, material.shininess);
+        specular += LN * light.color * material.Ks * kSpec;
     }
-    
-    specular += light.color * material.Ks * kSpec;
-    
+
     vec3 color = ambient + diffuse + specular;
     vec4 surfaceColor = texture(tex, fTexCoord);
     
