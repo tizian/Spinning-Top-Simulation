@@ -92,17 +92,21 @@ void RigidBody::update(float dt) {
         // This can't possibly be right...
         
         vec3 normal = vec3(0, 1, 0);
-        vec3 ra = vec3(m_position.x, 0, m_position.z) - (m_position + vec3(0, -1, 0)); // Shouldn't this be: ra = vec3(0, -m_position.y, 0);
-        vec3 vrel = m_linearMomentum / m_mass;
+        float vrel = dot(vec3(0, 1, 0), m_linearMomentum / m_mass);
+
+        // Colliding contact
         
-        float dumping = 0.3;
-        float j = -(1+dumping)*length(vrel)/(1/m_mass + dot(normal, (getBodyInertiaTensorInv()*cross(cross(ra, normal), ra)))); // Shouldn't this be: float j = -(1+dumping)*length(vrel)/(1/m_mass + dot(normal, cross(getBodyInertiaTensorInv()*cross(ra, normal), ra)));
+        vec3 ra = vec3(0, -1, 0);   // for this special case. General: ra = p - x(t)
+        
+        float damping = 0.3;
+        float j = -(1+damping)*vrel/(1/m_mass + dot(normal, cross(getBodyInertiaTensorInv()*cross(ra, normal), ra)));
         //printf("vrel: %f %f %f j: %f\n", vrel.x, vrel.y, vrel.z, j);
-        vec3 impulse = j * glm::vec3(0, -1, 0); // Shouldn't this be: vec3 impulse = j * normal
+        vec3 impulse = j * glm::vec3(0, 1, 0);
         m_linearMomentum = m_linearMomentum + impulse;
         
-        vec3 torqueImpulse = cross(ra - m_position, impulse); // Shouldn't this be: vec3 torqueImpulse = cross(ra, impulse);
+        vec3 torqueImpulse = cross(ra, impulse); // Shouldn't this be: vec3 torqueImpulse = cross(ra, impulse);
         m_angularMomentum = m_angularMomentum + torqueImpulse;
+
     }
     
     m_linearMomentum = m_linearMomentum + dt * m_force;                                                 // P(t) = P(t) + dt * F(t)
@@ -133,5 +137,5 @@ void RigidBody::update(float dt) {
 }
 
 glm::mat3 RigidBody::getBodyInertiaTensorInv() const {
-    return glm::diagonal3x3(glm::vec3(2.0f/5.0f)); // Shouldn't this be: return glm::diagonal3x3(glm::vec3(5.0f/2.0f)); because its the inverse.
+    return glm::diagonal3x3(glm::vec3(5.0f/2.0f));
 }
