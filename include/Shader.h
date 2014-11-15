@@ -18,6 +18,8 @@ public:
 
 	// GLint getAttribute(const std::string & name) const;
     
+    static GLint getActiveProgramID() { return activeProgramID; }
+    
     static void setUniform(const std::string & name, float x, float y, float z);
     static void setUniform(const std::string & name, const glm::vec3 & v);
     static void setUniform(const std::string & name, const glm::vec4 & v);

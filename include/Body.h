@@ -50,7 +50,7 @@ public:
 	glm::mat4 model() const;
 
 	// Renders the Model
-	void render(Shader * shader);
+	void render(bool shadow);
     
     // Updates the object
     virtual void update(float dt);

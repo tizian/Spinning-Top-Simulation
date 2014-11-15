@@ -73,11 +73,15 @@ int main()
 	glCullFace (GL_BACK); // cull back face
 	glFrontFace (GL_CCW); // GL_CCW for counter clock-wise
     
+    // BLENDING
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
     plane = Body(glm::vec3(0, 0, 0));
     plane.setScale(glm::vec3(10, 1, 10));
     plane.setMesh(&Assets::plane);
     plane.setMaterial(&Assets::planeMaterial);
-    plane.setTexture(&Assets::blank);
+    // plane.setTexture(&Assets::blank);
     
     resetSphere();
 
@@ -117,7 +121,7 @@ int main()
         Shader::setUniform("projectionMatrix", camera.projection());
         Shader::setUniform("cameraPosition", camera.getPosition());
         
-        sphere.render(&Assets::textureShader);
+        sphere.render(false);
         
         Assets::phongShader.use();
         
@@ -126,9 +130,26 @@ int main()
         Shader::setUniform("projectionMatrix", camera.projection());
         Shader::setUniform("cameraPosition", camera.getPosition());
         
-        plane.render(&Assets::textureShader);
+        plane.render(false);
         
-        testLight.setUniforms();
+        
+        Assets::shadowShader.use();
+        glPolygonOffset(0, -1);
+        
+        glm::vec3 l = testLight.getPosition();
+        glm::mat4 planeMatrix = glm::mat4();
+        planeMatrix[0] = glm::vec4(l.y, 0, 0, 0);
+        planeMatrix[1] = glm::vec4(-l.x, 0, -l.z, -1);
+        planeMatrix[2] = glm::vec4(0, 0, l.y, 0);
+        planeMatrix[3] = glm::vec4(0, 0, 0, l.y);
+        
+        Shader::setUniform("shadowColor", glm::vec4(0, 0, 0, 0.6));
+        Shader::setUniform("viewMatrix", camera.view());
+        Shader::setUniform("projectionMatrix", camera.projection());
+        Shader::setUniform("planeMatrix", planeMatrix);
+        
+        sphere.render(true);
+        
         
 		glfwSwapBuffers(window);
 		glfwPollEvents();

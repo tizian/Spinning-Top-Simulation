@@ -9,11 +9,12 @@ namespace Assets {
 
 	Shader phongShader;
     Shader textureShader;
+    Shader shadowShader;
 
     Mesh sphere;
     Mesh plane;
     
-    Texture blank;
+    // Texture blank;
     Texture checkerboard;
     
     Material planeMaterial;
@@ -22,12 +23,13 @@ namespace Assets {
 	void init() {
 		phongShader = Shader("shaders/phong.glslv", "shaders/phong.glslf");
         textureShader = Shader("shaders/texturedPhong.glslv", "shaders/texturedPhong.glslf");
+        shadowShader = Shader("shaders/planarShadows.glslv", "shaders/planarShadows.glslf");
         
         // Sphere model with right texturecoords taken from: https://www.opengl.org/discussion_boards/showthread.php/176762-looking-for-a-simple-sphere-obj-file
         sphere = Mesh("models/sphere.obj");
         plane = Mesh("models/plane.obj");
         
-        blank = Texture("textures/blank_low.png");
+        // blank = Texture("textures/blank_low.png");
         checkerboard = Texture("textures/checkerboard_low.png");
         
         planeMaterial = Material(glm::vec3(0.16, 0.55, 0.16));     // green-ish
