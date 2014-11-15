@@ -49,7 +49,7 @@ void resetSphere() {
     sphere.setMaterial(&Assets::sphereMaterial);
     sphere.setTexture(&Assets::checkerboard);
     
-    sphere.setOrientation(glm::quat_cast(glm::rotate(0.3f, glm::vec3(0.9, 1, 0.9))));
+    //sphere.setOrientation(glm::quat_cast(glm::rotate(0.3f, glm::vec3(0.9, 1, 0.9))));
 }
 
 void addTorque() {
@@ -172,21 +172,23 @@ int main()
         }
         
         if (glfwGetKey(window, GLFW_KEY_U)) {
-            sphere.addForce(glm::vec3(0, 0, -10), sphere.getPosition() + glm::vec3(0, 1, 0));
+            sphere.addForce(glm::vec3(0, 0, -10), sphere.getPosition()/* + glm::vec3(0, 1, 0)*/);
         }
         if (glfwGetKey(window, GLFW_KEY_H)) {
-            sphere.addForce(glm::vec3(-10, 0, 0), sphere.getPosition() + glm::vec3(0, 1, 0));
+            sphere.addForce(glm::vec3(-10, 0, 0), sphere.getPosition()/* + glm::vec3(0, 1, 0)*/);
         }
         if (glfwGetKey(window, GLFW_KEY_J)) {
-            sphere.addForce(glm::vec3(0, 0, 10), sphere.getPosition() + glm::vec3(0, 1, 0));
+            sphere.addForce(glm::vec3(0, 0, 10), sphere.getPosition()/* + glm::vec3(0, 1, 0)*/);
         }
         if (glfwGetKey(window, GLFW_KEY_K)) {
-            sphere.addForce(glm::vec3(10, 0, 0), sphere.getPosition() + glm::vec3(0, 1, 0));
+            sphere.addForce(glm::vec3(10, 0, 0), sphere.getPosition()/* + glm::vec3(0, 1, 0)*/);
         }
         if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
-            sphere.addForce(glm::vec3(0, 20, 0), sphere.getPosition() + glm::vec3(0, 1, 0));
+            sphere.addForce(glm::vec3(0, 20, 0), sphere.getPosition()/* + glm::vec3(0, 1, 0)*/);
         }
-        
+        if (glfwGetKey(window, GLFW_KEY_I)) {
+            sphere.addForce(glm::vec3(5, 0, 0), sphere.getPosition() + glm::vec3(0, 1, 0));
+        }
 		
 		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
 			camera.moveUpDown(-camSpeed * deltaTime);

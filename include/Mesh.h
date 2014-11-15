@@ -17,6 +17,9 @@ public:
 	void setVertexColors(GLfloat * colors, int numColors);
 	void setTextureCoordinates(GLfloat * uvs, int numUVs);
 
+    GLfloat * getVertices();
+    GLuint getNumVertices();
+    
 	void loadFromFile(const std::string & filename);
 	void loadVBO();
 	void render();

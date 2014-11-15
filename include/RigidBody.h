@@ -2,6 +2,8 @@
 
 #include "Body.h"
 
+#include <vector>
+
 class RigidBody : public Body {
 public:
     RigidBody(const vec3 & position, const quat & orientation, const vec3 & scale);
@@ -35,4 +37,5 @@ private:
     vec3 m_torque;              // tau(t)
     
     float distanceToGround();
+    std::vector<vec3> intersectWithGround();
 };

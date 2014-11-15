@@ -46,9 +46,42 @@ void RigidBody::addForce(const vec3 force, const vec3 position) {
     m_torque += taui;  // Add torque: but depends on location of force... ?
 }
 
+// assume ground at (x, 0, z)
 float RigidBody::distanceToGround()
 {
-    return m_position.y - 1.f;
+    GLfloat dist = MAXFLOAT;
+    GLfloat * vertices = m_mesh->getVertices();
+
+    for (int i = 1; i < m_mesh->getNumVertices(); i += 3)
+    {
+        if (vertices[i] < dist)
+        {
+            dist = vertices[i];
+        }
+    }
+    
+    return dist + m_position.y;
+}
+
+// assume ground at (x, 0, z)
+std::vector<vec3> RigidBody::intersectWithGround()
+{
+    std::vector<vec3> points = std::vector<vec3>();
+    
+    GLfloat * vertices = m_mesh->getVertices();
+    for (int i = 1; i < m_mesh->getNumVertices(); i += 3)
+    {
+        if (vertices[i] + m_position.y <= 0)
+        {
+            vec3 candidate = vec3(vertices[i-1] + m_position.x, vertices[i] + m_position.y, vertices[i+1] + m_position.z);
+            if (std::find(points.begin(), points.end(), candidate) == points.end())
+            {
+                points.push_back(candidate);
+            }
+        }
+    }
+    
+    return points;
 }
 
 void RigidBody::update(float dt) {
@@ -87,26 +120,35 @@ void RigidBody::update(float dt) {
         // Hardcode avoid overshooting and undershooting
         m_position.y -= distanceToGround();
         
-        // collision response
-        // add reflecting force by impulse
-        // This can't possibly be right...
+        std::vector<vec3> collisionPoints = intersectWithGround();
+        //printf("collisionPoints.size: %lu\n", collisionPoints.size());
+        for (int i = 0; i < collisionPoints.size(); i++)
+        {
+            //printf("collision point: %f %f %f\n", collisionPoints[i].x, collisionPoints[i].y, collisionPoints[i].z);
+            // collision response
+            // add reflecting force by impulse
+            // This can't possibly be right...
         
-        vec3 normal = vec3(0, 1, 0);
-        float vrel = dot(vec3(0, 1, 0), m_linearMomentum / m_mass);
+            vec3 normal = vec3(0, 1, 0);
+            float vrel = dot(vec3(0, 1, 0), m_linearMomentum / m_mass);
 
-        // Colliding contact
+            // Colliding contact
         
-        vec3 ra = vec3(0, -1, 0);   // for this special case. General: ra = p - x(t)
+            vec3 ra = collisionPoints[i] - m_position;//vec3(0, -1, 0);   // for this special case. General: ra = p - x(t)
+            
+            float damping = 0.3;
+            float j = -(1+damping)*vrel/(1/m_mass + dot(normal, cross(getBodyInertiaTensorInv()*cross(ra, normal), ra)));
+            //printf("vrel: %f %f %f j: %f\n", vrel.x, vrel.y, vrel.z, j);
+            vec3 impulse = j * glm::vec3(0, 1, 0);
+            m_linearMomentum = m_linearMomentum + impulse;
         
-        float damping = 0.3;
-        float j = -(1+damping)*vrel/(1/m_mass + dot(normal, cross(getBodyInertiaTensorInv()*cross(ra, normal), ra)));
-        //printf("vrel: %f %f %f j: %f\n", vrel.x, vrel.y, vrel.z, j);
-        vec3 impulse = j * glm::vec3(0, 1, 0);
-        m_linearMomentum = m_linearMomentum + impulse;
-        
-        vec3 torqueImpulse = cross(ra, impulse); // Shouldn't this be: vec3 torqueImpulse = cross(ra, impulse);
-        m_angularMomentum = m_angularMomentum + torqueImpulse;
-
+            vec3 torqueImpulse = cross(ra, impulse);
+            m_angularMomentum = m_angularMomentum + torqueImpulse;
+            
+            // add friction, depend on collisionPoint[i] and on m_angularVelocity
+            vec3 particleVelocity = m_linearMomentum + cross(m_angularVelocity, ra); // http://en.wikipedia.org/wiki/Angular_velocity
+            addForce(particleVelocity * -1.f, collisionPoints[i]); // don't knwo why this works.
+        }
     }
     
     m_linearMomentum = m_linearMomentum + dt * m_force;                                                 // P(t) = P(t) + dt * F(t)

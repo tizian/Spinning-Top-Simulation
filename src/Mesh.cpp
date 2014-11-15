@@ -45,6 +45,15 @@ void Mesh::setVertexColors(GLfloat *colors, int numColors) {
     this->m_numColors = numColors;
 }
 
+GLfloat * Mesh::getVertices()
+{
+    return m_vertices;
+}
+
+GLuint Mesh::getNumVertices(){
+    return m_numVertices;
+}
+
 void Mesh::loadVBO() {
 	// Bind the vao
 	glBindVertexArray(m_vao);
@@ -168,8 +177,8 @@ void Mesh::loadFromFile(const std::string & filename) {
 	}
 	normalArray -= numTriangles*3;
 	vertexArray -= numTriangles*3;
-
-	setGeometry(vertexArray, numTriangles*3);
+    
+    setGeometry(vertexArray, numTriangles*3);
 	setNormals(normalArray, numTriangles*3);
 	if (numUvCoords > 0) {
 		setTextureCoordinates(uvArray, numTriangles*2);

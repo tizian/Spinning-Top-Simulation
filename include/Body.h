@@ -58,9 +58,10 @@ public:
 protected:
     glm::vec3 m_position; // Should be the center of mass
     glm::quat m_orientation;
+    
+    Mesh * m_mesh;
 
 private:
-	Mesh * m_mesh;
 	Material * m_material;
     Texture * m_texture;
     
