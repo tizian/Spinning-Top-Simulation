@@ -13,6 +13,8 @@ namespace Assets {
 
     Mesh sphere;
     Mesh plane;
+    Mesh spinningTop1;
+    Mesh spinningTop2;
     
     // Texture blank;
     Texture checkerboard;
@@ -28,6 +30,8 @@ namespace Assets {
         // Sphere model with right texturecoords taken from: https://www.opengl.org/discussion_boards/showthread.php/176762-looking-for-a-simple-sphere-obj-file
         sphere = Mesh("models/sphere.obj");
         plane = Mesh("models/plane.obj");
+        spinningTop1 = Mesh("models/spinningTop1.obj");
+        spinningTop2 = Mesh("models/spinningTop2.obj");
         
         // blank = Texture("textures/blank_low.png");
         checkerboard = Texture("textures/checkerboard_low.png");
