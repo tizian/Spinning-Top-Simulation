@@ -13,6 +13,6 @@ out vec4 fPosition;		// Out: (x,y,z) position
 
 void main() {
     fPosition= planeMatrix * modelMatrix * vec4(vPosition, 1.);
-    fPosition.y += 0.005;
+    fPosition.y += 0.1;//0.005; // not so nice hack to get a clean shadow
     gl_Position = projectionMatrix * viewMatrix * fPosition;
 }

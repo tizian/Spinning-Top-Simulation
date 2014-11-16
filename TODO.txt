@@ -4,10 +4,11 @@
 - (done) change m_orientation of RigidBody to quaternion.
 - (done) change repository to GIT
 - (done) loading screen (or faster loading ^^) (http://www.glfw.org/documentation.html as reference)
+- (done) More spinning top models
 
 - Shadows -> probably quite a bit of refactoring to handle multiple shaders :-/
 - fix collision handling with plane -> pixar pdf
 - ground friction -> not sure yet.
 - arbitrary mesh-mesh collision: pairwise triangle-triangle intersection tests for detection -> pixar pdf for handling the actual collisions (edge, plane vs edge, edge collisions)
 - resting contacts (maybe simplified version as ground isn't really a rigid body) -> pixar pdf
-- More spinning top models
+

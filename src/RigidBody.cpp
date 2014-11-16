@@ -49,14 +49,21 @@ void RigidBody::addForce(const vec3 force, const vec3 position) {
 // assume ground at (x, 0, z)
 float RigidBody::distanceToGround()
 {
-    GLfloat dist = MAXFLOAT;
+    GLfloat dist = MAXFLOAT - m_position.y - 1;
     GLfloat * vertices = m_mesh->getVertices();
-
-    for (int i = 1; i < m_mesh->getNumVertices(); i += 3)
+    //printf("NumVertices: %d\n", m_mesh->getNumVertices());
+    if (m_position.y < 1) // hardcoded 1 represents the max distance of a vertex to the m_position.y
     {
-        if (vertices[i] < dist)
+        mat4 theMat = mat4_cast(m_orientation);
+        for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
         {
-            dist = vertices[i];
+            vec4 tmp = theMat * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
+            //printf("x: %f y: %f z: %f\n", tmp.x, tmp.y, tmp.z);
+            if (tmp.y < dist)
+            {
+                //printf("relevant vertex: %d\n", i/3);
+                dist = tmp.y;
+            }
         }
     }
     
@@ -64,16 +71,18 @@ float RigidBody::distanceToGround()
 }
 
 // assume ground at (x, 0, z)
+// returns the colliding vertices with their world coordinates
 std::vector<vec3> RigidBody::intersectWithGround()
 {
     std::vector<vec3> points = std::vector<vec3>();
     
     GLfloat * vertices = m_mesh->getVertices();
-    for (int i = 1; i < m_mesh->getNumVertices(); i += 3)
+    for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
     {
-        if (vertices[i] + m_position.y <= 0)
+        vec4 tmp = mat4_cast(m_orientation) * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.0f);
+        if (tmp.y + m_position.y <= 0)
         {
-            vec3 candidate = vec3(vertices[i-1] + m_position.x, vertices[i] + m_position.y, vertices[i+1] + m_position.z);
+            vec3 candidate = vec3(tmp.x, tmp.y, tmp.z) + m_position;
             if (std::find(points.begin(), points.end(), candidate) == points.end())
             {
                 points.push_back(candidate);
@@ -85,6 +94,7 @@ std::vector<vec3> RigidBody::intersectWithGround()
 }
 
 void RigidBody::update(float dt) {
+    
     float realDt = dt;
     float eps = 0.000001f; // epsilon for dt and dtStep
     //printf("realDt: %f\n", realDt);
@@ -99,8 +109,9 @@ void RigidBody::update(float dt) {
     // check for ground collision and do collision response
     if (distanceToGround() < 0)
     {
+        //printf("distanceToGround: %f\n", distanceToGround());
         // Do bilinear search for the dt which leads to the collision.
-        
+
         float minDistance = 0.01;
         float dtStep = 0.5f * dt;
         while (abs(distanceToGround()) > minDistance && dtStep > eps) { // assuming the ground is at (x, 0, z)
@@ -117,23 +128,23 @@ void RigidBody::update(float dt) {
             dtStep = dtStep * 0.5f;
         }
         
-        // Hardcode avoid overshooting and undershooting
-        m_position.y -= distanceToGround();
-        
         std::vector<vec3> collisionPoints = intersectWithGround();
         //printf("collisionPoints.size: %lu\n", collisionPoints.size());
+        
+        // avoid overshooting and undershooting
+        m_position.y -= distanceToGround();
+        
         for (int i = 0; i < collisionPoints.size(); i++)
         {
             //printf("collision point: %f %f %f\n", collisionPoints[i].x, collisionPoints[i].y, collisionPoints[i].z);
             // collision response
             // add reflecting force by impulse
-            // This can't possibly be right...
-        
+            
             vec3 normal = vec3(0, 1, 0);
             float vrel = dot(vec3(0, 1, 0), m_linearMomentum / m_mass);
-
+            
             // Colliding contact
-        
+            
             vec3 ra = collisionPoints[i] - m_position;//vec3(0, -1, 0);   // for this special case. General: ra = p - x(t)
             
             float damping = 0.3;
@@ -141,13 +152,13 @@ void RigidBody::update(float dt) {
             //printf("vrel: %f %f %f j: %f\n", vrel.x, vrel.y, vrel.z, j);
             vec3 impulse = j * glm::vec3(0, 1, 0);
             m_linearMomentum = m_linearMomentum + impulse;
-        
+            
             vec3 torqueImpulse = cross(ra, impulse);
             m_angularMomentum = m_angularMomentum + torqueImpulse;
             
             // add friction, depend on collisionPoint[i] and on m_angularVelocity
             vec3 particleVelocity = m_linearMomentum + cross(m_angularVelocity, ra); // http://en.wikipedia.org/wiki/Angular_velocity
-            addForce(particleVelocity * -1.f, collisionPoints[i]); // don't knwo why this works.
+            addForce(particleVelocity * -1.f, collisionPoints[i]); // don't know why this works.
         }
     }
     

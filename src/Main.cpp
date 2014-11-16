@@ -27,6 +27,7 @@
 using namespace std;
 
 void glfwWindowResizeCallback(GLFWwindow *window, int width, int height);
+void glfwFrameBufferSizeCallback(GLFWwindow *window, int width, int height);
 
 void setupContext();
 void destroyContext();
@@ -45,7 +46,7 @@ RigidBody sphere;
 
 void resetSphere() {
     sphere = RigidBody(glm::vec3(0, 5, 0));
-    sphere.setMesh(&Assets::sphere);
+    sphere.setMesh(&Assets::spinningTop1);
     sphere.setMaterial(&Assets::sphereMaterial);
     sphere.setTexture(&Assets::checkerboard);
     
@@ -95,9 +96,6 @@ int main()
     bool camMoved = true;
 
     bool lKeyPressed = false;
-    
-    glfwGetFramebufferSize(window, &width, &height);
-    printf("Framebuffer width: %d height: %d\n", width, height);
     
 	while (!glfwWindowShouldClose(window)) {
 		// Timer
@@ -172,19 +170,19 @@ int main()
         }
         
         if (glfwGetKey(window, GLFW_KEY_U)) {
-            sphere.addForce(glm::vec3(0, 0, -10), sphere.getPosition()/* + glm::vec3(0, 1, 0)*/);
+            sphere.addForce(glm::vec3(0, 0, -10), sphere.getPosition());
         }
         if (glfwGetKey(window, GLFW_KEY_H)) {
-            sphere.addForce(glm::vec3(-10, 0, 0), sphere.getPosition()/* + glm::vec3(0, 1, 0)*/);
+            sphere.addForce(glm::vec3(-10, 0, 0), sphere.getPosition());
         }
         if (glfwGetKey(window, GLFW_KEY_J)) {
-            sphere.addForce(glm::vec3(0, 0, 10), sphere.getPosition()/* + glm::vec3(0, 1, 0)*/);
+            sphere.addForce(glm::vec3(0, 0, 10), sphere.getPosition());
         }
         if (glfwGetKey(window, GLFW_KEY_K)) {
-            sphere.addForce(glm::vec3(10, 0, 0), sphere.getPosition()/* + glm::vec3(0, 1, 0)*/);
+            sphere.addForce(glm::vec3(10, 0, 0), sphere.getPosition());
         }
         if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
-            sphere.addForce(glm::vec3(0, 20, 0), sphere.getPosition()/* + glm::vec3(0, 1, 0)*/);
+            sphere.addForce(glm::vec3(0, 20, 0), sphere.getPosition());
         }
         if (glfwGetKey(window, GLFW_KEY_I)) {
             sphere.addForce(glm::vec3(5, 0, 0), sphere.getPosition() + glm::vec3(0, 1, 0));
@@ -295,6 +293,7 @@ void setupContext() {
 	glfwMakeContextCurrent(window);
 
 	glfwSetWindowSizeCallback(window, glfwWindowResizeCallback);
+    glfwSetFramebufferSizeCallback(window, glfwFrameBufferSizeCallback);
 
 	// start GLEW extension handler
 	glewExperimental = GL_TRUE;
@@ -318,6 +317,17 @@ void destroyContext() {
 void glfwWindowResizeCallback(GLFWwindow *window, int w, int h) {
 		width = w;
 		height = h;
-
+    
+        glfwGetFramebufferSize(window, &width, &height);
+        printf("Framebuffer width: %d height: %d\n", width, height);
+    
 		camera.setAspectRatio((float)width/height);
+}
+
+void glfwFrameBufferSizeCallback(GLFWwindow* window, int w, int h)
+{
+    glfwGetFramebufferSize(window, &width, &height);
+    printf("Framebuffer width: %d height: %d\n", width, height);
+    
+    camera.setAspectRatio((float)width/height);
 }
