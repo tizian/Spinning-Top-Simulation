@@ -95,7 +95,7 @@ int main()
     plane.setScale(glm::vec3(10, 1, 10));
     plane.setMesh(&Assets::plane);
     plane.setMaterial(&Assets::planeMaterial);
-    // plane.setTexture(&Assets::blank);
+//    plane.setTexture(&Assets::checkerboard);
     
     resetSphere();
 
@@ -143,7 +143,6 @@ int main()
         
         plane.render(false);
         
-        
         Assets::shadowShader.use();
         glPolygonOffset(0, -1);
         
@@ -160,7 +159,6 @@ int main()
         Shader::setUniform("planeMatrix", planeMatrix);
         
         spinningTop.render(true);
-        
         
 		glfwSwapBuffers(window);
 		glfwPollEvents();
