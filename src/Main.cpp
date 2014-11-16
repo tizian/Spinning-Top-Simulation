@@ -42,20 +42,33 @@ GLFWwindow *window;
 Camera camera;
 
 Body plane;
-RigidBody sphere;
+RigidBody spinningTop;
+
+void reset() {
+    spinningTop = RigidBody();
+    spinningTop.setPosition(glm::vec3(0, 5, 0));
+    spinningTop.setMaterial(&Assets::sphereMaterial);
+    spinningTop.setTexture(&Assets::checkerboard);
+}
 
 void resetSphere() {
-    sphere = RigidBody(glm::vec3(0, 5, 0));
-    sphere.setMesh(&Assets::spinningTop1);
-    sphere.setMaterial(&Assets::sphereMaterial);
-    sphere.setTexture(&Assets::checkerboard);
-    
-    //sphere.setOrientation(glm::quat_cast(glm::rotate(0.3f, glm::vec3(0.9, 1, 0.9))));
+    reset();
+    spinningTop.setMesh(&Assets::sphere);
+}
+
+void resetSpinningTop1() {
+    reset();
+    spinningTop.setMesh(&Assets::spinningTop1);
+}
+
+void resetSpinningTop2() {
+    reset();
+    spinningTop.setMesh(&Assets::spinningTop2);
 }
 
 void addTorque() {
-    sphere.addForce(glm::vec3(0, 0, 10), sphere.getPosition() + glm::vec3(1, 0, 0));
-    sphere.addForce(glm::vec3(0, 0, -10), sphere.getPosition() + glm::vec3(-1, 0, 0));
+    spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition() + glm::vec3(1, 0, 0));
+    spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition() + glm::vec3(-1, 0, 0));
 }
 
 int main()
@@ -104,7 +117,7 @@ int main()
 		float deltaTime = (float) current - (float) previous;
 		previous = current;
         
-        sphere.update(deltaTime);
+        spinningTop.update(deltaTime);
         
 		// clear drawing surface
 		glClearColor(0, 0, 0, 1);
@@ -119,7 +132,7 @@ int main()
         Shader::setUniform("projectionMatrix", camera.projection());
         Shader::setUniform("cameraPosition", camera.getPosition());
         
-        sphere.render(false);
+        spinningTop.render(false);
         
         Assets::phongShader.use();
         
@@ -146,7 +159,7 @@ int main()
         Shader::setUniform("projectionMatrix", camera.projection());
         Shader::setUniform("planeMatrix", planeMatrix);
         
-        sphere.render(true);
+        spinningTop.render(true);
         
         
 		glfwSwapBuffers(window);
@@ -161,8 +174,14 @@ int main()
 		float deltaTheta = camRotSpeed * deltaTime;
 
         
-        if (glfwGetKey(window, GLFW_KEY_R)) {
+        if (glfwGetKey(window, GLFW_KEY_1)) {
             resetSphere();
+        }
+        else if (glfwGetKey(window, GLFW_KEY_2)) {
+            resetSpinningTop1();
+        }
+        else if (glfwGetKey(window, GLFW_KEY_3)) {
+            resetSpinningTop2();
         }
         
         if (glfwGetKey(window, GLFW_KEY_T)) {
@@ -170,22 +189,22 @@ int main()
         }
         
         if (glfwGetKey(window, GLFW_KEY_U)) {
-            sphere.addForce(glm::vec3(0, 0, -10), sphere.getPosition());
+            spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition());
         }
         if (glfwGetKey(window, GLFW_KEY_H)) {
-            sphere.addForce(glm::vec3(-10, 0, 0), sphere.getPosition());
+            spinningTop.addForce(glm::vec3(-10, 0, 0), spinningTop.getPosition());
         }
         if (glfwGetKey(window, GLFW_KEY_J)) {
-            sphere.addForce(glm::vec3(0, 0, 10), sphere.getPosition());
+            spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition());
         }
         if (glfwGetKey(window, GLFW_KEY_K)) {
-            sphere.addForce(glm::vec3(10, 0, 0), sphere.getPosition());
+            spinningTop.addForce(glm::vec3(10, 0, 0), spinningTop.getPosition());
         }
         if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
-            sphere.addForce(glm::vec3(0, 20, 0), sphere.getPosition());
+            spinningTop.addForce(glm::vec3(0, 20, 0), spinningTop.getPosition());
         }
         if (glfwGetKey(window, GLFW_KEY_I)) {
-            sphere.addForce(glm::vec3(5, 0, 0), sphere.getPosition() + glm::vec3(0, 1, 0));
+            spinningTop.addForce(glm::vec3(5, 0, 0), spinningTop.getPosition() + glm::vec3(0, 1, 0));
         }
 		
 		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
