@@ -6,6 +6,7 @@
 - (done) loading screen (or faster loading ^^) (http://www.glfw.org/documentation.html as reference)
 - (done) More spinning top models
 - (done) planar shadows
+- (done) st1, 2, 3 etc disappear when colliding upsidedown
 
 - ST1 tips over? (But ST3 doesn't...)
 - shadow mapping
@@ -17,7 +18,6 @@
 - pause simulation and rewind / slow motion
 - GUI with labels which buttons can be pressed and their impact
 - Sound (collision, fritcion, fade out)
-- st1, 2, 3 etc disappear when colliding upsidedown
 - st1, 2 disappear if they rotate too fast (they tip over by their own (unknown why))
 - Texturing: wood, steal, real life (st3)
 

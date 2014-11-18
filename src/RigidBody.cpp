@@ -52,8 +52,6 @@ float RigidBody::distanceToGround()
     GLfloat dist = MAXFLOAT - m_position.y - 1;
     GLfloat * vertices = m_mesh->getVertices();
     //printf("NumVertices: %d\n", m_mesh->getNumVertices());
-    if (m_position.y < 1) // hardcoded 1 represents the max distance of a vertex to the m_position.y
-    {
         mat4 theMat = mat4_cast(m_orientation);
         for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
         {
@@ -65,7 +63,6 @@ float RigidBody::distanceToGround()
                 dist = tmp.y;
             }
         }
-    }
     
     return dist + m_position.y;
 }

@@ -54,6 +54,15 @@ void reset() {
     spinningTop.setPosition(glm::vec3(0, 5, 0));
     spinningTop.setMaterial(&Assets::sphereMaterial);
     spinningTop.setTexture(&Assets::checkerboard);
+    
+    //spinningTop.setOrientation(glm::quat_cast(glm::rotate((float)M_PI, glm::vec3(1, 0, 0))));
+}
+
+void resetCamera()
+{
+    camera.setPosition(glm::vec3(0.0f, 8.f, 15.f));
+    camera.pitch(10 * M_PI / 180.0f);
+    camera.setAspectRatio((float)width/height);
 }
 
 void resetSphere() {
@@ -117,9 +126,7 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);
     printf("Framebuffer width: %d height: %d\n", width, height);
     
-	camera.setPosition(glm::vec3(0.0f, 8.f, 15.f));
-    camera.pitch(10 * M_PI / 180.0f);
-	camera.setAspectRatio((float)width/height);
+    resetCamera();
 
     PointLight testLight(glm::vec3(0, 10, 0));
 
@@ -273,6 +280,11 @@ int main()
             camera.moveLeftRight(-camSpeed * deltaTime);
             camMoved = true;
         }
+        
+        if (glfwGetKey(window, GLFW_KEY_C)) {
+            resetCamera();
+            camMoved = true;
+        }
 
         
 		if (glfwGetKey(window, GLFW_KEY_UP)) {
@@ -289,11 +301,6 @@ int main()
 		}
 		if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
 			camera.yaw(deltaTheta);
-			camMoved = true;
-		}
-        
-		if (glfwGetKey(window, GLFW_KEY_0)) {
-			camera.setPosition(glm::vec3());
 			camMoved = true;
 		}
         
