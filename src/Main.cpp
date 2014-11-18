@@ -41,6 +41,8 @@ bool fixTimestep = false;
 float camSpeed = 8.0f;
 float camRotSpeed = 100.0f * M_PI / 180.0f;
 
+bool slowMotion;
+
 GLFWwindow *window;
 Camera camera;
 
@@ -125,12 +127,17 @@ int main()
     bool camMoved = true;
 
     bool lKeyPressed = false;
+    bool xKeyPressed = false;
     
 	while (!glfwWindowShouldClose(window)) {
 		// Timer
 		static double previous = glfwGetTime();
 		double current = glfwGetTime();
 		float deltaTime = (float) current - (float) previous;
+        
+        if (slowMotion) {
+            deltaTime /= 8;
+        }
         
         if (fixTimestep)
         {
@@ -143,7 +150,6 @@ int main()
             previous = current;
             spinningTop.update(deltaTime);
         }
-        
         
 		// clear drawing surface
 		glClearColor(0, 0, 0, 1);
@@ -195,6 +201,10 @@ int main()
 
 		glm::vec3 camOffset = glm::vec3(0,0,0);
 
+        if (slowMotion) {
+            deltaTime = deltaTime * 8;
+        }
+        
 		float deltaTheta = camRotSpeed * deltaTime;
 
         
@@ -287,14 +297,17 @@ int main()
 			camMoved = true;
 		}
         
+        if (glfwGetKey(window, GLFW_KEY_X) && !xKeyPressed) {
+            xKeyPressed = true;
+            slowMotion = !slowMotion;
+        }
+        else if (!glfwGetKey(window, GLFW_KEY_X)) {
+            xKeyPressed = false;
+        }
+        
 		if (glfwGetKey(window, GLFW_KEY_L) && !lKeyPressed) {
             lKeyPressed = true;
-			if (lightFollowsCamera) {
-				lightFollowsCamera = false;
-			}
-			else {
-				lightFollowsCamera = true;
-			}
+            lightFollowsCamera = !lightFollowsCamera;
 		} else if (!glfwGetKey(window, GLFW_KEY_L))
         {
             lKeyPressed = false;
