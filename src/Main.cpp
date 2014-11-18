@@ -35,6 +35,9 @@ void destroyContext();
 static int width = 640;
 static int height = 640;
 
+float timeStep = 0.02;
+bool fixTimestep = false;
+
 float camSpeed = 8.0f;
 float camRotSpeed = 100.0f * M_PI / 180.0f;
 
@@ -109,6 +112,9 @@ int main()
     
     resetSphere();
 
+    glfwGetFramebufferSize(window, &width, &height);
+    printf("Framebuffer width: %d height: %d\n", width, height);
+    
 	camera.setPosition(glm::vec3(0.0f, 8.f, 15.f));
     camera.pitch(10 * M_PI / 180.0f);
 	camera.setAspectRatio((float)width/height);
@@ -125,9 +131,19 @@ int main()
 		static double previous = glfwGetTime();
 		double current = glfwGetTime();
 		float deltaTime = (float) current - (float) previous;
-		previous = current;
         
-        spinningTop.update(deltaTime);
+        if (fixTimestep)
+        {
+            if (deltaTime > timeStep)
+            {
+                previous = current;
+                spinningTop.update(timeStep);
+            }
+        } else {
+            previous = current;
+            spinningTop.update(deltaTime);
+        }
+        
         
 		// clear drawing surface
 		glClearColor(0, 0, 0, 1);

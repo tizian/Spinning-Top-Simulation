@@ -8,12 +8,18 @@
 - (done) planar shadows
 
 - ST1 tips over? (But ST3 doesn't...)
-- Maybe: shadow mapping
+- shadow mapping
 - fix collision handling with plane -> pixar pdf
 - ground friction -> not sure yet.
 - arbitrary mesh-mesh collision: pairwise triangle-triangle intersection tests for detection -> pixar pdf for handling the actual collisions (edge, plane vs edge, edge collisions)
 - resting contacts (maybe simplified version as ground isn't really a rigid body) -> pixar pdf
 - How does gravity really work? If it only affects the CoM, there is never any gravitational torque...
+- pause simulation and rewind / slow motion
+- GUI with labels which buttons can be pressed and their impact
+- Sound (collision, fritcion, fade out)
+- st1, 2, 3 etc disappear when colliding upsidedown
+- st1, 2 disappear if they rotate too fast (they tip over by their own (unknown why))
+- Texturing: wood, steal, real life (st3)
 
 More about angular velocity:
 http://en.wikipedia.org/wiki/Angular_velocity
