@@ -66,9 +66,19 @@ void resetSpinningTop2() {
     spinningTop.setMesh(&Assets::spinningTop2);
 }
 
+void resetSpinningTop3() {
+    reset();
+    spinningTop.setMesh(&Assets::spinningTop3);
+}
+
 void addTorque() {
     spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition() + glm::vec3(1, 0, 0));
     spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition() + glm::vec3(-1, 0, 0));
+}
+
+void addReverseTorque() {
+    spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition() + glm::vec3(1, 0, 0));
+    spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition() + glm::vec3(-1, 0, 0));
 }
 
 int main()
@@ -173,17 +183,23 @@ int main()
 
         
         if (glfwGetKey(window, GLFW_KEY_1)) {
-            resetSphere();
-        }
-        else if (glfwGetKey(window, GLFW_KEY_2)) {
             resetSpinningTop1();
         }
-        else if (glfwGetKey(window, GLFW_KEY_3)) {
+        else if (glfwGetKey(window, GLFW_KEY_2)) {
             resetSpinningTop2();
+        }
+        else if (glfwGetKey(window, GLFW_KEY_3)) {
+            resetSpinningTop3();
+        }
+        else if (glfwGetKey(window, GLFW_KEY_0)) {
+            resetSphere();
         }
         
         if (glfwGetKey(window, GLFW_KEY_T)) {
             addTorque();
+        }
+        if (glfwGetKey(window, GLFW_KEY_R)) {
+            addReverseTorque();
         }
         
         if (glfwGetKey(window, GLFW_KEY_U)) {

@@ -94,7 +94,6 @@ std::vector<vec3> RigidBody::intersectWithGround()
 }
 
 void RigidBody::update(float dt) {
-    
     float realDt = dt;
     float eps = 0.000001f; // epsilon for dt and dtStep
     //printf("realDt: %f\n", realDt);
