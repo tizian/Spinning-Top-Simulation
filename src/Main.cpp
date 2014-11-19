@@ -1,7 +1,6 @@
 #define GLM_FORCE_RADIANS
 
 #include <GL/glew.h>
-
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
@@ -61,6 +60,7 @@ void reset() {
 void resetCamera()
 {
     camera.setPosition(glm::vec3(0.0f, 8.f, 15.f));
+    camera.setOrientation(fquat(1.0,0,0,0));
     camera.pitch(10 * M_PI / 180.0f);
     camera.setAspectRatio((float)width/height);
 }
@@ -119,7 +119,6 @@ int main()
     plane.setScale(glm::vec3(10, 1, 10));
     plane.setMesh(&Assets::plane);
     plane.setMaterial(&Assets::planeMaterial);
-//    plane.setTexture(&Assets::checkerboard);
     
     resetSphere();
 
@@ -137,6 +136,7 @@ int main()
     bool xKeyPressed = false;
     
 	while (!glfwWindowShouldClose(window)) {
+        
 		// Timer
 		static double previous = glfwGetTime();
 		double current = glfwGetTime();

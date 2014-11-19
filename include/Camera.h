@@ -20,6 +20,9 @@ public:
 	// Sets camera position
 	void setPosition(const glm::vec3 & position);
 
+    // Sets camera orientation
+    void setOrientation(const glm::fquat & orientation);
+    
 	// Moves camera using world space axes
 	void move(const glm::vec3 & delta);
 

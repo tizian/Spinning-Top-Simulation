@@ -34,6 +34,12 @@ void Camera::setPosition(const glm::vec3 & position) {
 	m_position = position;
 }
 
+// Sets camera orientation
+void Camera::setOrientation(const glm::fquat & orientation)
+{
+    m_orientation = orientation;
+}
+
 void Camera::move(const glm::vec3 & delta) {
 	m_position += delta;
 }

@@ -20,6 +20,8 @@
 - Sound (collision, fritcion, fade out)
 - st1, 2 disappear if they rotate too fast (they tip over by their own (unknown why))
 - Texturing: wood, steal, real life (st3)
+- introduce state objects to allow better timesteps and rewind.
+- test big timesteps. Current implementation should be able to handle those (bisection), but probably doesn't :-/'
 
 More about angular velocity:
 http://en.wikipedia.org/wiki/Angular_velocity
