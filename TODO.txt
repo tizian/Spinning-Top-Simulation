@@ -1,12 +1,5 @@
-- (done) decrease CPU and GPU usage. Even with one simple Spinning top and the ground, quite high usage.
-- (done) Fix 'L' key
-- (done) correct normal of lower ground to make it darker
-- (done) change m_orientation of RigidBody to quaternion.
-- (done) change repository to GIT
-- (done) loading screen (or faster loading ^^) (http://www.glfw.org/documentation.html as reference)
-- (done) More spinning top models
-- (done) planar shadows
-- (done) st1, 2, 3 etc disappear when colliding upsidedown
+Todo
+----
 
 - ST1 tips over? (But ST3 doesn't...)
 - shadow mapping
@@ -14,14 +7,31 @@
 - ground friction -> not sure yet.
 - arbitrary mesh-mesh collision: pairwise triangle-triangle intersection tests for detection -> pixar pdf for handling the actual collisions (edge, plane vs edge, edge collisions)
 - resting contacts (maybe simplified version as ground isn't really a rigid body) -> pixar pdf
-- How does gravity really work? If it only affects the CoM, there is never any gravitational torque...
-- pause simulation and rewind / slow motion
+- pause simulation and rewinding
 - GUI with labels which buttons can be pressed and their impact
 - Sound (collision, fritcion, fade out)
-- st1, 2 disappear if they rotate too fast (they tip over by their own (unknown why))
-- Texturing: wood, steal, real life (st3)
+- st1, 2 disappear if they rotate too fast (they tip over on their own (unknown why))
+- Texturing: wood, steel, real life (st3)
 - introduce state objects to allow better timesteps and rewind.
-- test big timesteps. Current implementation should be able to handle those (bisection), but probably doesn't :-/'
+- test big timesteps. Current implementation should be able to handle those (bisection), but probably doesn't :-/
+- change mass to inverse mass (useful to simulate objects with infinite mass)
+
+Done
+----
+
+- decrease CPU and GPU usage. Even with one simple Spinning top and the ground, quite high usage.
+- Fix 'L' key
+- correct normal of lower ground to make it darker
+- change m_orientation of RigidBody to quaternion.
+- change repository to GIT
+- loading screen (or faster loading ^^) (http://www.glfw.org/documentation.html as reference)
+- More spinning top models
+- planar shadows
+- st1, 2, 3 etc disappear when colliding upsidedown
+- slow motion
+
+Links
+-----
 
 More about angular velocity:
 http://en.wikipedia.org/wiki/Angular_velocity

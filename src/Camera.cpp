@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "Shader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_access.hpp>
@@ -23,7 +24,6 @@ const glm::vec3 Camera::right() const {
 
 const glm::vec3 Camera::up() const {
     return glm::vec3(0, 1, 0);
-	//return glm::vec3(glm::row(rotation(), 1));
 }
 
 const glm::vec3 Camera::forward() const {
@@ -73,11 +73,6 @@ void Camera::yaw(float angle) {
 
 	m_orientation = m_orientation * rot;
 }
-//void Camera::roll(float angle) {
-//	glm::fquat rot = glm::normalize(glm::angleAxis(angle, forward()));
-//
-//	m_orientation = m_orientation * rot;
-//}
 
 glm::mat4 Camera::projection() const {
 	return glm::perspective(m_fov, m_aspect, m_nearPlane, m_farPlane);
@@ -110,4 +105,10 @@ void Camera::setAspectRatio(float aspectRatio) {
 void Camera::setNearFarPlanes(float near, float far) {
 	m_nearPlane = near;
 	m_farPlane = far;
+}
+
+void Camera::setUniforms() {
+    Shader::setUniform("viewMatrix", view());
+    Shader::setUniform("projectionMatrix", projection());
+    Shader::setUniform("cameraPosition", getPosition());
 }

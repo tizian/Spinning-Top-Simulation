@@ -97,19 +97,16 @@ glm::mat4 Body::model() const {
 	return translation() * rotation() * scale();
 }
 
-void Body::render(bool shadow) {
+void Body::render() {
     
     Shader::setUniform("modelMatrix", model());
     
-    if (!shadow) {
-        m_material->setUniforms();
-    }
+    m_material->setUniforms();
     
-    
-    if (m_texture != nullptr && !shadow) {
+    if (m_texture != nullptr) {
         m_texture->use();
-        Shader::setUniform("tex", 0);
     }
+    Shader::setUniform("tex", 0);
     
 	if (m_mesh == nullptr) {
 		printf("ERROR: Can't render ModelInstance. Mesh not set.\n");

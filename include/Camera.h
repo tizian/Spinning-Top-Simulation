@@ -58,7 +58,10 @@ public:
 	void setFieldOfView(float fieldOfView);
 	void setAspectRatio(float aspectRatio);
 	void setNearFarPlanes(float near, float far);
-
+    
+    // Sets appropriate uniform values for the given shader program
+    void setUniforms();
+    
 private:
 	glm::vec3 m_position;
 

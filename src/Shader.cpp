@@ -100,20 +100,6 @@ GLint Shader::linkShaderProgram(GLint vertexShaderID, GLint fragmentShaderID) {
 	return -1;
 }
 
-//GLint Shader::getAttribute(const std::string & name) const {
-//	if (name.empty()) {
-//		printf("Could not find attrib location: Invalid name.\n");
-//		exit(-1);
-//	}
-//
-//	GLint attrib = glGetAttribLocation(m_programID, name.c_str());
-//	if (attrib == -1) {
-//		printf("Could not get attrib location with name: %s.\n", name.c_str());
-//		exit(-1);
-//	}
-//	return attrib;
-//}
-
 GLint Shader::getUniform(const std::string & name) {
 	if (name.empty()) {
 		printf("Could not find uniform location: Invalid name.\n");
