@@ -17,6 +17,7 @@ namespace Assets {
     Mesh spinningTop1;
     Mesh spinningTop2;
     Mesh spinningTop3;
+    Mesh spinningTop4;
     
     // Texture blank;
     Texture checkerboard;
@@ -36,6 +37,7 @@ namespace Assets {
         spinningTop1 = Mesh("models/spinningTop1.obj");
         spinningTop2 = Mesh("models/spinningTop2.obj");
         spinningTop3 = Mesh("models/spinningTop3.obj");
+        spinningTop4 = Mesh("models/spinningTop4.obj");
         
         // blank = Texture("textures/blank_low.png");
         checkerboard = Texture("textures/checkerboard_low.png");

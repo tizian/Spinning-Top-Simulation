@@ -100,6 +100,11 @@ void resetSpinningTop3() {
     spinningTop.setMesh(&Assets::spinningTop3);
 }
 
+void resetSpinningTop4() {
+    reset();
+    spinningTop.setMesh(&Assets::spinningTop4);
+}
+
 void addTorque() {
     spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition() + glm::vec3(1, 0, 0));
     spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition() + glm::vec3(-1, 0, 0));
@@ -224,6 +229,9 @@ void input(float dt) {
     }
     else if (glfwGetKey(window, GLFW_KEY_3)) {
         resetSpinningTop3();
+    }
+    else if (glfwGetKey(window, GLFW_KEY_4)) {
+        resetSpinningTop4();
     }
     else if (glfwGetKey(window, GLFW_KEY_9)) {
         resetCube();
