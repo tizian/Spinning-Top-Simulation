@@ -42,6 +42,7 @@ namespace Assets {
         
         planeMaterial = Material(glm::vec3(0.16, 0.55, 0.16));     // green-ish
         sphereMaterial = Material(glm::vec3(0.25, 0.32, 0.6));      // blue-ish
+        sphereMaterial.setAmbientFactor(0.3f * sphereMaterial.getDiffuseFactor());
 	}
 
 	void destroy() {

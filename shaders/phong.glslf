@@ -28,7 +28,7 @@ void main() {
     vec3 V = normalize(cameraPosition - P);
     vec3 N = normalize(fNormal);
 
-    vec3 ambient = 1 * light.color * material.Ka;
+    vec3 ambient = light.color * material.Ka;
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
 

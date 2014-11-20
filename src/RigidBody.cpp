@@ -196,7 +196,8 @@ float RigidBody::distanceToGround()
     GLfloat dist = MAXFLOAT - m_position.y - 1;
     GLfloat * vertices = m_mesh->getVertices();
     //printf("NumVertices: %d\n", m_mesh->getNumVertices());
-    mat4 theMat = mat4_cast(m_orientation);
+//    mat4 theMat = mat4_cast(m_orientation);
+    mat4 theMat = model();
     for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
     {
         vec4 tmp = theMat * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
@@ -208,7 +209,8 @@ float RigidBody::distanceToGround()
         }
     }
     
-    return dist + m_position.y;
+//    return dist + m_position.y;
+    return dist;
 }
 
 // assume ground at (x, 0, z)
@@ -220,10 +222,13 @@ std::vector<vec3> RigidBody::intersectWithGround()
     GLfloat * vertices = m_mesh->getVertices();
     for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
     {
-        vec4 tmp = mat4_cast(m_orientation) * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.0f);
-        if (tmp.y + m_position.y <= 0)
+//        vec4 tmp = mat4_cast(m_orientation) * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.0f);
+        vec4 tmp = model() * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.0f);
+//        if (tmp.y + m_position.y <= 0)
+        if (tmp.y <= 0)
         {
-            vec3 candidate = vec3(tmp.x, tmp.y, tmp.z) + m_position;
+//            vec3 candidate = vec3(tmp.x, tmp.y, tmp.z) + m_position;
+            vec3 candidate = vec3(tmp.x, tmp.y, tmp.z);
             if (std::find(points.begin(), points.end(), candidate) == points.end())
             {
                 points.push_back(candidate);
