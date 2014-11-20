@@ -12,15 +12,19 @@ public:
     
     virtual void update(float dt);
     
+    virtual void setMesh(Mesh *mesh);
+    
     void addForce(const vec3 force);
     void addForce(const vec3 force, const vec3 position);
     
 private:
     void setDefaults();
+    void calculateInertiaTensor();
     
     // constant values
-    virtual mat3 getBodyInertiaTensorInv() const;  // Override for all rigid bodies: depends on shape
+    //virtual mat3 getBodyInertiaTensorInv() const;  // Override for all rigid bodies: depends on shape
     float m_mass;  // mass
+    mat3 m_bodyInertiaTensorInv;
     
     // state
     vec3 m_linearMomentum;      // P(t) = M * v(t)

@@ -9,6 +9,7 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "AABB.h"
 
 using namespace glm;
 
@@ -29,14 +30,16 @@ public:
     glm::quat getOrientation() const;
     glm::vec3 getScale() const;
     
-    void setMesh(Mesh * mesh);
+    virtual void setMesh(Mesh * mesh);
 	void setMaterial(Material * material);
     void setTexture(Texture * texture);
 
 	Material * getMaterial() const;
 	Mesh * getMesh() const;
     Texture * getTexture() const;
-
+    
+    AABB getBoundingBox();
+    
 	// Returns translation matrix
 	glm::mat4 translation() const;
 
@@ -55,6 +58,8 @@ public:
     // Updates the object
     virtual void update(float dt);
     
+    void calculateBoundingBox();
+    
 protected:
     glm::vec3 m_position; // Should be the center of mass
     glm::quat m_orientation;
@@ -66,4 +71,6 @@ private:
     Texture * m_texture;
     
 	glm::vec3 m_scale;
+    
+    AABB boundingBox;
 };

@@ -33,6 +33,29 @@ Body::Body() {
     m_texture = nullptr;
 }
 
+void Body::calculateBoundingBox()
+{
+    vec3 origin = vec3(0,0,0);
+    vec3 radii = vec3(0,0,0);
+    
+    if (m_mesh != nullptr)
+    {
+        GLfloat * vertices = m_mesh->getVertices();
+        
+        for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
+        {
+            vec3 vertex = vec3(vertices[i], vertices[i+1], vertices[i+2]);
+            
+            origin = vec3(min(origin.x, vertex.x), min(origin.y, vertex.y), min(origin.z, vertex.z));
+            radii = vec3(max(radii.x, vertex.x - origin.x), max(radii.y, vertex.y - origin.y), max(radii.z, vertex.z - origin.z));
+        }
+    }
+    
+    // add offset to ensure enclosure
+    boundingBox.origin = origin - vec3(0.1, 0.1, 0.1);
+    boundingBox.radii = radii + vec3(0.2, 0.2, 0.2);
+}
+
 void Body::setPosition(const glm::vec3 & position) {
 	m_position = position;
 }
@@ -51,6 +74,7 @@ void Body::setMaterial(Material * material) {
 
 void Body::setMesh(Mesh * mesh) {
     m_mesh = mesh;
+    calculateBoundingBox();
 }
 
 void Body::setTexture(Texture * texture) {
@@ -79,6 +103,10 @@ Mesh * Body::getMesh() const {
 
 Texture * Body::getTexture() const {
     return m_texture;
+}
+
+AABB Body::getBoundingBox() {
+    return boundingBox;
 }
 
 glm::mat4 Body::translation() const {
