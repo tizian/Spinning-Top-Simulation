@@ -69,7 +69,9 @@ int triangle_intersection( const vec3   V1,  // Triangle vertices
 void RigidBody::calculateInertiaTensor()
 {
     int sampleCount = 1000; // should be higher! But then we need to avoid calculating everything when 1, 2 or 3 is pressed.
-    mat3 bodyInertiaTensor = mat3({0,0,0,0,0,0,0,0,0});
+    mat3 bodyInertiaTensor = mat3({0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f});
+    
+    int realSampleCount = 0;
     
     if (m_mesh != nullptr)
     {
@@ -79,13 +81,11 @@ void RigidBody::calculateInertiaTensor()
         int numVertices = m_mesh->getNumVertices();
         GLfloat * vertices = m_mesh->getVertices();
         
-        int realSampleCount = 0;
-        
         // do monte-carlo integration by using sampleCount samples inside bounding box
         for (int i = 0; i < sampleCount; ++i)
         {
             // get sample inside boundingbox
-            vec3 sample = origin + vec3((float)rand() / (float)RAND_MAX * radii.x, (float)rand() / (float)RAND_MAX * radii.x, (float)rand() / (float)RAND_MAX * radii.x);
+            vec3 sample = origin + vec3((float)rand() / (float)RAND_MAX * radii.x, (float)rand() / (float)RAND_MAX * radii.y, (float)rand() / (float)RAND_MAX * radii.z);
             //printf("sample: %f %f %f\n", sample.x, sample.y, sample.z);
             vec3 rayOrigin = origin;
             vec3 rayDirection = sample - origin;
@@ -93,11 +93,15 @@ void RigidBody::calculateInertiaTensor()
             rayDirection /= theT;
             std::vector<float> ts = std::vector<float>();
             
+            //printf("theT: %f\n", theT);
+            
             for (int j = 0; j < numVertices; j += 9)
             {
                 vec3 vertex1 = vec3(vertices[j], vertices[j+1], vertices[j+2]);
                 vec3 vertex2 = vec3(vertices[j+3], vertices[j+4], vertices[j+5]);
                 vec3 vertex3 = vec3(vertices[j+6], vertices[j+7], vertices[j+8]);
+                
+                //printf("v1: %f %f %f\nv2: %f %f %f\nv3: %f %f %f\n");
                 
                 float t = 0;
                 
@@ -113,6 +117,7 @@ void RigidBody::calculateInertiaTensor()
             
             for (int j = 0; j < ts.size(); ++j)
             {
+                //printf("ts[%d]: %f\n", j, ts[j]);
                 if (ts[j] < theT)
                 {
                     outside = !outside;
@@ -142,7 +147,9 @@ void RigidBody::calculateInertiaTensor()
         
         printf("Hits inside object: %d\n", realSampleCount);
         
-    } else {
+    }
+    
+    if (m_mesh == nullptr || realSampleCount == 0) {
         bodyInertiaTensor = glm::diagonal3x3(glm::vec3(2.0f/5.0f));
     }
     
