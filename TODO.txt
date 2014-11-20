@@ -15,6 +15,8 @@ Todo
 - introduce state objects to allow better timesteps and rewind.
 - test big timesteps. Current implementation should be able to handle those (bisection), but probably doesn't :-/
 - change mass to inverse mass (useful to simulate objects with infinite mass)
+- create array / vector of all spinning tops at the beginning. Calculate inertia tensor (this is setMesh() only once) etc. Idealy save these inertia tensors as files and reload them the next time. Calculating a good inertia tensor takes more than 5 seconds.
+- check if timestep calculation from http://gafferongames.com/game-physics/fix-your-timestep/ gives better results. If yes -> implement
 
 Done
 ----

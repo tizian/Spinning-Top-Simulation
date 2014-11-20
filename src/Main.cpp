@@ -42,6 +42,7 @@ bool fixTimestep = false;
 float camSpeed = 8.0f;
 float camRotSpeed = 100.0f * M_PI / 180.0f;
 
+// slow motion does not work for fixed time steps. (That's fine!)
 bool slowMotion;
 
 bool lightFollowsCamera = false;
@@ -149,6 +150,7 @@ int main()
 		static double previous = glfwGetTime();
 		double current = glfwGetTime();
 		float deltaTime = (float) current - (float) previous;
+        previous = current;
         
         if (slowMotion) {
             deltaTime /= 8;
@@ -156,13 +158,8 @@ int main()
         
         if (fixTimestep)
         {
-            if (deltaTime > timeStep)
-            {
-                previous = current;
-                spinningTop.update(timeStep);
-            }
+            spinningTop.update(timeStep);
         } else {
-            previous = current;
             spinningTop.update(deltaTime);
         }
         
