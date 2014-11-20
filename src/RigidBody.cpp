@@ -5,6 +5,8 @@
 
 #include <algorithm>
 
+vec3 maxAngularVelocity = vec3(1,1,1) * 100000000.f; // 100 000 000 is an arbitrary but resonable limit to avoid nan
+
 mat3 star(const vec3 v) {
     glm::mat3 m = glm::mat3();
     m[0] = glm::vec3(0, v.z, -v.y);
@@ -177,10 +179,17 @@ void RigidBody::setDefaults() {
     m_torque = vec3(0, 0, 0);
 }
 
+void RigidBody::printState()
+{
+    printf("m_position: %f %f %f\n", m_position.x, m_position.y, m_position.z);
+    printf("m_orientation: %f %f %f %f\n", m_orientation.w, m_orientation.x, m_orientation.y, m_orientation.z);
+    printf("m_angularVelocity: %f %f %f\n", m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);
+}
+
 void RigidBody::setMesh(Mesh *mesh) {
     Body::setMesh(mesh);
     calculateInertiaTensor();
-    printf("body inertia tensor inv:\n\t%f %f %f\n\t%f %f %f\n\t%f %f %f\n", m_bodyInertiaTensorInv[0][0], m_bodyInertiaTensorInv[0][1], m_bodyInertiaTensorInv[0][2], m_bodyInertiaTensorInv[1][0], m_bodyInertiaTensorInv[1][1], m_bodyInertiaTensorInv[1][2], m_bodyInertiaTensorInv[2][0], m_bodyInertiaTensorInv[2][1], m_bodyInertiaTensorInv[2][2]);
+    //printf("body inertia tensor inv:\n\t%f %f %f\n\t%f %f %f\n\t%f %f %f\n", m_bodyInertiaTensorInv[0][0], m_bodyInertiaTensorInv[0][1], m_bodyInertiaTensorInv[0][2], m_bodyInertiaTensorInv[1][0], m_bodyInertiaTensorInv[1][1], m_bodyInertiaTensorInv[1][2], m_bodyInertiaTensorInv[2][0], m_bodyInertiaTensorInv[2][1], m_bodyInertiaTensorInv[2][2]);
 }
 
 void RigidBody::addForce(const vec3 force) {
@@ -191,19 +200,17 @@ void RigidBody::addForce(const vec3 force, const vec3 position) {
     // PBS slides
     m_force += force;
     vec3 taui = glm::cross(position - m_position, force);
-    /*if (taui.x != 0.0f) {
-     printf("position: %f %f %f m_position: %f %f %f force: %f %f %f taui: %f %f %f\n", position.x, position.y, position.z, m_position.x, m_position.y, m_position.z, force.x, force.y, force.z, taui.x, taui.y, taui.z);
-     }*/
+
     m_torque += taui;  // Add torque: but depends on location of force... ?
 }
 
 // assume ground at (x, 0, z)
 float RigidBody::distanceToGround()
 {
-    GLfloat dist = MAXFLOAT - m_position.y - 1;
+    GLfloat dist = MAXFLOAT;
     GLfloat * vertices = m_mesh->getVertices();
     //printf("NumVertices: %d\n", m_mesh->getNumVertices());
-//    mat4 theMat = mat4_cast(m_orientation);
+    
     mat4 theMat = model();
     for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
     {
@@ -216,7 +223,6 @@ float RigidBody::distanceToGround()
         }
     }
     
-//    return dist + m_position.y;
     return dist;
 }
 
@@ -229,12 +235,10 @@ std::vector<vec3> RigidBody::intersectWithGround()
     GLfloat * vertices = m_mesh->getVertices();
     for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
     {
-//        vec4 tmp = mat4_cast(m_orientation) * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.0f);
         vec4 tmp = model() * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.0f);
-//        if (tmp.y + m_position.y <= 0)
+
         if (tmp.y <= 0)
         {
-//            vec3 candidate = vec3(tmp.x, tmp.y, tmp.z) + m_position;
             vec3 candidate = vec3(tmp.x, tmp.y, tmp.z);
             if (std::find(points.begin(), points.end(), candidate) == points.end())
             {
@@ -314,15 +318,15 @@ void RigidBody::update(float dt) {
         }
     }
     
-    m_linearMomentum = m_linearMomentum + dt * m_force;                                                 // P(t) = P(t) + dt * F(t)
+    m_linearMomentum = m_linearMomentum + dt * m_force;                                                                     // P(t) = P(t) + dt * F(t)
     
-    quat omega = quat(1.0, m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);              // Convert omega(t) to a quaternion to do rotation
-    m_orientation = m_orientation + 0.5f * dt * omega * m_orientation;                                  // q(t) = q(t) + dt * 1/2 * omega(t) * q(t)
+    quat omega = quat(1.0, m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);                                  // Convert omega(t) to a quaternion to do rotation
+    m_orientation = m_orientation + 0.5f * dt * omega * m_orientation;                                                      // q(t) = q(t) + dt * 1/2 * omega(t) * q(t)
     
-    m_rotationMatrix = mat3(mat3_cast(m_orientation));                                                  // convert quaternion q(t) to matrix R(t)
-    m_angularMomentum = m_angularMomentum + dt * m_torque;                                              // L(t) = L(t) + dt * tau(t)
-    m_inertiaTensorInv = m_rotationMatrix * m_bodyInertiaTensorInv * transpose(m_rotationMatrix);       // I(t)^-1 = R(t) * I_body^-1 * R(t)'
-    m_angularVelocity = m_inertiaTensorInv * m_angularMomentum;                                         // omega(t) = I(t)^-1 * L(t)
+    m_rotationMatrix = mat3(mat3_cast(m_orientation));                                                                      // convert quaternion q(t) to matrix R(t)
+    m_angularMomentum = m_angularMomentum + dt * m_torque;                                                                  // L(t) = L(t) + dt * tau(t)
+    m_inertiaTensorInv = m_rotationMatrix * m_bodyInertiaTensorInv * transpose(m_rotationMatrix);                           // I(t)^-1 = R(t) * I_body^-1 * R(t)'
+    m_angularVelocity = min(max(m_inertiaTensorInv * m_angularMomentum, -1.f * maxAngularVelocity), maxAngularVelocity);    // omega(t) = I(t)^-1 * L(t)
     
     // Reset forces and torque
     m_force = glm::vec3(0, 0, 0);
@@ -339,4 +343,6 @@ void RigidBody::update(float dt) {
         // For now only the time till collision was done.
         update(realDt - dt);
     }
+    
+    //printState();
 }

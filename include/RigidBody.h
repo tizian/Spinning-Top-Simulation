@@ -21,6 +21,8 @@ private:
     void setDefaults();
     void calculateInertiaTensor();
     
+    void printState();
+    
     // constant values
     //virtual mat3 getBodyInertiaTensorInv() const;  // Override for all rigid bodies: depends on shape
     float m_mass;  // mass

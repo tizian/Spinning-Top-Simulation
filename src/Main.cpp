@@ -161,6 +161,7 @@ int main()
             deltaTime /= 8;
         }
         
+        //printf("update call\n");
         if (fixTimestep)
         {
             spinningTop.update(timeStep);
