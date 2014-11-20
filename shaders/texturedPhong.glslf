@@ -2,8 +2,6 @@
 
 uniform vec3 cameraPosition;
 
-uniform mat4 viewMatrix;
-
 uniform struct Material {
     vec3 Ks;
     vec3 Kd;

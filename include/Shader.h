@@ -15,8 +15,6 @@ class Shader
 public:
 	Shader() {};
 	Shader(const std::string & vertexShaderPath, const std::string & fragmentShaderPath);
-
-	// GLint getAttribute(const std::string & name) const;
     
     static GLint getActiveProgramID() { return activeProgramID; }
     

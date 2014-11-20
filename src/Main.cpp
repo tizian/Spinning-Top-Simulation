@@ -18,7 +18,6 @@
 #include "Shader.h"
 #include "Body.h"
 #include "Mesh.h"
-#include "Color.h"
 #include "PointLight.h"
 #include "Material.h"
 #include "RigidBody.h"
@@ -31,6 +30,9 @@ void glfwFrameBufferSizeCallback(GLFWwindow *window, int width, int height);
 void setupContext();
 void destroyContext();
 
+void render();
+void input(float dt);
+
 static int width = 640;
 static int height = 640;
 
@@ -42,8 +44,15 @@ float camRotSpeed = 100.0f * M_PI / 180.0f;
 
 bool slowMotion;
 
+bool lightFollowsCamera = false;
+
+bool lKeyPressed = false;
+bool xKeyPressed = false;
+
 GLFWwindow *window;
+
 Camera camera;
+PointLight light;
 
 Body plane;
 RigidBody spinningTop;
@@ -54,7 +63,7 @@ void reset() {
     spinningTop.setMaterial(&Assets::sphereMaterial);
     spinningTop.setTexture(&Assets::checkerboard);
     
-    //spinningTop.setOrientation(glm::quat_cast(glm::rotate((float)M_PI, glm::vec3(1, 0, 0))));
+    //spinningTop.setOrientation(glm::quat_cast(glm::rotate((float)M_PI_2, glm::vec3(1, 0, 0))));
 }
 
 void resetCamera()
@@ -68,6 +77,11 @@ void resetCamera()
 void resetSphere() {
     reset();
     spinningTop.setMesh(&Assets::sphere);
+}
+
+void resetCube() {
+    reset();
+    spinningTop.setMesh(&Assets::cube);
 }
 
 void resetSpinningTop1() {
@@ -127,13 +141,7 @@ int main()
     
     resetCamera();
 
-    PointLight testLight(glm::vec3(0, 10, 0));
-
-	bool lightFollowsCamera = false;
-    bool camMoved = true;
-
-    bool lKeyPressed = false;
-    bool xKeyPressed = false;
+    light = PointLight(glm::vec3(0, 10, 0));
     
 	while (!glfwWindowShouldClose(window)) {
         
@@ -158,177 +166,16 @@ int main()
             spinningTop.update(deltaTime);
         }
         
-		// clear drawing surface
-		glClearColor(0, 0, 0, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-		glViewport(0, 0, width, height);
-
-        Assets::textureShader.use();
-        
-        testLight.setUniforms();
-        Shader::setUniform("viewMatrix", camera.view());
-        Shader::setUniform("projectionMatrix", camera.projection());
-        Shader::setUniform("cameraPosition", camera.getPosition());
-        
-        spinningTop.render(false);
-        
-        Assets::phongShader.use();
-        
-        testLight.setUniforms();
-        Shader::setUniform("viewMatrix", camera.view());
-        Shader::setUniform("projectionMatrix", camera.projection());
-        Shader::setUniform("cameraPosition", camera.getPosition());
-        
-        plane.render(false);
-        
-        Assets::shadowShader.use();
-        glPolygonOffset(0, -1);
-        
-        glm::vec3 l = testLight.getPosition();
-        glm::mat4 planeMatrix = glm::mat4();
-        planeMatrix[0] = glm::vec4(l.y, 0, 0, 0);
-        planeMatrix[1] = glm::vec4(-l.x, 0, -l.z, -1);
-        planeMatrix[2] = glm::vec4(0, 0, l.y, 0);
-        planeMatrix[3] = glm::vec4(0, 0, 0, l.y);
-        
-        Shader::setUniform("shadowColor", glm::vec4(0, 0, 0, 0.6));
-        Shader::setUniform("viewMatrix", camera.view());
-        Shader::setUniform("projectionMatrix", camera.projection());
-        Shader::setUniform("planeMatrix", planeMatrix);
-        
-        spinningTop.render(true);
-        
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-
-		if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) {
-			glfwSetWindowShouldClose(window, 1);
-		}
-
-		glm::vec3 camOffset = glm::vec3(0,0,0);
-
         if (slowMotion) {
             deltaTime = deltaTime * 8;
         }
         
-		float deltaTheta = camRotSpeed * deltaTime;
-
+        input(deltaTime);
         
-        if (glfwGetKey(window, GLFW_KEY_1)) {
-            resetSpinningTop1();
-        }
-        else if (glfwGetKey(window, GLFW_KEY_2)) {
-            resetSpinningTop2();
-        }
-        else if (glfwGetKey(window, GLFW_KEY_3)) {
-            resetSpinningTop3();
-        }
-        else if (glfwGetKey(window, GLFW_KEY_0)) {
-            resetSphere();
-        }
+        render();
         
-        if (glfwGetKey(window, GLFW_KEY_T)) {
-            addTorque();
-        }
-        if (glfwGetKey(window, GLFW_KEY_R)) {
-            addReverseTorque();
-        }
-        
-        if (glfwGetKey(window, GLFW_KEY_U)) {
-            spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition());
-        }
-        if (glfwGetKey(window, GLFW_KEY_H)) {
-            spinningTop.addForce(glm::vec3(-10, 0, 0), spinningTop.getPosition());
-        }
-        if (glfwGetKey(window, GLFW_KEY_J)) {
-            spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition());
-        }
-        if (glfwGetKey(window, GLFW_KEY_K)) {
-            spinningTop.addForce(glm::vec3(10, 0, 0), spinningTop.getPosition());
-        }
-        if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
-            spinningTop.addForce(glm::vec3(0, 20, 0), spinningTop.getPosition());
-        }
-        if (glfwGetKey(window, GLFW_KEY_I)) {
-            spinningTop.addForce(glm::vec3(5, 0, 0), spinningTop.getPosition() + glm::vec3(0, 1, 0));
-        }
-		
-		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
-			camera.moveUpDown(-camSpeed * deltaTime);
-			camMoved = true;
-		}
-		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) {
-			camera.moveUpDown(camSpeed * deltaTime);
-			camMoved = true;
-		}
-        
-        
-		if (glfwGetKey(window, GLFW_KEY_W)) {
-			camera.moveForwardBackward(camSpeed * deltaTime);
-			camMoved = true;
-		}
-        if (glfwGetKey(window, GLFW_KEY_A)) {
-            camera.moveLeftRight(camSpeed * deltaTime);
-            camMoved = true;
-        }
-		if (glfwGetKey(window, GLFW_KEY_S)) {
-			camera.moveForwardBackward(-camSpeed * deltaTime);
-			camMoved = true;
-		}
-        if (glfwGetKey(window, GLFW_KEY_D)) {
-            camera.moveLeftRight(-camSpeed * deltaTime);
-            camMoved = true;
-        }
-        
-        if (glfwGetKey(window, GLFW_KEY_C)) {
-            resetCamera();
-            camMoved = true;
-        }
-
-        
-		if (glfwGetKey(window, GLFW_KEY_UP)) {
-			camera.pitch(-deltaTheta);
-			camMoved = true;
-		}
-		if (glfwGetKey(window, GLFW_KEY_DOWN)) {
-			camera.pitch(deltaTheta);
-			camMoved = true;
-		}
-		if (glfwGetKey(window, GLFW_KEY_LEFT)) {
-			camera.yaw(-deltaTheta);
-			camMoved = true;
-		}
-		if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
-			camera.yaw(deltaTheta);
-			camMoved = true;
-		}
-        
-        if (glfwGetKey(window, GLFW_KEY_X) && !xKeyPressed) {
-            xKeyPressed = true;
-            slowMotion = !slowMotion;
-        }
-        else if (!glfwGetKey(window, GLFW_KEY_X)) {
-            xKeyPressed = false;
-        }
-        
-		if (glfwGetKey(window, GLFW_KEY_L) && !lKeyPressed) {
-            lKeyPressed = true;
-            lightFollowsCamera = !lightFollowsCamera;
-		} else if (!glfwGetKey(window, GLFW_KEY_L))
-        {
-            lKeyPressed = false;
-        }
-        
-		if (lightFollowsCamera) {
-            testLight.setPosition(camera.getPosition());
-        }
-        if (camMoved) {
-            //printf("Camera position: %f %f %f", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
-            camera.move(camOffset);
-        }
-
-        camMoved = false;
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 
 	Assets::destroy();
@@ -337,6 +184,150 @@ int main()
     
     printf("The program ran for %d seconds.\n", (int)difftime(endtime, begin));
 	return 0;
+}
+
+void render() {
+    // clear drawing surface
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    glViewport(0, 0, width, height);
+    
+    Assets::textureShader.use();
+    
+    light.setUniforms();
+    camera.setUniforms();
+    
+    spinningTop.render();
+    
+    Assets::phongShader.use();
+    
+    light.setUniforms();
+    camera.setUniforms();
+    
+    plane.render();
+    
+    Assets::shadowShader.use();
+    
+    light.setUniforms();
+    camera.setUniforms();
+    Shader::setUniform("shadowColor", glm::vec4(0, 0, 0, 0.6));
+    
+    spinningTop.render();
+}
+
+void input(float dt) {
+    // Select ST
+    
+    if (glfwGetKey(window, GLFW_KEY_1)) {
+        resetSpinningTop1();
+    }
+    else if (glfwGetKey(window, GLFW_KEY_2)) {
+        resetSpinningTop2();
+    }
+    else if (glfwGetKey(window, GLFW_KEY_3)) {
+        resetSpinningTop3();
+    }
+    else if (glfwGetKey(window, GLFW_KEY_9)) {
+        resetCube();
+    }
+    else if (glfwGetKey(window, GLFW_KEY_0)) {
+        resetSphere();
+    }
+    
+    // Control ST
+    
+    if (glfwGetKey(window, GLFW_KEY_T)) {
+        addTorque();
+    }
+    if (glfwGetKey(window, GLFW_KEY_R)) {
+        addReverseTorque();
+    }
+    
+    if (glfwGetKey(window, GLFW_KEY_U)) {
+        spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition());
+    }
+    if (glfwGetKey(window, GLFW_KEY_H)) {
+        spinningTop.addForce(glm::vec3(-10, 0, 0), spinningTop.getPosition());
+    }
+    if (glfwGetKey(window, GLFW_KEY_J)) {
+        spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition());
+    }
+    if (glfwGetKey(window, GLFW_KEY_K)) {
+        spinningTop.addForce(glm::vec3(10, 0, 0), spinningTop.getPosition());
+    }
+    if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
+        spinningTop.addForce(glm::vec3(0, 20, 0), spinningTop.getPosition());
+    }
+    if (glfwGetKey(window, GLFW_KEY_I)) {
+        spinningTop.addForce(glm::vec3(5, 0, 0), spinningTop.getPosition() + glm::vec3(0, 1, 0));
+    }
+    
+    
+    if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+        camera.moveUpDown(-camSpeed * dt);
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) {
+        camera.moveUpDown(camSpeed * dt);
+    }
+    
+    
+    if (glfwGetKey(window, GLFW_KEY_W)) {
+        camera.moveForwardBackward(camSpeed * dt);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A)) {
+        camera.moveLeftRight(camSpeed * dt);
+    }
+    if (glfwGetKey(window, GLFW_KEY_S)) {
+        camera.moveForwardBackward(-camSpeed * dt);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D)) {
+        camera.moveLeftRight(-camSpeed * dt);
+    }
+    
+    if (glfwGetKey(window, GLFW_KEY_C)) {
+        resetCamera();
+    }
+    
+    float deltaTheta = camRotSpeed * dt;
+    
+    if (glfwGetKey(window, GLFW_KEY_UP)) {
+        camera.pitch(-deltaTheta);
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+        camera.pitch(deltaTheta);
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT)) {
+        camera.yaw(-deltaTheta);
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
+        camera.yaw(deltaTheta);
+    }
+    
+    if (glfwGetKey(window, GLFW_KEY_X) && !xKeyPressed) {
+        xKeyPressed = true;
+        slowMotion = !slowMotion;
+    }
+    else if (!glfwGetKey(window, GLFW_KEY_X)) {
+        xKeyPressed = false;
+    }
+    
+    if (glfwGetKey(window, GLFW_KEY_L) && !lKeyPressed) {
+        lKeyPressed = true;
+        lightFollowsCamera = !lightFollowsCamera;
+    } else if (!glfwGetKey(window, GLFW_KEY_L))
+    {
+        lKeyPressed = false;
+    }
+    
+    if (lightFollowsCamera) {
+        light.setPosition(camera.getPosition());
+    }
+    
+    // Window closing
+    if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) {
+        glfwSetWindowShouldClose(window, 1);
+    }
 }
 
 void setupContext() {

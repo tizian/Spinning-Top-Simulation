@@ -1,8 +1,8 @@
 #version 330
 
-uniform vec3 cameraPosition;
+uniform sampler2D tex;
 
-uniform mat4 viewMatrix;
+uniform vec3 cameraPosition;
 
 uniform struct Material {
     vec3 Ks;
@@ -45,4 +45,6 @@ void main() {
 
     vec3 color = ambient + diffuse + specular;
     fragColor = clamp(vec4(color, 1.), 0., 1.);
+    
+    vec4 surfaceColorTmp = texture(tex, vec2(0,0));
 }
