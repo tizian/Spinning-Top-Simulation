@@ -186,6 +186,10 @@ void RigidBody::printState()
     printf("m_angularVelocity: %f %f %f\n", m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);
 }
 
+void RigidBody::setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv) {
+    m_bodyInertiaTensorInv = bodyInertiaTensorInv;
+}
+
 void RigidBody::setMesh(Mesh *mesh) {
     Body::setMesh(mesh);
     calculateInertiaTensor();

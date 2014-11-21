@@ -78,31 +78,37 @@ void resetCamera()
 void resetSphere() {
     reset();
     spinningTop.setMesh(&Assets::sphere);
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.5, 2.5, 2.5)));
 }
 
 void resetCube() {
     reset();
     spinningTop.setMesh(&Assets::cube);
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(1.5, 1.5, 1.5)));
 }
 
 void resetSpinningTop1() {
     reset();
     spinningTop.setMesh(&Assets::spinningTop1);
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 3.4, 5)));
 }
 
 void resetSpinningTop2() {
     reset();
     spinningTop.setMesh(&Assets::spinningTop2);
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
 }
 
 void resetSpinningTop3() {
     reset();
     spinningTop.setMesh(&Assets::spinningTop3);
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 2.4, 3.6)));
 }
 
 void resetSpinningTop4() {
     reset();
     spinningTop.setMesh(&Assets::spinningTop4);
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2, 2, 2)));
 }
 
 void addTorque() {
