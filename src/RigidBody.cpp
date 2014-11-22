@@ -192,7 +192,7 @@ void RigidBody::setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv) {
 
 void RigidBody::setMesh(Mesh *mesh) {
     Body::setMesh(mesh);
-    calculateInertiaTensor();
+    //calculateInertiaTensor();
     //printf("body inertia tensor inv:\n\t%f %f %f\n\t%f %f %f\n\t%f %f %f\n", m_bodyInertiaTensorInv[0][0], m_bodyInertiaTensorInv[0][1], m_bodyInertiaTensorInv[0][2], m_bodyInertiaTensorInv[1][0], m_bodyInertiaTensorInv[1][1], m_bodyInertiaTensorInv[1][2], m_bodyInertiaTensorInv[2][0], m_bodyInertiaTensorInv[2][1], m_bodyInertiaTensorInv[2][2]);
 }
 
@@ -256,7 +256,7 @@ std::vector<vec3> RigidBody::intersectWithGround()
 
 void RigidBody::update(float dt) {
     float realDt = dt;
-    float eps = 0.000001f; // epsilon for dt and dtStep
+    float eps = 0.0001f; // epsilon for dt and dtStep
     //printf("realDt: %f\n", realDt);
     
     // Gravity
@@ -266,6 +266,10 @@ void RigidBody::update(float dt) {
     glm::vec3 org_position = m_position;
     m_position = m_position + dt * m_linearMomentum / m_mass;                                           // x(t) = x(t) + dt * M^-1 * P(t)
     
+    glm::quat org_orientation = m_orientation;
+    quat omega = quat(1.0, m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);                                  // Convert omega(t) to a quaternion to do rotation
+    m_orientation = m_orientation + 0.5f * dt * omega * org_orientation;                                                      // q(t) = q(t) + dt * 1/2 * omega(t) * q(t)
+    
     // check for ground collision and do collision response
     if (distanceToGround() < 0)
     {
@@ -274,19 +278,24 @@ void RigidBody::update(float dt) {
         
         float minDistance = 0.01;
         float dtStep = 0.5f * dt;
-        while (abs(distanceToGround()) > minDistance && dtStep > eps) { // assuming the ground is at (x, 0, z)
+        int count = 0;
+        while (abs(distanceToGround()) > minDistance && dtStep > eps) {
+            count++;
             //printf("position.y: %f dt: %f dt_step: %f \n", m_position.y, dt, dt_step);
             if (distanceToGround() < 0.f)
             {
                 dt -= dtStep;
+                m_position = m_position - dtStep * m_linearMomentum / m_mass;
+                m_orientation = m_orientation + -0.5f * dtStep * omega * org_orientation;
             } else {
                 dt += dtStep;
+                m_position = m_position + dtStep * m_linearMomentum / m_mass;
+                m_orientation = m_orientation + 0.5f * dtStep * omega * org_orientation;
             }
-            
-            m_position = org_position + dt * m_linearMomentum / m_mass;
             
             dtStep = dtStep * 0.5f;
         }
+        //printf("count: %d abs(distanceToGround(): %f dtStep: %f\n", count, abs(distanceToGround()), dtStep);
         
         std::vector<vec3> collisionPoints = intersectWithGround();
         //printf("collisionPoints.size: %lu\n", collisionPoints.size());
@@ -323,9 +332,6 @@ void RigidBody::update(float dt) {
     }
     
     m_linearMomentum = m_linearMomentum + dt * m_force;                                                                     // P(t) = P(t) + dt * F(t)
-    
-    quat omega = quat(1.0, m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);                                  // Convert omega(t) to a quaternion to do rotation
-    m_orientation = m_orientation + 0.5f * dt * omega * m_orientation;                                                      // q(t) = q(t) + dt * 1/2 * omega(t) * q(t)
     
     m_rotationMatrix = mat3(mat3_cast(m_orientation));                                                                      // convert quaternion q(t) to matrix R(t)
     m_angularMomentum = m_angularMomentum + dt * m_torque;                                                                  // L(t) = L(t) + dt * tau(t)
