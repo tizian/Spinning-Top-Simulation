@@ -322,7 +322,7 @@ void RigidBody::update(float dt) {
             // Colliding contact
             
             float damping = 0.3;
-            float j = -(1+damping)*vrel/(1/m_mass + dot(normal, cross(m_bodyInertiaTensorInv * cross(ra, normal), ra)));
+            float j = -(1.f+damping)*vrel/(1.f/m_mass + dot(normal, cross(m_bodyInertiaTensorInv * cross(ra, normal), ra)));
 
             vec3 impulse = j * glm::vec3(0, 1, 0)  * (1.f/collisionPoints.size());
             //printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
@@ -332,8 +332,8 @@ void RigidBody::update(float dt) {
             m_angularMomentum = m_angularMomentum + torqueImpulse;
             
             // add friction, depend on collisionPoint[i] and on m_angularVelocity
-            vec3 particleVelocity = m_linearMomentum + cross(m_angularVelocity, ra); // http://en.wikipedia.org/wiki/Angular_velocity
-            addForce(particleVelocity * -1.f, collisionPoints[i] + vec3(0, myDistanceToGround, 0)); // don't know why this works.
+            vec3 particleVelocity = org_linearMomentum + cross(m_angularVelocity, ra); // http://en.wikipedia.org/wiki/Angular_velocity
+            addForce(particleVelocity * -1.f, collisionPoints[i] - vec3(0, myDistanceToGround, 0)); // don't know why this works.
         }
         
         // avoid overshooting and undershooting
