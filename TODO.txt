@@ -52,3 +52,8 @@ http://en.wikipedia.org/wiki/Angular_velocity
 
 More about collisions:
 http://en.wikipedia.org/wiki/Collision_response (Includes Impulse-Based Friction Model!)
+
+http://gafferongames.com/virtualgo/how-the-go-stone-moves/
+http://gafferongames.com/virtualgo/collision-detection-go-stone-vs-go-board/
+http://gafferongames.com/virtualgo/rotation-and-inertia-tensors/
+http://gafferongames.com/virtualgo/collision-response-and-coulomb-friction/
