@@ -234,17 +234,19 @@ float RigidBody::distanceToGround()
 // returns the colliding vertices with their world coordinates
 std::vector<vec3> RigidBody::intersectWithGround()
 {
+    vec3 normal = vec3(0,1,0);
     std::vector<vec3> points = std::vector<vec3>();
     
     GLfloat * vertices = m_mesh->getVertices();
     for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
     {
-        vec4 tmp = model() * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.0f);
-
+        vec3 vertex = vec3(vertices[i], vertices[i+1], vertices[i+2]); // body space
+        vec4 tmp = model() * vec4(vertex.x, vertex.y, vertex.z, 1.0f); // world space
+        
         if (tmp.y <= 0)
         {
             vec3 candidate = vec3(tmp.x, tmp.y, tmp.z);
-            if (std::find(points.begin(), points.end(), candidate) == points.end())
+            if (std::find(points.begin(), points.end(), candidate) == points.end() && dot(normal, vertex) < 0)
             {
                 points.push_back(candidate);
             }
@@ -275,7 +277,7 @@ void RigidBody::update(float dt) {
     {
         //printf("distanceToGround: %f\n", distanceToGround());
         // Do bilinear search for the dt which leads to the collision.
-        
+        /*
         float minDistance = 0.01;
         float dtStep = 0.5f * dt;
         int count = 0;
@@ -296,12 +298,11 @@ void RigidBody::update(float dt) {
             dtStep = dtStep * 0.5f;
         }
         //printf("count: %d abs(distanceToGround(): %f dtStep: %f\n", count, abs(distanceToGround()), dtStep);
-        
+        */
         std::vector<vec3> collisionPoints = intersectWithGround();
         //printf("collisionPoints.size: %lu\n", collisionPoints.size());
         
-        // avoid overshooting and undershooting
-        m_position.y -= distanceToGround();
+        vec3 org_linearMomentum = m_linearMomentum;
         
         for (int i = 0; i < collisionPoints.size(); i++)
         {
@@ -310,16 +311,18 @@ void RigidBody::update(float dt) {
             // add reflecting force by impulse
             
             vec3 normal = vec3(0, 1, 0);
-            float vrel = dot(vec3(0, 1, 0), m_linearMomentum / m_mass);
+            vec3 ra = collisionPoints[i] - m_position;  // ra = p - x(t)
+            
+            float vrel = dot(vec3(0, 1, 0), org_linearMomentum / m_mass);
+            //printf("vrel: %f\n", vrel);
             
             // Colliding contact
             
-            vec3 ra = collisionPoints[i] - m_position;//vec3(0, -1, 0);   // for this special case. General: ra = p - x(t)
-            
-            float damping = 0.3;
+            float damping = 0.5;
             float j = -(1+damping)*vrel/(1/m_mass + dot(normal, cross(m_bodyInertiaTensorInv * cross(ra, normal), ra)));
-            //printf("vrel: %f %f %f j: %f\n", vrel.x, vrel.y, vrel.z, j);
-            vec3 impulse = j * glm::vec3(0, 1, 0);
+
+            vec3 impulse = j * glm::vec3(0, 1, 0)  * (1.f/collisionPoints.size());
+            //printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
             m_linearMomentum = m_linearMomentum + impulse;
             
             vec3 torqueImpulse = cross(ra, impulse);
@@ -329,6 +332,9 @@ void RigidBody::update(float dt) {
             vec3 particleVelocity = m_linearMomentum + cross(m_angularVelocity, ra); // http://en.wikipedia.org/wiki/Angular_velocity
             addForce(particleVelocity * -1.f, collisionPoints[i]); // don't know why this works.
         }
+        
+        // avoid overshooting and undershooting
+        m_position.y -= distanceToGround();
     }
     
     m_linearMomentum = m_linearMomentum + dt * m_force;                                                                     // P(t) = P(t) + dt * F(t)
@@ -346,13 +352,13 @@ void RigidBody::update(float dt) {
     m_orientation = normalize(m_orientation);
     
     //printf("realDt: %f dt: %f\n", realDt, dt);
-    if (realDt - dt > eps)
-    {
-        //printf("realDt - dt: %f\n", realDt - dt);
-        // Do the rest of the timestep
-        // For now only the time till collision was done.
-        update(realDt - dt);
-    }
+    /*if (realDt - dt > eps)
+     {
+     //printf("realDt - dt: %f\n", realDt - dt);
+     // Do the rest of the timestep
+     // For now only the time till collision was done.
+     update(realDt - dt);
+     }*/
     
     //printState();
 }

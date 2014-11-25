@@ -36,8 +36,8 @@ void input(float dt);
 static int width = 640;
 static int height = 640;
 
-float timeStep = 0.02;
-bool fixTimestep = false;
+float timeStep = 0.01;
+bool fixTimestep = true;
 
 float camSpeed = 8.0f;
 float camRotSpeed = 100.0f * M_PI / 180.0f;

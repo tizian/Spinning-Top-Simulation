@@ -12,6 +12,8 @@ Functionality
 - create array / vector of all spinning tops at the beginning. Calculate inertia tensor (this is setMesh() only once) etc. Idealy save these inertia tensors as files and reload them the next time. Calculating a good inertia tensor takes more than 5 seconds.
 - Maybe whole interia tensor calculation can happen in a seperate class (pass ptr to a Mesh to the function?) -> too much unused code in Rigid body if matrix is precomputed anyway...
 - check if timestep calculation from http://gafferongames.com/game-physics/fix-your-timestep/ gives better results. If yes -> implement
+- change the COM for a spinning top and see if it spins differently (lower COM -> better spin) (SpinIt)
+- change mass and see if the spinnning top spins differently (less mass -> better spin) (SpinIt)
 
 Cosmetic
 --------
@@ -21,6 +23,7 @@ Cosmetic
 - Texturing: wood, steel, real life (st3)
 - introduce state objects to allow better timesteps and rewind.
 - pause simulation and rewinding
+- Visualize the COM with a red dot, which is always viible
 
 Done
 ----
