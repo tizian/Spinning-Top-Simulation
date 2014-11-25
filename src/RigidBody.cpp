@@ -242,11 +242,13 @@ std::vector<vec3> RigidBody::intersectWithGround()
     {
         vec3 vertex = vec3(vertices[i], vertices[i+1], vertices[i+2]); // body space
         vec4 tmp = model() * vec4(vertex.x, vertex.y, vertex.z, 1.0f); // world space
+        vec3 ra = vec3(tmp.x, tmp.y, tmp.z) - m_position;
         
         if (tmp.y <= 0)
         {
             vec3 candidate = vec3(tmp.x, tmp.y, tmp.z);
-            if (std::find(points.begin(), points.end(), candidate) == points.end() && dot(normal, vertex) < 0)
+            printf("dot: %f\n", dot(normal, vertex));
+            if (std::find(points.begin(), points.end(), candidate) == points.end() && dot(normal, ra) <= 0)
             {
                 points.push_back(candidate);
             }
@@ -275,6 +277,7 @@ void RigidBody::update(float dt) {
     // check for ground collision and do collision response
     if (distanceToGround() < 0)
     {
+        float myDistanceToGround = distanceToGround();
         //printf("distanceToGround: %f\n", distanceToGround());
         // Do bilinear search for the dt which leads to the collision.
         /*
@@ -318,7 +321,7 @@ void RigidBody::update(float dt) {
             
             // Colliding contact
             
-            float damping = 0.5;
+            float damping = 0.3;
             float j = -(1+damping)*vrel/(1/m_mass + dot(normal, cross(m_bodyInertiaTensorInv * cross(ra, normal), ra)));
 
             vec3 impulse = j * glm::vec3(0, 1, 0)  * (1.f/collisionPoints.size());
@@ -330,11 +333,11 @@ void RigidBody::update(float dt) {
             
             // add friction, depend on collisionPoint[i] and on m_angularVelocity
             vec3 particleVelocity = m_linearMomentum + cross(m_angularVelocity, ra); // http://en.wikipedia.org/wiki/Angular_velocity
-            addForce(particleVelocity * -1.f, collisionPoints[i]); // don't know why this works.
+            addForce(particleVelocity * -1.f, collisionPoints[i] + vec3(0, myDistanceToGround, 0)); // don't know why this works.
         }
         
         // avoid overshooting and undershooting
-        m_position.y -= distanceToGround();
+        m_position.y -= myDistanceToGround;
     }
     
     m_linearMomentum = m_linearMomentum + dt * m_force;                                                                     // P(t) = P(t) + dt * F(t)

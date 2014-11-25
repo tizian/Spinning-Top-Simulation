@@ -183,6 +183,7 @@ int main()
         
         render();
         
+        //glfwSwapInterval(0);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
