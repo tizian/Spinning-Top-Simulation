@@ -14,6 +14,7 @@ Functionality
 - check if timestep calculation from http://gafferongames.com/game-physics/fix-your-timestep/ gives better results. If yes -> implement
 - change the COM for a spinning top and see if it spins differently (lower COM -> better spin) (SpinIt)
 - change mass and see if the spinnning top spins differently (less mass -> better spin) (SpinIt)
+- check normals in meshes. Specially sp3 and sp4, where the lowest vertex does have strange normals -> no collision detection
 
 Cosmetic
 --------

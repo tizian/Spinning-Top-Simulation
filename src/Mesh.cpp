@@ -54,6 +54,10 @@ GLuint Mesh::getNumVertices(){
     return m_numVertices;
 }
 
+GLfloat * Mesh::getNormarls(){
+    return m_normals;
+}
+
 void Mesh::loadVBO() {
 	// Bind the vao
 	glBindVertexArray(m_vao);

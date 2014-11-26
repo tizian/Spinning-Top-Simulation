@@ -215,10 +215,9 @@ float RigidBody::distanceToGround()
     GLfloat * vertices = m_mesh->getVertices();
     //printf("NumVertices: %d\n", m_mesh->getNumVertices());
     
-    mat4 theMat = model();
     for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
     {
-        vec4 tmp = theMat * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
+        vec4 tmp = model() * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
         //printf("x: %f y: %f z: %f\n", tmp.x, tmp.y, tmp.z);
         if (tmp.y < dist)
         {
@@ -238,19 +237,23 @@ std::vector<vec3> RigidBody::intersectWithGround()
     std::vector<vec3> points = std::vector<vec3>();
     
     GLfloat * vertices = m_mesh->getVertices();
+    GLfloat * normals = m_mesh->getNormarls();
+    
     for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
     {
         vec3 vertex = vec3(vertices[i], vertices[i+1], vertices[i+2]); // body space
         vec4 tmp = model() * vec4(vertex.x, vertex.y, vertex.z, 1.0f); // world space
-        vec3 ra = vec3(tmp.x, tmp.y, tmp.z) - m_position;
+        vertex = vec3(tmp.x, tmp.y, tmp.z);
         
-        if (tmp.y <= 0)
+        tmp = model() * vec4(normals[i], normals[i+1], normals[i+2], 1.f);
+        vec3 vertexNormal = vec3(tmp.x, tmp.y, tmp.z);
+        
+        if (vertex.y <= 0)
         {
-            vec3 candidate = vec3(tmp.x, tmp.y, tmp.z);
-//            printf("dot: %f\n", dot(normal, vertex));
-            if (std::find(points.begin(), points.end(), candidate) == points.end() && dot(normal, ra) <= 0)
+            //printf("vertexNormal: %f %f %f\n", vertexNormal.x, vertexNormal.y, vertexNormal.z);
+            if (std::find(points.begin(), points.end(), vertex) == points.end() /*&& dot(normal, vertexNormal) <= 0*/) // vertexNormal not what it should be..
             {
-                points.push_back(candidate);
+                points.push_back(vertex);
             }
         }
     }
@@ -284,7 +287,9 @@ void RigidBody::update(float dt) {
     if (distanceGround < 0)
     {
         std::vector<vec3> collisionPoints = intersectWithGround();
-//        printf("collisionPoints.size: %lu\n", collisionPoints.size());
+        printf("collisionPoints.size: %lu\n", collisionPoints.size());
+        
+        vec3 org_linearMomentum = m_linearMomentum;
         
         for (int i = 0; i < collisionPoints.size(); i++)
         {
@@ -292,7 +297,7 @@ void RigidBody::update(float dt) {
             
             //printf("collision point: %f %f %f\n", collisionPoints[i].x, collisionPoints[i].y, collisionPoints[i].z);
             vec3 r = collisionPoints[i] - m_position;   // r_a = p - x(t)
-            vec3 v = m_linearMomentum / m_mass + cross(m_angularVelocity, r);
+            vec3 v = org_linearMomentum / m_mass + cross(m_angularVelocity, r);
             
             vec3 vrel = v - vec3(0, 0, 0);    // v_r = v_p2 - v_p1
 
