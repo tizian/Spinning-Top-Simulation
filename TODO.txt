@@ -18,9 +18,9 @@ Functionality
 Cosmetic
 --------
 - shadow mapping
+- Texturing: wood, steel, real life (st3)
 - GUI with labels which buttons can be pressed and their impact
 - Sound (collision, fritcion, fade out)
-- Texturing: wood, steel, real life (st3)
 - introduce state objects to allow better timesteps and rewind.
 - pause simulation and rewinding
 - Visualize the COM with a red dot, which is always viible
@@ -52,6 +52,9 @@ http://en.wikipedia.org/wiki/Angular_velocity
 
 More about collisions:
 http://en.wikipedia.org/wiki/Collision_response (Includes Impulse-Based Friction Model!)
+
+Realtime Rigid Body Simulation Using Impulses:
+http://files.slembcke.net/misc/RigidBodies.pdf
 
 http://gafferongames.com/virtualgo/how-the-go-stone-moves/
 http://gafferongames.com/virtualgo/collision-detection-go-stone-vs-go-board/

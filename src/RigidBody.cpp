@@ -247,7 +247,7 @@ std::vector<vec3> RigidBody::intersectWithGround()
         if (tmp.y <= 0)
         {
             vec3 candidate = vec3(tmp.x, tmp.y, tmp.z);
-            printf("dot: %f\n", dot(normal, vertex));
+//            printf("dot: %f\n", dot(normal, vertex));
             if (std::find(points.begin(), points.end(), candidate) == points.end() && dot(normal, ra) <= 0)
             {
                 points.push_back(candidate);
@@ -259,93 +259,86 @@ std::vector<vec3> RigidBody::intersectWithGround()
 }
 
 void RigidBody::update(float dt) {
-    float realDt = dt;
-    float eps = 0.0001f; // epsilon for dt and dtStep
-    //printf("realDt: %f\n", realDt);
     
     // Gravity
     addForce(vec3(0, -9.81 * m_mass, 0));  // hardcoded hack
     
     // Update state with euler integration step
-    glm::vec3 org_position = m_position;
-    m_position = m_position + dt * m_linearMomentum / m_mass;                                           // x(t) = x(t) + dt * M^-1 * P(t)
-    
-    glm::quat org_orientation = m_orientation;
-    quat omega = quat(1.0, m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);                                  // Convert omega(t) to a quaternion to do rotation
-    m_orientation = m_orientation + 0.5f * dt * omega * org_orientation;                                                      // q(t) = q(t) + dt * 1/2 * omega(t) * q(t)
-    
-    // check for ground collision and do collision response
-    if (distanceToGround() < 0)
-    {
-        float myDistanceToGround = distanceToGround();
-        //printf("distanceToGround: %f\n", distanceToGround());
-        // Do bilinear search for the dt which leads to the collision.
-        /*
-        float minDistance = 0.01;
-        float dtStep = 0.5f * dt;
-        int count = 0;
-        while (abs(distanceToGround()) > minDistance && dtStep > eps) {
-            count++;
-            //printf("position.y: %f dt: %f dt_step: %f \n", m_position.y, dt, dt_step);
-            if (distanceToGround() < 0.f)
-            {
-                dt -= dtStep;
-                m_position = m_position - dtStep * m_linearMomentum / m_mass;
-                m_orientation = m_orientation + -0.5f * dtStep * omega * org_orientation;
-            } else {
-                dt += dtStep;
-                m_position = m_position + dtStep * m_linearMomentum / m_mass;
-                m_orientation = m_orientation + 0.5f * dtStep * omega * org_orientation;
-            }
-            
-            dtStep = dtStep * 0.5f;
-        }
-        //printf("count: %d abs(distanceToGround(): %f dtStep: %f\n", count, abs(distanceToGround()), dtStep);
-        */
-        std::vector<vec3> collisionPoints = intersectWithGround();
-        //printf("collisionPoints.size: %lu\n", collisionPoints.size());
-        
-        vec3 org_linearMomentum = m_linearMomentum;
-        
-        for (int i = 0; i < collisionPoints.size(); i++)
-        {
-            //printf("collision point: %f %f %f\n", collisionPoints[i].x, collisionPoints[i].y, collisionPoints[i].z);
-            // collision response
-            // add reflecting force by impulse
-            
-            vec3 normal = vec3(0, 1, 0);
-            vec3 ra = collisionPoints[i] - m_position;  // ra = p - x(t)
-            
-            float vrel = dot(vec3(0, 1, 0), org_linearMomentum / m_mass);
-            //printf("vrel: %f\n", vrel);
-            
-            // Colliding contact
-            
-            float damping = 0.3;
-            float j = -(1.f+damping)*vrel/(1.f/m_mass + dot(normal, cross(m_bodyInertiaTensorInv * cross(ra, normal), ra)));
 
-            vec3 impulse = j * glm::vec3(0, 1, 0)  * (1.f/collisionPoints.size());
-            //printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
-            m_linearMomentum = m_linearMomentum + impulse;
-            
-            vec3 torqueImpulse = cross(ra, impulse);
-            m_angularMomentum = m_angularMomentum + torqueImpulse;
-            
-            // add friction, depend on collisionPoint[i] and on m_angularVelocity
-            vec3 particleVelocity = org_linearMomentum + cross(m_angularVelocity, ra); // http://en.wikipedia.org/wiki/Angular_velocity
-            addForce(particleVelocity * -1.f, collisionPoints[i] - vec3(0, myDistanceToGround, 0)); // don't know why this works.
-        }
-        
-        // avoid overshooting and undershooting
-        m_position.y -= myDistanceToGround;
-    }
+    m_position = m_position + dt * m_linearMomentum / m_mass;                               // x(t) = x(t) + dt * M^-1 * P(t)
+    
+    quat omega = quat(1.0, m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);  // Convert omega(t) to a quaternion to do rotation
+    m_orientation = m_orientation + 0.5f * dt * omega * m_orientation;                      // q(t) = q(t) + dt * 1/2 * omega(t) * q(t)
     
     m_linearMomentum = m_linearMomentum + dt * m_force;                                                                     // P(t) = P(t) + dt * F(t)
-    
     m_rotationMatrix = mat3(mat3_cast(m_orientation));                                                                      // convert quaternion q(t) to matrix R(t)
     m_angularMomentum = m_angularMomentum + dt * m_torque;                                                                  // L(t) = L(t) + dt * tau(t)
     m_inertiaTensorInv = m_rotationMatrix * m_bodyInertiaTensorInv * transpose(m_rotationMatrix);                           // I(t)^-1 = R(t) * I_body^-1 * R(t)'
     m_angularVelocity = min(max(m_inertiaTensorInv * m_angularMomentum, -1.f * maxAngularVelocity), maxAngularVelocity);    // omega(t) = I(t)^-1 * L(t)
+//    m_linearVelocity = m_linearMomentum / m_mass;
+    
+    float distanceGround = distanceToGround();
+    vec3 normal = vec3(0, 1, 0);
+    
+    // check for ground collision and do collision response
+    if (distanceGround < 0)
+    {
+        std::vector<vec3> collisionPoints = intersectWithGround();
+//        printf("collisionPoints.size: %lu\n", collisionPoints.size());
+        
+        for (int i = 0; i < collisionPoints.size(); i++)
+        {
+            // Impulse-Based Collision Response
+            
+            //printf("collision point: %f %f %f\n", collisionPoints[i].x, collisionPoints[i].y, collisionPoints[i].z);
+            vec3 r = collisionPoints[i] - m_position;   // r_a = p - x(t)
+            vec3 v = m_linearMomentum / m_mass + cross(m_angularVelocity, r);
+            
+            vec3 vrel = v - vec3(0, 0, 0);    // v_r = v_p2 - v_p1
+
+            // Colliding contact
+            
+            float e = 0.3;  // Coefficient of restitution
+            float j = -(1.f+e)*dot(vrel, normal)/(1.f/m_mass + dot(normal, cross(m_inertiaTensorInv * cross(r, normal), r)));
+            j = max(0.0f, j);   // not sure... part of 'Realtime Rigid Body Simulation Using Impulses' paper
+//            printf("j: %f\n", j);
+            
+            vec3 impulse = j * normal;
+            impulse = impulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
+//            printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
+            
+            vec3 torqueImpulse = cross(r, impulse);
+//            printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
+            
+            m_linearMomentum = m_linearMomentum + impulse;
+            m_angularMomentum = m_angularMomentum + torqueImpulse;
+            
+            
+            // Impulse-Based Friction Model (Coulomb friction model)
+            
+            float mu = 0.8; // wild guess
+            vec3 tangent = cross(cross(normal, vrel), normal)/length(vrel);
+            
+            float jt = -(1.f+e)*dot(vrel, tangent)/(1.f/m_mass + dot(tangent, cross(m_inertiaTensorInv * cross(r, tangent), r)));
+            
+            jt = clamp(jt, -mu*j, mu*j);
+            
+            vec3 frictionImpulse = jt * tangent;
+            frictionImpulse = frictionImpulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
+            
+            vec3 torqueFrictionImpulse = cross(r, frictionImpulse);
+            
+            m_linearMomentum = m_linearMomentum + frictionImpulse;
+            m_angularMomentum = m_angularMomentum + torqueFrictionImpulse;
+        }
+        
+        // avoid overshooting and undershooting
+        m_position.y -= distanceGround;
+    }
+    
+    // Fake slowing down
+//    m_angularMomentum *= 0.999f;
+//    m_linearMomentum *= 0.999f;
     
     // Reset forces and torque
     m_force = glm::vec3(0, 0, 0);
@@ -353,15 +346,6 @@ void RigidBody::update(float dt) {
     
     // normalize orientation quaternion
     m_orientation = normalize(m_orientation);
-    
-    //printf("realDt: %f dt: %f\n", realDt, dt);
-    /*if (realDt - dt > eps)
-     {
-     //printf("realDt - dt: %f\n", realDt - dt);
-     // Do the rest of the timestep
-     // For now only the time till collision was done.
-     update(realDt - dt);
-     }*/
     
     //printState();
 }

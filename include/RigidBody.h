@@ -35,7 +35,7 @@ private:
     vec3 m_angularMomentum;     // L(t) = I(t) * omega(t)
     
     // derived quantities
-//    vec3 m_linearVelocity;      // v(t) -> not used
+//    vec3 m_linearVelocity;      // v(t)
     vec3 m_angularVelocity;     // omega(t)
     mat3 m_inertiaTensorInv;    // I(t)^-1
     mat3 m_rotationMatrix;      // R(t)

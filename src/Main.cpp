@@ -90,19 +90,22 @@ void resetCube() {
 void resetSpinningTop1() {
     reset();
     spinningTop.setMesh(&Assets::spinningTop1);
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 3.4, 5)));
+//    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 3.4, 5)));
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 1.5*5, 5)));
 }
 
 void resetSpinningTop2() {
     reset();
     spinningTop.setMesh(&Assets::spinningTop2);
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
+//    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 1.5*4.8, 4.8)));
 }
 
 void resetSpinningTop3() {
     reset();
     spinningTop.setMesh(&Assets::spinningTop3);
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 2.4, 3.6)));
+//    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 2.4, 3.6)));
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 1.5*3.6, 3.6)));
 }
 
 void resetSpinningTop4() {
