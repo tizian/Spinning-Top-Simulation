@@ -61,10 +61,10 @@ RigidBody spinningTop;
 void reset() {
     spinningTop = RigidBody();
     spinningTop.setPosition(glm::vec3(0, 5, 0));
-    spinningTop.setMaterial(&Assets::sphereMaterial);
+    spinningTop.setMaterial(&Assets::blueMaterial);
     spinningTop.setTexture(&Assets::checkerboard);
     
-    //spinningTop.setOrientation(glm::quat_cast(glm::rotate((float)M_PI_2, glm::vec3(1, 0, 0))));
+//    spinningTop.setOrientation(glm::quat_cast(glm::rotate((float)M_PI_4, glm::vec3(1, 0, 0))));
 }
 
 void resetCamera()
@@ -108,6 +108,20 @@ void resetSpinningTop3() {
     spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 1.5*3.6, 3.6)));
 }
 
+void resetSpinningTop3Top() {
+    reset();
+    spinningTop.setMesh(&Assets::spinningTop3Top);
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(1.19, 2.42, 1.19)));    // After 1 Mio. samples
+    spinningTop.setMaterial(&Assets::yellowMaterial);
+}
+
+void resetSpinningTop3Bottom() {
+    reset();
+    spinningTop.setMesh(&Assets::spinningTop3Bottom);
+    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.79, 2.42, 2.79)));    // After 1 Mio. samples
+    spinningTop.setMaterial(&Assets::redMaterial);
+}
+
 void resetSpinningTop4() {
     reset();
     spinningTop.setMesh(&Assets::spinningTop4);
@@ -149,7 +163,7 @@ int main()
     plane.setMesh(&Assets::plane);
     plane.setMaterial(&Assets::planeMaterial);
     
-    resetSphere();
+    resetSpinningTop3Bottom();
 
     glfwGetFramebufferSize(window, &width, &height);
     printf("Framebuffer width: %d height: %d\n", width, height);
@@ -243,6 +257,12 @@ void input(float dt) {
     }
     else if (glfwGetKey(window, GLFW_KEY_4)) {
         resetSpinningTop4();
+    }
+    else if (glfwGetKey(window, GLFW_KEY_5)) {
+        resetSpinningTop3Top();
+    }
+    else if (glfwGetKey(window, GLFW_KEY_6)) {
+        resetSpinningTop3Bottom();
     }
     else if (glfwGetKey(window, GLFW_KEY_9)) {
         resetCube();

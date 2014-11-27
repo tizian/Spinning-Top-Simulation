@@ -72,7 +72,7 @@ int triangle_intersection( const vec3   V1,  // Triangle vertices
 // using the raytracing approach
 void RigidBody::calculateInertiaTensor()
 {
-    int sampleCount = 1000; // should be higher! But then we need to avoid calculating everything when 1, 2 or 3 is pressed.
+    int sampleCount = 1000000; // should be higher! But then we need to avoid calculating everything when 1, 2 or 3 is pressed.
     mat3 bodyInertiaTensor = mat3({0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f});
     
     int realSampleCount = 0;
@@ -195,8 +195,8 @@ void RigidBody::setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv) {
 
 void RigidBody::setMesh(Mesh *mesh) {
     Body::setMesh(mesh);
-    //calculateInertiaTensor();
-    //printf("body inertia tensor inv:\n\t%f %f %f\n\t%f %f %f\n\t%f %f %f\n", m_bodyInertiaTensorInv[0][0], m_bodyInertiaTensorInv[0][1], m_bodyInertiaTensorInv[0][2], m_bodyInertiaTensorInv[1][0], m_bodyInertiaTensorInv[1][1], m_bodyInertiaTensorInv[1][2], m_bodyInertiaTensorInv[2][0], m_bodyInertiaTensorInv[2][1], m_bodyInertiaTensorInv[2][2]);
+//    calculateInertiaTensor();
+//    printf("body inertia tensor inv:\n\t%f %f %f\n\t%f %f %f\n\t%f %f %f\n", m_bodyInertiaTensorInv[0][0], m_bodyInertiaTensorInv[0][1], m_bodyInertiaTensorInv[0][2], m_bodyInertiaTensorInv[1][0], m_bodyInertiaTensorInv[1][1], m_bodyInertiaTensorInv[1][2], m_bodyInertiaTensorInv[2][0], m_bodyInertiaTensorInv[2][1], m_bodyInertiaTensorInv[2][2]);
 }
 
 void RigidBody::addForce(const vec3 force) {
@@ -332,20 +332,20 @@ void RigidBody::update(float dt) {
             
             // Impulse-Based Friction Model (Coulomb friction model)
             
-            float mu = 0.8; // wild guess
-            vec3 tangent = cross(cross(normal, vrel), normal)/length(vrel);
-            
-            float jt = -(1.f+e)*dot(vrel, tangent)/(1.f/m_mass + dot(tangent, cross(m_inertiaTensorInv * cross(r, tangent), r)));
-            
-            jt = clamp(jt, -mu*j, mu*j);
-            
-            vec3 frictionImpulse = jt * tangent;
-            frictionImpulse = frictionImpulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
-            
-            vec3 torqueFrictionImpulse = cross(r, frictionImpulse);
-            
-            m_linearMomentum = m_linearMomentum + frictionImpulse;
-            m_angularMomentum = m_angularMomentum + torqueFrictionImpulse;
+//            float mu = 0.8; // wild guess
+//            vec3 tangent = cross(cross(normal, vrel), normal)/length(vrel);
+//            
+//            float jt = -(1.f+e)*dot(vrel, tangent)/(1.f/m_mass + dot(tangent, cross(m_inertiaTensorInv * cross(r, tangent), r)));
+//            
+//            jt = clamp(jt, -mu*j, mu*j);
+//            
+//            vec3 frictionImpulse = jt * tangent;
+//            frictionImpulse = frictionImpulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
+//            
+//            vec3 torqueFrictionImpulse = cross(r, frictionImpulse);
+//            
+//            m_linearMomentum = m_linearMomentum + frictionImpulse;
+//            m_angularMomentum = m_angularMomentum + torqueFrictionImpulse;
         }
         
         // avoid overshooting and undershooting
