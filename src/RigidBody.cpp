@@ -7,6 +7,8 @@
 
 vec3 maxAngularVelocity = vec3(1,1,1) * 100000000.f; // 100 000 000 is an arbitrary but resonable limit to avoid nan
 
+bool firstTime;
+
 mat3 star(const vec3 v) {
     glm::mat3 m = glm::mat3();
     m[0] = glm::vec3(0, v.z, -v.y);
@@ -177,6 +179,7 @@ void RigidBody::setDefaults() {
     m_angularVelocity = vec3(0, 0, 0);
     m_force = vec3(0, 0, 0);
     m_torque = vec3(0, 0, 0);
+    firstTime = true;
 }
 
 void RigidBody::printState()
@@ -245,13 +248,13 @@ std::vector<vec3> RigidBody::intersectWithGround()
         vec4 tmp = model() * vec4(vertex.x, vertex.y, vertex.z, 1.0f); // world space
         vertex = vec3(tmp.x, tmp.y, tmp.z);
         
-        tmp = model() * vec4(normals[i], normals[i+1], normals[i+2], 1.f);
+        tmp = transpose(inverse(model())) * vec4(normals[i], normals[i+1], normals[i+2], 1.f);
         vec3 vertexNormal = vec3(tmp.x, tmp.y, tmp.z);
         
         if (vertex.y <= 0)
         {
             //printf("vertexNormal: %f %f %f\n", vertexNormal.x, vertexNormal.y, vertexNormal.z);
-            if (std::find(points.begin(), points.end(), vertex) == points.end() /*&& dot(normal, vertexNormal) <= 0*/) // vertexNormal not what it should be..
+            if (std::find(points.begin(), points.end(), vertex) == points.end() && dot(normal, vertexNormal) <= 0)
             {
                 points.push_back(vertex);
             }
@@ -286,8 +289,12 @@ void RigidBody::update(float dt) {
     // check for ground collision and do collision response
     if (distanceGround < 0)
     {
+        if (firstTime) {
+            printf("First contact with ground:\n");
+        }
+        
         std::vector<vec3> collisionPoints = intersectWithGround();
-        printf("collisionPoints.size: %lu\n", collisionPoints.size());
+        //printf("collisionPoints.size: %lu\n", collisionPoints.size());
         
         vec3 org_linearMomentum = m_linearMomentum;
         
@@ -295,12 +302,16 @@ void RigidBody::update(float dt) {
         {
             // Impulse-Based Collision Response
             
-            //printf("collision point: %f %f %f\n", collisionPoints[i].x, collisionPoints[i].y, collisionPoints[i].z);
+//            printf("collision point: %f %f %f\n", collisionPoints[i].x, collisionPoints[i].y, collisionPoints[i].z);
             vec3 r = collisionPoints[i] - m_position;   // r_a = p - x(t)
             vec3 v = org_linearMomentum / m_mass + cross(m_angularVelocity, r);
             
             vec3 vrel = v - vec3(0, 0, 0);    // v_r = v_p2 - v_p1
-
+            
+            if (firstTime) {
+                printf("\tvrel: %f %f %f\n", vrel.x, vrel.y, vrel.z);
+            }
+            
             // Colliding contact
             
             float e = 0.3;  // Coefficient of restitution
@@ -339,6 +350,13 @@ void RigidBody::update(float dt) {
         
         // avoid overshooting and undershooting
         m_position.y -= distanceGround;
+        
+        if (firstTime) {
+            printf("\tcollision points: %lu\n", collisionPoints.size());
+            vec3 linearImpulse = m_linearMomentum - org_linearMomentum;
+            printf("\tlinear impulse: %f %f %f\n", linearImpulse.x, linearImpulse.y, linearImpulse.z);
+            firstTime = false;
+        }
     }
     
     // Fake slowing down
