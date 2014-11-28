@@ -236,11 +236,11 @@ float RigidBody::distanceToGround()
 // returns the colliding vertices with their world coordinates
 std::vector<vec3> RigidBody::intersectWithGround()
 {
-    vec3 normal = vec3(0,1,0);
+//    vec3 normal = vec3(0,1,0);
     std::vector<vec3> points = std::vector<vec3>();
     
     GLfloat * vertices = m_mesh->getVertices();
-    GLfloat * normals = m_mesh->getNormarls();
+//    GLfloat * normals = m_mesh->getNormarls();
     
     for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
     {
@@ -248,17 +248,52 @@ std::vector<vec3> RigidBody::intersectWithGround()
         vec4 tmp = model() * vec4(vertex.x, vertex.y, vertex.z, 1.0f); // world space
         vertex = vec3(tmp.x, tmp.y, tmp.z);
         
-        tmp = transpose(inverse(model())) * vec4(normals[i], normals[i+1], normals[i+2], 1.f);
-        vec3 vertexNormal = vec3(tmp.x, tmp.y, tmp.z);
-        
-        if (vertex.y <= 0)
+//        tmp = transpose(inverse(model())) * vec4(normals[i], normals[i+1], normals[i+2], 1.f);
+//        vec3 vertexNormal = vec3(tmp.x, tmp.y, tmp.z);
+        if (vertex.y < 0)
         {
-            //printf("vertexNormal: %f %f %f\n", vertexNormal.x, vertexNormal.y, vertexNormal.z);
-            if (std::find(points.begin(), points.end(), vertex) == points.end() && dot(normal, vertexNormal) <= 0)
-            {
+            if (points.empty()) {
+                points.push_back(vertex);
+            } else if (points[0].y == vertex.y && std::find(points.begin(), points.end(), vertex) == points.end()) {
+                points.push_back(vertex);
+            } else if (points[0].y > vertex.y) {
+                points = std::vector<vec3>();
                 points.push_back(vertex);
             }
         }
+    }
+    
+    vec3 point = vec3(); //final point
+    
+    // get the point closest to the COM
+    if (points.size() > 2) {
+        // face - ground collision; May also be a virtual face
+        if (m_position.y == points[0].y) {
+            point = m_position;
+        } else {
+            vec3 direction = cross(points[0] - points[2], points[1] - points[2]);
+            float distance = (points[0].y - m_position.y) / direction.y; // m_position + distance * direction = point[0].y
+            point = m_position + distance * direction;
+        }
+    } else if (points.size() == 2) {
+        // line - ground collision; May also be a virtual line
+        // http://en.wikibooks.org/wiki/Linear_Algebra/Orthogonal_Projection_Onto_a_Line
+        vec3 line = points[0] - points[1];
+        float distance = dot(m_position, line)/dot(line, line); // distance from points[1] to the projected point.
+        point = distance * line + points[1];
+
+        if (distance < 0) {
+            point = points[1];
+        } else if (distance > 1) {
+            point = points[0];
+        }
+        
+//        printf("LINE:\npoints[0]: %f %f %f\npoints[1]: %f %f %f\npoint: %f %f %f\n", points[0].x, points[0].y, points[0].z, points[1].x, points[1].y, points[1].z, point.x, point.y, point.z);
+    }
+    
+    if (points.size() > 1) {
+        points = std::vector<vec3>();
+        points.push_back(point);
     }
     
     return points;
@@ -332,21 +367,22 @@ void RigidBody::update(float dt) {
             
             // Impulse-Based Friction Model (Coulomb friction model)
             
-//            float mu = 0.8; // wild guess
-//            vec3 tangent = cross(cross(normal, vrel), normal)/length(vrel);
-//            
-//            float jt = -(1.f+e)*dot(vrel, tangent)/(1.f/m_mass + dot(tangent, cross(m_inertiaTensorInv * cross(r, tangent), r)));
-//            
-//            jt = clamp(jt, -mu*j, mu*j);
-//            
-//            vec3 frictionImpulse = jt * tangent;
-//            frictionImpulse = frictionImpulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
-//            
-//            vec3 torqueFrictionImpulse = cross(r, frictionImpulse);
-//            
-//            m_linearMomentum = m_linearMomentum + frictionImpulse;
-//            m_angularMomentum = m_angularMomentum + torqueFrictionImpulse;
+            float mu = 0.8; // wild guess
+            vec3 tangent = cross(cross(normal, vrel), normal)/length(vrel);
+            
+            float jt = -(1.f+e)*dot(vrel, tangent)/(1.f/m_mass + dot(tangent, cross(m_inertiaTensorInv * cross(r, tangent), r)));
+            
+            jt = clamp(jt, -mu*j, mu*j);
+            
+            vec3 frictionImpulse = jt * tangent;
+            frictionImpulse = frictionImpulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
+            
+            vec3 torqueFrictionImpulse = cross(r, frictionImpulse);
+            
+            m_linearMomentum = m_linearMomentum + frictionImpulse;
+            m_angularMomentum = m_angularMomentum + torqueFrictionImpulse;
         }
+        
         
         // avoid overshooting and undershooting
         m_position.y -= distanceGround;
@@ -355,6 +391,7 @@ void RigidBody::update(float dt) {
             printf("\tcollision points: %lu\n", collisionPoints.size());
             vec3 linearImpulse = m_linearMomentum - org_linearMomentum;
             printf("\tlinear impulse: %f %f %f\n", linearImpulse.x, linearImpulse.y, linearImpulse.z);
+            printf("\tm_linearMomentum: %f %f %f\n", m_linearMomentum.x, m_linearMomentum.y, m_linearMomentum.z);
             firstTime = false;
         }
     }
