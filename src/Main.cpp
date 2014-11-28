@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string>
 #include <ctime>
+#include <vector>
 
 #include "Assets.h"
 #include "Camera.h"
@@ -21,6 +22,7 @@
 #include "PointLight.h"
 #include "Material.h"
 #include "RigidBody.h"
+#include "RigidBodyFactory.h"
 
 using namespace std;
 
@@ -53,6 +55,8 @@ bool lightFollowsCamera = false;
 bool lKeyPressed = false;
 bool xKeyPressed = false;
 bool pKeyPressed = false;
+bool nKeyPressed = false;
+bool bKeyPressed = false;
 
 GLFWwindow *window;
 
@@ -60,16 +64,13 @@ Camera camera;
 PointLight light;
 
 Body plane;
-RigidBody spinningTop;
 
-void reset() {
-    spinningTop = RigidBody();
-    spinningTop.setPosition(glm::vec3(0, 5, 0));
-    spinningTop.setMaterial(&Assets::blueMaterial);
-    spinningTop.setTexture(&Assets::checkerboard);
-    
-//    spinningTop.setOrientation(glm::quat_cast(glm::rotate((float)M_PI_4, glm::vec3(1, 0, 0))));
-}
+const int MAX_SIMULATION_SAVE_STATES = 1000;
+
+int currentRenderState;
+vector<vector<RigidBody> > simulationStates;
+
+RigidBody spinningTop;
 
 void resetCamera()
 {
@@ -77,59 +78,6 @@ void resetCamera()
     camera.setOrientation(fquat(1.0,0,0,0));
     camera.pitch(10 * M_PI / 180.0f);
     camera.setAspectRatio((float)width/height);
-}
-
-void resetSphere() {
-    reset();
-    spinningTop.setMesh(&Assets::sphere);
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.5, 2.5, 2.5)));
-}
-
-void resetCube() {
-    reset();
-    spinningTop.setMesh(&Assets::cube);
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(1.5, 1.5, 1.5)));
-}
-
-void resetSpinningTop1() {
-    reset();
-    spinningTop.setMesh(&Assets::spinningTop1);
-//    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 3.4, 5)));
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 1.5*5, 5)));
-}
-
-void resetSpinningTop2() {
-    reset();
-    spinningTop.setMesh(&Assets::spinningTop2);
-//    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 1.5*4.8, 4.8)));
-}
-
-void resetSpinningTop3() {
-    reset();
-    spinningTop.setMesh(&Assets::spinningTop3);
-//    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 2.4, 3.6)));
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 1.5*3.6, 3.6)));
-}
-
-void resetSpinningTop3Top() {
-    reset();
-    spinningTop.setMesh(&Assets::spinningTop3Top);
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(1.19, 2.42, 1.19)));    // After 1 Mio. samples
-    spinningTop.setMaterial(&Assets::yellowMaterial);
-}
-
-void resetSpinningTop3Bottom() {
-    reset();
-    spinningTop.setMesh(&Assets::spinningTop3Bottom);
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.79, 2.42, 2.79)));    // After 1 Mio. samples
-    spinningTop.setMaterial(&Assets::redMaterial);
-}
-
-void resetSpinningTop4() {
-    reset();
-    spinningTop.setMesh(&Assets::spinningTop4);
-    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2, 2, 2)));
 }
 
 void addTorque() {
@@ -140,6 +88,44 @@ void addTorque() {
 void addReverseTorque() {
     spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition() + glm::vec3(1, 0, 0));
     spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition() + glm::vec3(-1, 0, 0));
+}
+
+void resetStates() {
+    currentRenderState = 0;
+    simulationStates = vector<vector<RigidBody> >();
+}
+
+void forwardStep() {
+    if (currentRenderState == simulationStates.size()) {
+        spinningTop.update(timeStep);
+        vector<RigidBody> bodies = vector<RigidBody> {spinningTop};
+        simulationStates.push_back(bodies);
+        
+        if (simulationStates.size() > MAX_SIMULATION_SAVE_STATES) {
+            simulationStates.erase(simulationStates.begin());
+        }
+        else {
+            currentRenderState++;
+        }
+    }
+    else if (currentRenderState < simulationStates.size()) {
+        vector<RigidBody> bodies = simulationStates[currentRenderState];
+        spinningTop = bodies[0];
+        currentRenderState++;
+    }
+}
+
+void backwardStep() {
+    if (currentRenderState == 1) return;
+    currentRenderState--;
+    vector<RigidBody> bodies = simulationStates[currentRenderState-1];
+    spinningTop = bodies[0];
+}
+
+void removeOldStates() {
+    for (int i = 0; i < simulationStates.size() - currentRenderState; i++) {
+        simulationStates.pop_back();
+    }
 }
 
 int main()
@@ -167,7 +153,9 @@ int main()
     plane.setMesh(&Assets::plane);
     plane.setMaterial(&Assets::planeMaterial);
     
-    resetSpinningTop3Bottom();
+    resetStates();
+    
+    RigidBodyFactory::resetSpinningTop1(spinningTop);
 
     glfwGetFramebufferSize(window, &width, &height);
     printf("Framebuffer width: %d height: %d\n", width, height);
@@ -195,7 +183,7 @@ int main()
             //printf("update call\n");
             if (fixTimestep)
             {
-                spinningTop.update(timeStep);
+                forwardStep();
             } else {
                 spinningTop.update(deltaTime);
             }
@@ -254,61 +242,85 @@ void render() {
 
 void input(float dt) {
     
-    // Select Spinning Top
+    bool cleanStates = false;
     
-    if (glfwGetKey(window, GLFW_KEY_1)) {
-        resetSpinningTop1();
+    if (!pause) {
+        // Select Spinning Top
+        
+        if (glfwGetKey(window, GLFW_KEY_1)) {
+            RigidBodyFactory::resetSpinningTop1(spinningTop);
+            cleanStates = true;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_2)) {
+            RigidBodyFactory::resetSpinningTop2(spinningTop);
+            cleanStates = true;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_3)) {
+            RigidBodyFactory::resetSpinningTop3(spinningTop);
+            cleanStates = true;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_4)) {
+            RigidBodyFactory::resetSpinningTop4(spinningTop);
+            cleanStates = true;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_5)) {
+            RigidBodyFactory::resetSpinningTop3Top(spinningTop);
+            cleanStates = true;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_6)) {
+            RigidBodyFactory::resetSpinningTop3Bottom(spinningTop);
+            cleanStates = true;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_9)) {
+            RigidBodyFactory::resetCube(spinningTop);
+            cleanStates = true;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_0)) {
+            RigidBodyFactory::resetSphere(spinningTop);
+            cleanStates = true;
+        }
+        
+        // Control Spinning Top
+        
+        if (glfwGetKey(window, GLFW_KEY_T)) {
+            addTorque();
+            cleanStates = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_R)) {
+            addReverseTorque();
+            cleanStates = true;
+        }
+        
+        if (glfwGetKey(window, GLFW_KEY_U)) {
+            spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition());
+            cleanStates = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_H)) {
+            spinningTop.addForce(glm::vec3(-10, 0, 0), spinningTop.getPosition());
+            cleanStates = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_J)) {
+            spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition());
+            cleanStates = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_K)) {
+            spinningTop.addForce(glm::vec3(10, 0, 0), spinningTop.getPosition());
+            cleanStates = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
+            spinningTop.addForce(glm::vec3(0, 20, 0), spinningTop.getPosition());
+            cleanStates = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_I)) {
+            spinningTop.addForce(glm::vec3(5, 0, 0), spinningTop.getPosition() + glm::vec3(0, 1, 0));
+            cleanStates = true;
+        }
+        
+        if (cleanStates) {
+            removeOldStates();
+        }
     }
-    else if (glfwGetKey(window, GLFW_KEY_2)) {
-        resetSpinningTop2();
-    }
-    else if (glfwGetKey(window, GLFW_KEY_3)) {
-        resetSpinningTop3();
-    }
-    else if (glfwGetKey(window, GLFW_KEY_4)) {
-        resetSpinningTop4();
-    }
-    else if (glfwGetKey(window, GLFW_KEY_5)) {
-        resetSpinningTop3Top();
-    }
-    else if (glfwGetKey(window, GLFW_KEY_6)) {
-        resetSpinningTop3Bottom();
-    }
-    else if (glfwGetKey(window, GLFW_KEY_9)) {
-        resetCube();
-    }
-    else if (glfwGetKey(window, GLFW_KEY_0)) {
-        resetSphere();
-    }
-    
-    // Control Spinning Top
-    
-    if (glfwGetKey(window, GLFW_KEY_T)) {
-        addTorque();
-    }
-    if (glfwGetKey(window, GLFW_KEY_R)) {
-        addReverseTorque();
-    }
-    
-    if (glfwGetKey(window, GLFW_KEY_U)) {
-        spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition());
-    }
-    if (glfwGetKey(window, GLFW_KEY_H)) {
-        spinningTop.addForce(glm::vec3(-10, 0, 0), spinningTop.getPosition());
-    }
-    if (glfwGetKey(window, GLFW_KEY_J)) {
-        spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition());
-    }
-    if (glfwGetKey(window, GLFW_KEY_K)) {
-        spinningTop.addForce(glm::vec3(10, 0, 0), spinningTop.getPosition());
-    }
-    if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
-        spinningTop.addForce(glm::vec3(0, 20, 0), spinningTop.getPosition());
-    }
-    if (glfwGetKey(window, GLFW_KEY_I)) {
-        spinningTop.addForce(glm::vec3(5, 0, 0), spinningTop.getPosition() + glm::vec3(0, 1, 0));
-    }
-    
+
     // Camera
     
     if (glfwGetKey(window, GLFW_KEY_SPACE)) {
@@ -353,14 +365,6 @@ void input(float dt) {
     
     // Control Simulation
     
-    if (glfwGetKey(window, GLFW_KEY_X) && !xKeyPressed) {
-        xKeyPressed = true;
-        slowMotion = !slowMotion;
-    }
-    else if (!glfwGetKey(window, GLFW_KEY_X)) {
-        xKeyPressed = false;
-    }
-    
     if (glfwGetKey(window, GLFW_KEY_P) && !pKeyPressed)
     {
         pKeyPressed = true;
@@ -370,15 +374,48 @@ void input(float dt) {
         pKeyPressed = false;
     }
     
+    if (pause) {
+        if (glfwGetKey(window, GLFW_KEY_X) && !xKeyPressed) {
+            xKeyPressed = true;
+            slowMotion = !slowMotion;
+        }
+        else if (!glfwGetKey(window, GLFW_KEY_X)) {
+            xKeyPressed = false;
+        }
+        
+        if (glfwGetKey(window, GLFW_KEY_N) && !nKeyPressed) {
+            nKeyPressed = true;
+            forwardStep();
+        }
+        else if (!glfwGetKey(window, GLFW_KEY_N)) {
+            nKeyPressed = false;
+        }
+        
+        if (glfwGetKey(window, GLFW_KEY_N) && glfwGetKey(window, GLFW_KEY_M)) {
+            forwardStep();
+        }
+        if (glfwGetKey(window, GLFW_KEY_B) && glfwGetKey(window, GLFW_KEY_M)) {
+            backwardStep();
+        }
+        
+        if (glfwGetKey(window, GLFW_KEY_B) && !bKeyPressed) {
+            bKeyPressed = true;
+            backwardStep();
+        }
+        else if (!glfwGetKey(window, GLFW_KEY_B)) {
+            bKeyPressed = false;
+        }
+    }
+    
     // Control Light
     
-    if (glfwGetKey(window, GLFW_KEY_L) && !lKeyPressed) {
-        lKeyPressed = true;
-        lightFollowsCamera = !lightFollowsCamera;
-    } else if (!glfwGetKey(window, GLFW_KEY_L))
-    {
-        lKeyPressed = false;
-    }
+//    if (glfwGetKey(window, GLFW_KEY_L) && !lKeyPressed) {
+//        lKeyPressed = true;
+//        lightFollowsCamera = !lightFollowsCamera;
+//    } else if (!glfwGetKey(window, GLFW_KEY_L))
+//    {
+//        lKeyPressed = false;
+//    }
     
     if (lightFollowsCamera) {
         light.setPosition(camera.getPosition());
@@ -428,9 +465,7 @@ void setupContext() {
 
 void destroyContext() {
 	// close GL context and any other GLFW resources
-
 	glfwDestroyWindow(window);
-
 	glfwTerminate();
 }
 
