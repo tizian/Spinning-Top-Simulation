@@ -234,6 +234,7 @@ float RigidBody::distanceToGround()
 
 // assume ground at (x, 0, z)
 // returns the colliding vertices with their world coordinates
+// The first entry is the one for collision response. The others are for the friction
 std::vector<vec3> RigidBody::intersectWithGround()
 {
 //    vec3 normal = vec3(0,1,0);
@@ -292,8 +293,9 @@ std::vector<vec3> RigidBody::intersectWithGround()
     }
     
     if (points.size() > 1) {
-        points = std::vector<vec3>();
-        points.push_back(point);
+        /*points = std::vector<vec3>();
+        points.push_back(point);*/
+        points.insert(points.begin(), point);
     }
     
     return points;
@@ -333,12 +335,11 @@ void RigidBody::update(float dt) {
         
         vec3 org_linearMomentum = m_linearMomentum;
         
-        for (int i = 0; i < collisionPoints.size(); i++)
-        {
+
             // Impulse-Based Collision Response
             
 //            printf("collision point: %f %f %f\n", collisionPoints[i].x, collisionPoints[i].y, collisionPoints[i].z);
-            vec3 r = collisionPoints[i] - m_position;   // r_a = p - x(t)
+            vec3 r = collisionPoints[0] - m_position;   // r_a = p - x(t)
             vec3 v = org_linearMomentum / m_mass + cross(m_angularVelocity, r);
             
             vec3 vrel = v - vec3(0, 0, 0);    // v_r = v_p2 - v_p1
@@ -364,7 +365,8 @@ void RigidBody::update(float dt) {
             m_linearMomentum = m_linearMomentum + impulse;
             m_angularMomentum = m_angularMomentum + torqueImpulse;
             
-            
+        for (int i = 0; i < collisionPoints.size(); i++)
+        {
             // Impulse-Based Friction Model (Coulomb friction model)
             
             float mu = 0.8; // wild guess
