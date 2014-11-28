@@ -45,10 +45,14 @@ float camRotSpeed = 100.0f * M_PI / 180.0f;
 // slow motion does not work for fixed time steps. (That's fine!)
 bool slowMotion;
 
+// to pause the simulation
+bool pause;
+
 bool lightFollowsCamera = false;
 
 bool lKeyPressed = false;
 bool xKeyPressed = false;
+bool pKeyPressed = false;
 
 GLFWwindow *window;
 
@@ -172,6 +176,8 @@ int main()
 
     light = PointLight(glm::vec3(0, 10, 0));
     
+    pause = false;
+    
 	while (!glfwWindowShouldClose(window)) {
         
 		// Timer
@@ -184,12 +190,15 @@ int main()
             deltaTime /= 8;
         }
         
-        //printf("update call\n");
-        if (fixTimestep)
+        if (!pause)
         {
-            spinningTop.update(timeStep);
-        } else {
-            spinningTop.update(deltaTime);
+            //printf("update call\n");
+            if (fixTimestep)
+            {
+                spinningTop.update(timeStep);
+            } else {
+                spinningTop.update(deltaTime);
+            }
         }
         
         if (slowMotion) {
@@ -244,7 +253,8 @@ void render() {
 }
 
 void input(float dt) {
-    // Select ST
+    
+    // Select Spinning Top
     
     if (glfwGetKey(window, GLFW_KEY_1)) {
         resetSpinningTop1();
@@ -271,7 +281,7 @@ void input(float dt) {
         resetSphere();
     }
     
-    // Control ST
+    // Control Spinning Top
     
     if (glfwGetKey(window, GLFW_KEY_T)) {
         addTorque();
@@ -299,6 +309,7 @@ void input(float dt) {
         spinningTop.addForce(glm::vec3(5, 0, 0), spinningTop.getPosition() + glm::vec3(0, 1, 0));
     }
     
+    // Camera
     
     if (glfwGetKey(window, GLFW_KEY_SPACE)) {
         camera.moveUpDown(-camSpeed * dt);
@@ -340,6 +351,8 @@ void input(float dt) {
         camera.yaw(deltaTheta);
     }
     
+    // Control Simulation
+    
     if (glfwGetKey(window, GLFW_KEY_X) && !xKeyPressed) {
         xKeyPressed = true;
         slowMotion = !slowMotion;
@@ -347,6 +360,17 @@ void input(float dt) {
     else if (!glfwGetKey(window, GLFW_KEY_X)) {
         xKeyPressed = false;
     }
+    
+    if (glfwGetKey(window, GLFW_KEY_P) && !pKeyPressed)
+    {
+        pKeyPressed = true;
+        pause = !pause;
+    } else if (!glfwGetKey(window, GLFW_KEY_P))
+    {
+        pKeyPressed = false;
+    }
+    
+    // Control Light
     
     if (glfwGetKey(window, GLFW_KEY_L) && !lKeyPressed) {
         lKeyPressed = true;
