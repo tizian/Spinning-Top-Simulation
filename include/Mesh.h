@@ -19,7 +19,7 @@ public:
 
     GLfloat * getVertices();
     GLuint getNumVertices();
-    GLfloat * getNormarls();
+    GLfloat * getNormals();
     
 	void loadFromFile(const std::string & filename);
 	void loadVBO();

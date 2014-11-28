@@ -54,7 +54,7 @@ GLuint Mesh::getNumVertices(){
     return m_numVertices;
 }
 
-GLfloat * Mesh::getNormarls(){
+GLfloat * Mesh::getNormals(){
     return m_normals;
 }
 
