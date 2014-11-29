@@ -18,6 +18,8 @@ namespace Assets {
     Mesh spinningTop2;
     Mesh spinningTop3;
     Mesh spinningTop4;
+    Mesh spinningTop5;
+    Mesh spinningTop6;
     Mesh spinningTop3Top;
     Mesh spinningTop3Bottom;
     
@@ -42,6 +44,8 @@ namespace Assets {
         spinningTop2 = Mesh("models/spinningTop2.obj");
         spinningTop3 = Mesh("models/spinningTop3.obj");
         spinningTop4 = Mesh("models/spinningTop4.obj");
+        spinningTop5 = Mesh("models/spinningTop5.obj");
+        spinningTop6 = Mesh("models/spinningTop6.obj");
         spinningTop3Top = Mesh("models/spinningTop3_TopHeavy.obj");
         spinningTop3Bottom = Mesh("models/spinningTop3_BottomHeavy.obj");
         

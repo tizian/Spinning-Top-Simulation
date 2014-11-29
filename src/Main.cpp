@@ -155,7 +155,7 @@ int main()
     
     resetStates();
     
-    RigidBodyFactory::resetSpinningTop1(spinningTop);
+    RigidBodyFactory::resetSpinningTop6(spinningTop);
 
     glfwGetFramebufferSize(window, &width, &height);
     printf("Framebuffer width: %d height: %d\n", width, height);
@@ -264,11 +264,11 @@ void input(float dt) {
             cleanStates = true;
         }
         else if (glfwGetKey(window, GLFW_KEY_5)) {
-            RigidBodyFactory::resetSpinningTop3Top(spinningTop);
+            RigidBodyFactory::resetSpinningTop5(spinningTop);
             cleanStates = true;
         }
         else if (glfwGetKey(window, GLFW_KEY_6)) {
-            RigidBodyFactory::resetSpinningTop3Bottom(spinningTop);
+            RigidBodyFactory::resetSpinningTop6(spinningTop);
             cleanStates = true;
         }
         else if (glfwGetKey(window, GLFW_KEY_9)) {

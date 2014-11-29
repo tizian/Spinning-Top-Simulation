@@ -55,6 +55,9 @@ http://en.wikipedia.org/wiki/Angular_velocity
 More about collisions:
 http://en.wikipedia.org/wiki/Collision_response (Includes Impulse-Based Friction Model!)
 
+Awesome(?) paper (same as wiki but with explanations!)
+http://docs.google.com/fileview?id=0Bze6mKYvrpOKYjdkODVhMTAtM2Q4Zi00NzgyLWE2YzMtN2MwZmQ4NjA3OWMw&hl=en
+
 Realtime Rigid Body Simulation Using Impulses:
 http://files.slembcke.net/misc/RigidBodies.pdf
 
