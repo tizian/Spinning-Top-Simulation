@@ -182,7 +182,11 @@ int main()
     
     resetStates();
     
-    RigidBodyFactory::resetSpinningTop6(spinningTop);
+    RigidBody spinningTop;
+    RigidBodyFactory::resetSpinningTop1(spinningTop);
+    vector<RigidBody> initialState = vector<RigidBody> {spinningTop};
+    simulationStates.push_back(initialState);
+    currentRenderState++;
 
     glfwGetFramebufferSize(window, &width, &height);
     printf("Framebuffer width: %d height: %d\n", width, height);
