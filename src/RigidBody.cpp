@@ -336,36 +336,36 @@ void RigidBody::update(float dt) {
         vec3 org_linearMomentum = m_linearMomentum;
         
 
-            // Impulse-Based Collision Response
-            
-//            printf("collision point: %f %f %f\n", collisionPoints[i].x, collisionPoints[i].y, collisionPoints[i].z);
-            vec3 r = collisionPoints[0] - m_position;   // r_a = p - x(t)
-            vec3 v = org_linearMomentum / m_mass + cross(m_angularVelocity, r);
-            
-            vec3 vrel = v - vec3(0, 0, 0);    // v_r = v_p2 - v_p1
-            
-            if (firstTime) {
-                printf("\tvrel: %f %f %f\n", vrel.x, vrel.y, vrel.z);
-            }
-            
-            // Colliding contact
-            
-            float e = 0.3;  // Coefficient of restitution
-            float j = -(1.f+e)*dot(vrel, normal)/(1.f/m_mass + dot(normal, cross(m_inertiaTensorInv * cross(r, normal), r)));
-            j = max(0.0f, j);   // not sure... part of 'Realtime Rigid Body Simulation Using Impulses' paper
-//            printf("j: %f\n", j);
-            
-            vec3 impulse = j * normal;
-            impulse = impulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
-//            printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
-            
-            vec3 torqueImpulse = cross(r, impulse);
-//            printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
-            
-            m_linearMomentum = m_linearMomentum + impulse;
-            m_angularMomentum = m_angularMomentum + torqueImpulse;
-            
-        for (int i = 0; i < collisionPoints.size(); i++)
+        // Impulse-Based Collision Response
+        
+//        printf("THE collision point: %f %f %f\n", collisionPoints[0].x, collisionPoints[0].y, collisionPoints[0].z);
+        vec3 r = collisionPoints[0] - m_position;   // r_a = p - x(t)
+        vec3 v = org_linearMomentum / m_mass + cross(m_angularVelocity, r);
+        
+        vec3 vrel = v - vec3(0, 0, 0);    // v_r = v_p2 - v_p1
+        
+        if (firstTime) {
+            printf("\tvrel: %f %f %f\n", vrel.x, vrel.y, vrel.z);
+        }
+        
+        // Colliding contact
+        
+        float e = 0.3;  // Coefficient of restitution
+        float j = -(1.f+e)*dot(vrel, normal)/(1.f/m_mass + dot(normal, cross(m_inertiaTensorInv * cross(r, normal), r)));
+        j = max(0.0f, j);   // not sure... part of 'Realtime Rigid Body Simulation Using Impulses' paper
+//      printf("j: %f\n", j);
+        
+        vec3 impulse = j * normal;
+//        impulse = impulse * (1.f/collisionPoints.size());  // In theory: only one collision point... NOW also in praxis
+//      printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
+        
+        vec3 torqueImpulse = cross(r, impulse);
+//      printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
+        
+        m_linearMomentum = m_linearMomentum + impulse;
+        m_angularMomentum = m_angularMomentum + torqueImpulse;
+        
+        for (int i = collisionPoints.size() == 1 ? 0 : 1; i < collisionPoints.size(); i++)
         {
             // Impulse-Based Friction Model (Coulomb friction model)
             

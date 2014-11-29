@@ -32,14 +32,15 @@ void glfwFrameBufferSizeCallback(GLFWwindow *window, int width, int height);
 void setupContext();
 void destroyContext();
 
-void render();
+void render(vector<RigidBody> state);
 void input(float dt);
 
 static int width = 640;
 static int height = 640;
 
+// default = fixed; 1 = dynamic; 2 = gafferongames fixed
+int timeStepMethod = 0;
 float timeStep = 0.01;
-bool fixTimestep = true;
 
 float camSpeed = 8.0f;
 float camRotSpeed = 100.0f * M_PI / 180.0f;
@@ -70,7 +71,7 @@ const int MAX_SIMULATION_SAVE_STATES = 1000;
 int currentRenderState;
 vector<vector<RigidBody> > simulationStates;
 
-RigidBody spinningTop;
+//RigidBody spinningTop;
 
 void resetCamera()
 {
@@ -81,13 +82,17 @@ void resetCamera()
 }
 
 void addTorque() {
+    RigidBody spinningTop = simulationStates[currentRenderState-1][0];
     spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition() + glm::vec3(1, 0, 0));
     spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition() + glm::vec3(-1, 0, 0));
+    simulationStates[currentRenderState-1][0] = spinningTop;
 }
 
 void addReverseTorque() {
+    RigidBody spinningTop = simulationStates[currentRenderState-1][0];
     spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition() + glm::vec3(1, 0, 0));
     spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition() + glm::vec3(-1, 0, 0));
+    simulationStates[currentRenderState-1][0] = spinningTop;
 }
 
 void resetStates() {
@@ -95,10 +100,17 @@ void resetStates() {
     simulationStates = vector<vector<RigidBody> >();
 }
 
-void forwardStep() {
+void forwardStep(float dt) {
     if (currentRenderState == simulationStates.size()) {
-        spinningTop.update(timeStep);
-        vector<RigidBody> bodies = vector<RigidBody> {spinningTop};
+        vector<RigidBody> bodies = vector<RigidBody>();
+        for (int i = 0; i < simulationStates[currentRenderState-1].size(); ++i) {
+            bodies.push_back(simulationStates[currentRenderState-1][i]);
+        }
+        
+        for (int i = 0; i < bodies.size(); ++i) {
+            bodies[i].update(dt);
+        }
+        
         simulationStates.push_back(bodies);
         
         if (simulationStates.size() > MAX_SIMULATION_SAVE_STATES) {
@@ -109,8 +121,6 @@ void forwardStep() {
         }
     }
     else if (currentRenderState < simulationStates.size()) {
-        vector<RigidBody> bodies = simulationStates[currentRenderState];
-        spinningTop = bodies[0];
         currentRenderState++;
     }
 }
@@ -118,14 +128,31 @@ void forwardStep() {
 void backwardStep() {
     if (currentRenderState == 1) return;
     currentRenderState--;
-    vector<RigidBody> bodies = simulationStates[currentRenderState-1];
-    spinningTop = bodies[0];
 }
 
 void removeOldStates() {
     for (int i = 0; i < simulationStates.size() - currentRenderState; i++) {
         simulationStates.pop_back();
     }
+}
+
+// return (1-alpha) * fromState + alpha * toState;
+// interpolates positiona and orientation
+vector<RigidBody> interpolateState(vector<RigidBody> fromState, vector<RigidBody> toState, float alpha)
+{
+    vector<RigidBody> returnState = vector<RigidBody>();
+    
+    if (fromState.size() == toState.size())
+    {
+        for (int i = 0; i < fromState.size(); ++i) {
+            RigidBody current = fromState[i];
+            current.setPosition(fromState[i].getPosition() * (1.f-alpha) + toState[i].getPosition() * alpha);
+            current.setOrientation(fromState[i].getOrientation() * (1.f-alpha) + toState[i].getOrientation() * alpha);
+            returnState.push_back(current);
+        }
+    }
+    
+    return returnState;
 }
 
 int main()
@@ -155,8 +182,12 @@ int main()
     
     resetStates();
     
+    RigidBody spinningTop;
     RigidBodyFactory::resetSpinningTop1(spinningTop);
-
+    vector<RigidBody> initialState = vector<RigidBody> {spinningTop};
+    simulationStates.push_back(initialState);
+    currentRenderState++;
+    
     glfwGetFramebufferSize(window, &width, &height);
     printf("Framebuffer width: %d height: %d\n", width, height);
     
@@ -165,6 +196,9 @@ int main()
     light = PointLight(glm::vec3(0, 10, 0));
     
     pause = false;
+    
+    double accumulator = 0.0;
+    //forwardStep(timeStep);
     
 	while (!glfwWindowShouldClose(window)) {
         
@@ -178,14 +212,40 @@ int main()
             deltaTime /= 8;
         }
         
+        vector<RigidBody> state = simulationStates[currentRenderState-1];
+        
         if (!pause)
         {
             //printf("update call\n");
-            if (fixTimestep)
+            if (timeStepMethod == 1)
             {
-                forwardStep();
+                forwardStep(deltaTime);
+                state = simulationStates[currentRenderState-1];
+            } else if (timeStepMethod == 2) {
+                if (deltaTime > 0.25)
+                {
+                    deltaTime = 0.25;
+                }
+                
+                accumulator += deltaTime;
+                
+                //printf("accumulator: %f\n", accumulator);
+                while (accumulator >= timeStep) {
+                    forwardStep(timeStep);
+                    accumulator -= timeStep;
+                }
+                
+                double alpha = accumulator / timeStep;
+                
+                if (currentRenderState > 1)
+                {
+                    state = interpolateState(simulationStates[currentRenderState-2], simulationStates[currentRenderState-1], alpha);
+                } else {
+                    state = simulationStates[currentRenderState-1];
+                }
             } else {
-                spinningTop.update(deltaTime);
+                forwardStep(timeStep);
+                state = simulationStates[currentRenderState-1];
             }
         }
         
@@ -195,9 +255,9 @@ int main()
         
         input(deltaTime);
         
-        render();
+        render(state);
         
-        //glfwSwapInterval(0);
+        glfwSwapInterval(0);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -210,7 +270,7 @@ int main()
 	return 0;
 }
 
-void render() {
+void render(vector<RigidBody> state) {
     // clear drawing surface
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -222,7 +282,10 @@ void render() {
     light.setUniforms();
     camera.setUniforms();
     
-    spinningTop.render();
+    for (int i = 0; i < state.size(); ++i)
+    {
+        state[i].render();
+    }
     
     Assets::phongShader.use();
     
@@ -237,7 +300,10 @@ void render() {
     camera.setUniforms();
     Shader::setUniform("shadowColor", glm::vec4(0, 0, 0, 0.6));
     
-    spinningTop.render();
+    for (int i = 0; i < state.size(); ++i)
+    {
+        state[i].render();
+    }
 }
 
 void input(float dt) {
@@ -246,6 +312,7 @@ void input(float dt) {
     
     if (!pause) {
         // Select Spinning Top
+        RigidBody spinningTop = simulationStates[currentRenderState-1][0];
         
         if (glfwGetKey(window, GLFW_KEY_1)) {
             RigidBodyFactory::resetSpinningTop1(spinningTop);
@@ -280,6 +347,8 @@ void input(float dt) {
             cleanStates = true;
         }
         
+        simulationStates[currentRenderState-1][0] = spinningTop;
+        
         // Control Spinning Top
         
         if (glfwGetKey(window, GLFW_KEY_T)) {
@@ -290,6 +359,8 @@ void input(float dt) {
             addReverseTorque();
             cleanStates = true;
         }
+        
+        spinningTop = simulationStates[currentRenderState-1][0];
         
         if (glfwGetKey(window, GLFW_KEY_U)) {
             spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition());
@@ -315,6 +386,8 @@ void input(float dt) {
             spinningTop.addForce(glm::vec3(5, 0, 0), spinningTop.getPosition() + glm::vec3(0, 1, 0));
             cleanStates = true;
         }
+        
+        simulationStates[currentRenderState-1][0] = spinningTop;
         
         if (cleanStates) {
             removeOldStates();
@@ -385,14 +458,14 @@ void input(float dt) {
         
         if (glfwGetKey(window, GLFW_KEY_N) && !nKeyPressed) {
             nKeyPressed = true;
-            forwardStep();
+            forwardStep(timeStep);
         }
         else if (!glfwGetKey(window, GLFW_KEY_N)) {
             nKeyPressed = false;
         }
         
         if (glfwGetKey(window, GLFW_KEY_N) && glfwGetKey(window, GLFW_KEY_M)) {
-            forwardStep();
+            forwardStep(timeStep);
         }
         if (glfwGetKey(window, GLFW_KEY_B) && glfwGetKey(window, GLFW_KEY_M)) {
             backwardStep();
