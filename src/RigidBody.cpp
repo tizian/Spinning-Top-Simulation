@@ -212,20 +212,35 @@ void RigidBody::addForce(const vec3 force, const vec3 position) {
 }
 
 // assume ground at (x, 0, z)
+// only accurate if rigidbody is below the ground, otherwise it returns the distance of the boundingBox to the ground
 float RigidBody::distanceToGround()
 {
     GLfloat dist = MAXFLOAT;
-    GLfloat * vertices = m_mesh->getVertices();
-    //printf("NumVertices: %d\n", m_mesh->getNumVertices());
+    GLfloat * vertices = boundingBox.getVertices();
     
-    for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
-    {
+    for (int i = 0; i < boundingBox.getNumVertices(); i += 3) {
         vec4 tmp = model() * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
-        //printf("x: %f y: %f z: %f\n", tmp.x, tmp.y, tmp.z);
+//        printf("boundingBox: %f %f %f\n", vertices[i], vertices[i+1], vertices[i+2]);
         if (tmp.y < dist)
         {
-            //printf("relevant vertex: %d\n", i/3);
             dist = tmp.y;
+        }
+    }
+    
+    if (dist < 0)
+    {
+        dist = MAXFLOAT;
+        vertices = m_mesh->getVertices();
+        
+        for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
+        {
+            vec4 tmp = model() * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
+//            printf("x: %f y: %f z: %f\n", tmp.x, tmp.y, tmp.z);
+            if (tmp.y < dist)
+            {
+//                printf("relevant vertex: %d\n", i/3);
+                dist = tmp.y;
+            }
         }
     }
     
@@ -293,8 +308,6 @@ std::vector<vec3> RigidBody::intersectWithGround()
     }
     
     if (points.size() > 1) {
-        /*points = std::vector<vec3>();
-        points.push_back(point);*/
         points.insert(points.begin(), point);
     }
     
@@ -350,7 +363,7 @@ void RigidBody::update(float dt) {
         
         // Colliding contact
         
-        float e = 0.3;  // Coefficient of restitution
+        float e = 0.3f;  // Coefficient of restitution
         float j = -(1.f+e)*dot(vrel, normal)/(1.f/m_mass + dot(normal, cross(m_inertiaTensorInv * cross(r, normal), r)));
         j = max(0.0f, j);   // not sure... part of 'Realtime Rigid Body Simulation Using Impulses' paper
 //      printf("j: %f\n", j);

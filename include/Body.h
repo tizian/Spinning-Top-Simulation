@@ -65,12 +65,12 @@ protected:
     glm::quat m_orientation;
     
     Mesh * m_mesh;
-
+    
+    AABB boundingBox;
+    
 private:
 	Material * m_material;
     Texture * m_texture;
     
 	glm::vec3 m_scale;
-    
-    AABB boundingBox;
 };
