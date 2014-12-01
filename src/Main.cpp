@@ -175,6 +175,10 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
+    // STENCIL BUFFER
+    glEnable(GL_STENCIL_TEST);
+    
+    
     plane = Body(glm::vec3(0, 0, 0));
     plane.setScale(glm::vec3(10, 1, 10));
     plane.setMesh(&Assets::plane);
@@ -257,7 +261,7 @@ int main()
         
         render(state);
         
-        glfwSwapInterval(0);
+//        glfwSwapInterval(0);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -274,6 +278,10 @@ void render(vector<RigidBody> state) {
     // clear drawing surface
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
+    glStencilMask(0xFF);
     
     glViewport(0, 0, width, height);
     
@@ -295,6 +303,10 @@ void render(vector<RigidBody> state) {
     plane.render();
     
     Assets::shadowShader.use();
+    
+    glStencilFunc(GL_EQUAL, 0, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+    glStencilMask(0xFF);
     
     light.setUniforms();
     camera.setUniforms();
