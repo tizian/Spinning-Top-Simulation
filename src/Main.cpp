@@ -83,15 +83,41 @@ void resetCamera()
 
 void addTorque() {
     RigidBody spinningTop = simulationStates[currentRenderState-1][0];
-    spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition() + glm::vec3(1, 0, 0));
-    spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition() + glm::vec3(-1, 0, 0));
+    
+    vec3 F1 = vec3(0, 0, 10);
+    vec3 F2 = vec3(0, 0, -10);
+    
+    vec3 P1 = spinningTop.getPosition() + glm::vec3(1, 0, 0);
+    vec3 P2 = spinningTop.getPosition() + glm::vec3(-1, 0, 0);
+    
+    F1 = mat3(spinningTop.model()) * F1;
+    F2 = mat3(spinningTop.model()) * F2;
+    
+    P1 = mat3(spinningTop.model()) * P1;
+    P2 = mat3(spinningTop.model()) * P2;
+    
+    spinningTop.addForce(F1, P1);
+    spinningTop.addForce(F2, P2);
     simulationStates[currentRenderState-1][0] = spinningTop;
 }
 
 void addReverseTorque() {
     RigidBody spinningTop = simulationStates[currentRenderState-1][0];
-    spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition() + glm::vec3(1, 0, 0));
-    spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition() + glm::vec3(-1, 0, 0));
+    
+    vec3 F1 = vec3(0, 0, -10);
+    vec3 F2 = vec3(0, 0, 10);
+    
+    vec3 P1 = spinningTop.getPosition() + glm::vec3(1, 0, 0);
+    vec3 P2 = spinningTop.getPosition() + glm::vec3(-1, 0, 0);
+    
+    F1 = mat3(spinningTop.model()) * F1;
+    F2 = mat3(spinningTop.model()) * F2;
+    
+    P1 = mat3(spinningTop.model()) * P1;
+    P2 = mat3(spinningTop.model()) * P2;
+    
+    spinningTop.addForce(F1, P1);
+    spinningTop.addForce(F2, P2);
     simulationStates[currentRenderState-1][0] = spinningTop;
 }
 

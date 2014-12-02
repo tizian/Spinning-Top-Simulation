@@ -21,7 +21,6 @@ public:
     
 private:
     void setDefaults();
-    void calculateInertiaTensor();
     
     void printState();
     
