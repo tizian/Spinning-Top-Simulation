@@ -54,8 +54,6 @@ bool pause;
 // render debug information (CoM only currently)
 bool debug;
 
-bool lightFollowsCamera = false;
-
 bool lKeyPressed = false;
 bool xKeyPressed = false;
 bool pKeyPressed = false;
@@ -67,6 +65,8 @@ GLFWwindow *window;
 
 Camera camera;
 PointLight light;
+
+Body skybox;
 
 Body plane;
 Body table;
@@ -209,6 +209,10 @@ int main()
     // STENCIL BUFFER
     glEnable(GL_STENCIL_TEST);
     
+    skybox = Body(glm::vec3(0.0));
+    skybox.setScale(glm::vec3(250.0));
+    skybox.setMesh(&Assets::skyboxBox);
+    skybox.setTexture(&Assets::skybox);
     
     plane = Body(glm::vec3(0, 0, 0));
     plane.setScale(glm::vec3(10, 1, 10));
@@ -336,6 +340,12 @@ void render(vector<RigidBody> state) {
     glStencilMask(0xFF);
     
     glViewport(0, 0, width, height);
+    
+    Assets::skyboxShader.use();
+    
+    camera.setUniforms();
+    
+    skybox.render();
     
     Assets::textureShader.use();
     
@@ -505,6 +515,8 @@ void input(float dt) {
     if (glfwGetKey(window, GLFW_KEY_C)) {
         resetCamera();
     }
+    
+    skybox.setPosition(camera.getPosition());
     
     float deltaTheta = camRotSpeed * dt;
     

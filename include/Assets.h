@@ -10,6 +10,7 @@ namespace Assets {
 	Shader phongShader;
     Shader textureShader;
     Shader shadowShader;
+    Shader skyboxShader;
 
     Mesh sphere;
     Mesh cube;
@@ -24,12 +25,15 @@ namespace Assets {
     
     Mesh plane;
     Mesh table;
+    Mesh skyboxBox;
     
     // Texture blank;
     Texture checkerboard;
     Texture lightWood;
     Texture darkWood;
     Texture brushedMetal;
+    
+    Texture skybox;
     
     Material planeMaterial;
     Material blueMaterial;
@@ -41,6 +45,7 @@ namespace Assets {
 		phongShader = Shader("shaders/phong.glslv", "shaders/phong.glslf");
         textureShader = Shader("shaders/texturedPhong.glslv", "shaders/texturedPhong.glslf");
         shadowShader = Shader("shaders/planarShadows.glslv", "shaders/planarShadows.glslf");
+        skyboxShader = Shader("shaders/skybox.glslv", "shaders/skybox.glslf");
         
         // Sphere model with right texturecoords taken from: https://www.opengl.org/discussion_boards/showthread.php/176762-looking-for-a-simple-sphere-obj-file
         sphere = Mesh("models/sphere.obj");
@@ -56,12 +61,16 @@ namespace Assets {
         
         plane = Mesh("models/plane.obj");
         table = Mesh("models/table.obj");
+        skyboxBox = Mesh("models/skybox.obj");
         
         // blank = Texture("textures/blank_low.png");
         lightWood = Texture("textures/lightWood.png");
         darkWood = Texture("textures/darkWood.png");
         checkerboard = Texture("textures/checkerboard_low.png");
         brushedMetal = Texture("textures/brushedMetal.png");
+        
+        // Skybox taken from: http://www.keithlantz.net/2011/10/rendering-a-skybox-using-a-cube-map-with-opengl-and-glsl/
+        skybox = Texture("textures/skybox/xpos.png", "textures/skybox/xneg.png", "textures/skybox/ypos.png", "textures/skybox/yneg.png", "textures/skybox/zpos.png", "textures/skybox/zneg.png");
         
         planeMaterial = Material(glm::vec3(0.16, 0.55, 0.16));     // green-ish
         blueMaterial = Material(glm::vec3(0.25, 0.32, 0.6));      // blue-ish
@@ -80,6 +89,8 @@ namespace Assets {
 	void destroy() {
 		phongShader.destroy();
         textureShader.destroy();
+        shadowShader.destroy();
+        skyboxShader.destroy();
         
 		sphere.destroy();
         cube.destroy();
@@ -94,5 +105,6 @@ namespace Assets {
         
         plane.destroy();
         table.destroy();
+        skyboxBox.destroy();
 	}
 };

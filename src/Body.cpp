@@ -146,7 +146,9 @@ void Body::render() {
     
     Shader::setUniform("modelMatrix", model());
     
-    m_material->setUniforms();
+    if (m_material != nullptr) {
+        m_material->setUniforms();
+    }
     
     if (m_texture != nullptr) {
         m_texture->use();
