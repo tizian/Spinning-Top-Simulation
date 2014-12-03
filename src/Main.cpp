@@ -531,7 +531,12 @@ void setupContext() {
 		fprintf(stderr, "ERROR: could not open window with GLFW3\n");
 		glfwTerminate();
 	}
-
+    
+    //const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    //int monitorWidth = mode->width;
+    //int monitorHeight = mode->height;
+    glfwSetWindowPos(window, 0, 0);
+    
 	glfwMakeContextCurrent(window);
 
 	glfwSetWindowSizeCallback(window, glfwWindowResizeCallback);
