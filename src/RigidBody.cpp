@@ -9,6 +9,8 @@
 
 vec3 maxAngularVelocity = vec3(1,1,1) * 100000000.f; // 100 000 000 is an arbitrary but resonable limit to avoid nan
 
+int frictionMethod = 0; // default = forced based friction; 1 = Impulse-Based Friction Model (Coulomb friction model); NYI 2 = Wikipedia; NYI 3 = MatLab
+
 bool firstTime;
 
 mat3 star(const vec3 v) {
@@ -196,6 +198,10 @@ void RigidBody::update(float dt) {
     float distanceGround = distanceToGround();
     vec3 normal = vec3(0, 1, 0);
     
+    // Reset forces and torque
+    m_force = glm::vec3(0, 0, 0);
+    m_torque = glm::vec3(0, 0, 0);
+    
     // check for ground collision and do collision response
     if (distanceGround < 0)
     {
@@ -213,7 +219,7 @@ void RigidBody::update(float dt) {
         
 //        printf("THE collision point: %f %f %f\n", collisionPoints[0].x, collisionPoints[0].y, collisionPoints[0].z);
         vec3 r = collisionPoints[0] - m_position;   // r_a = p - x(t)
-        vec3 v = org_linearMomentum / m_mass + cross(m_angularVelocity, r);
+        vec3 v = m_linearMomentum / m_mass + cross(m_angularVelocity, r);
         
         vec3 vrel = v - vec3(0, 0, 0);    // v_r = v_p2 - v_p1
         
@@ -240,22 +246,45 @@ void RigidBody::update(float dt) {
         
         for (int i = collisionPoints.size() == 1 ? 0 : 1; i < collisionPoints.size(); i++)
         {
-            // Impulse-Based Friction Model (Coulomb friction model)
+            if (frictionMethod == 1) {
+                // Impulse-Based Friction Model (Coulomb friction model)
+                r = collisionPoints[i] - m_position;
+                vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r);
+                
+                float mu = 0.8; // wild guess
+                vec3 tangent = cross(cross(normal, vrel), normal)/length(vrel);
+                
+                float jt = -(1.f+e)*dot(vrel, tangent)/(1.f/m_mass + dot(tangent, cross(m_inertiaTensorInv * cross(r, tangent), r)));
+                
+                jt = clamp(jt, -mu*j, mu*j);
+                
+                vec3 frictionImpulse = jt * tangent;
+                frictionImpulse = frictionImpulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
+                
+                vec3 torqueFrictionImpulse = cross(r, frictionImpulse);
+                
+                m_linearMomentum = m_linearMomentum + frictionImpulse;
+                m_angularMomentum = m_angularMomentum + torqueFrictionImpulse;
             
-            float mu = 0.8; // wild guess
-            vec3 tangent = cross(cross(normal, vrel), normal)/length(vrel);
-            
-            float jt = -(1.f+e)*dot(vrel, tangent)/(1.f/m_mass + dot(tangent, cross(m_inertiaTensorInv * cross(r, tangent), r)));
-            
-            jt = clamp(jt, -mu*j, mu*j);
-            
-            vec3 frictionImpulse = jt * tangent;
-            frictionImpulse = frictionImpulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
-            
-            vec3 torqueFrictionImpulse = cross(r, frictionImpulse);
-            
-            m_linearMomentum = m_linearMomentum + frictionImpulse;
-            m_angularMomentum = m_angularMomentum + torqueFrictionImpulse;
+            } else {
+                
+                // forced based friction model
+                r = collisionPoints[i] - m_position;
+                vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r); // http://en.wikipedia.org/wiki/Angular_velocity
+                vec3 part = cross(m_angularVelocity, r);
+                //printf("vrel: %f %f %f\n", part.x, part.y, part.z);
+                printf("length: %f\n", length(part));
+                printf("length angular: %f\n", dot(m_angularMomentum, r));
+                printf("coefficient: %f\n", dot(m_angularMomentum, r) / length(part));
+                //if (abs(dot(m_angularMomentum, r) / length(part)) > 2)
+                //{
+                    addForce(vrel * 1.f /* (dot(m_angularMomentum, r) / length(part))*/, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
+                    //m_angularMomentum *= 0.999f;
+                //} else {
+                //    addForce(vrel * -1.f, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
+                //}
+                
+            }
         }
         
         
@@ -274,10 +303,6 @@ void RigidBody::update(float dt) {
     // Fake slowing down
 //    m_angularMomentum *= 0.999f;
 //    m_linearMomentum *= 0.999f;
-    
-    // Reset forces and torque
-    m_force = glm::vec3(0, 0, 0);
-    m_torque = glm::vec3(0, 0, 0);
     
     // normalize orientation quaternion
     m_orientation = normalize(m_orientation);

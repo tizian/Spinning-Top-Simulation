@@ -23,6 +23,8 @@ Cosmetic
 - introduce state objects to allow better timesteps and rewind.
 - pause simulation and rewinding
 - Visualize the COM with a red dot, which is always viible
+- Skybox
+- Table instead of ground
 
 Done
 ----
