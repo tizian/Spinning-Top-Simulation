@@ -27,22 +27,22 @@ void main() {
     vec3 P = fPosition.xyz;
     vec3 V = normalize(cameraPosition - P);
     vec3 N = normalize(fNormal);
-
+    
     vec3 ambient = light.color * material.Ka;
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
-
+    
     vec3 L = normalize(light.position - P);
     float LN = dot(L, N);
     if (LN >= 0.0) {
         diffuse += light.color * material.Kd * LN;
-
+        
         vec3 H = normalize(L + V);
         float NH = dot(N, H);
         float kSpec = pow(NH, material.shininess);
         specular += LN * light.color * material.Ks * kSpec;
     }
-
+    
     vec3 color = ambient + diffuse + specular;
     fragColor = clamp(vec4(color, 1.), 0., 1.);
     

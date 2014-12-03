@@ -25,6 +25,7 @@ Cosmetic
 - Visualize the COM with a red dot, which is always viible
 - Skybox
 - Table instead of ground
+- directional light from the top
 
 Done
 ----

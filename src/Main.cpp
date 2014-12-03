@@ -65,6 +65,7 @@ Camera camera;
 PointLight light;
 
 Body plane;
+Body table;
 
 const int MAX_SIMULATION_SAVE_STATES = 1000;
 
@@ -210,6 +211,12 @@ int main()
     plane.setMesh(&Assets::plane);
     plane.setMaterial(&Assets::planeMaterial);
     
+    table = Body(glm::vec3(0, -0.5, 0));
+    table.setScale(glm::vec3(15, 15, 15));
+    table.setMesh(&Assets::table);
+    table.setMaterial(&Assets::whiteMaterial);
+    table.setTexture(&Assets::darkWood);
+    
     resetStates();
     
     RigidBody spinningTop;
@@ -334,12 +341,14 @@ void render(vector<RigidBody> state) {
         state[i].render();
     }
     
+    table.render();
+    
     Assets::phongShader.use();
     
     light.setUniforms();
     camera.setUniforms();
     
-    plane.render();
+//    plane.render();
     
     Assets::shadowShader.use();
     
@@ -531,20 +540,6 @@ void input(float dt) {
         }
     }
     
-    // Control Light
-    
-//    if (glfwGetKey(window, GLFW_KEY_L) && !lKeyPressed) {
-//        lKeyPressed = true;
-//        lightFollowsCamera = !lightFollowsCamera;
-//    } else if (!glfwGetKey(window, GLFW_KEY_L))
-//    {
-//        lKeyPressed = false;
-//    }
-    
-    if (lightFollowsCamera) {
-        light.setPosition(camera.getPosition());
-    }
-    
     // Window closing
     if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(window, 1);
@@ -564,7 +559,7 @@ void setupContext() {
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	window = glfwCreateWindow(width, height, "OpenGL Project", NULL, NULL);
+	window = glfwCreateWindow(width, height, "Spinning Spinning Tops and other things", NULL, NULL);
 
 	if (!window) {
 		fprintf(stderr, "ERROR: could not open window with GLFW3\n");

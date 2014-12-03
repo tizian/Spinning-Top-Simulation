@@ -133,8 +133,9 @@ void Body::render() {
     
     if (m_texture != nullptr) {
         m_texture->use();
+        Shader::setUniform("tex", m_texture->getTextureUnit());
     }
-    Shader::setUniform("tex", 0);
+    
     
 	if (m_mesh == nullptr) {
 		printf("ERROR: Can't render ModelInstance. Mesh not set.\n");

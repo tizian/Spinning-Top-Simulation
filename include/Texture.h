@@ -13,10 +13,15 @@ public:
     Texture(const std::string & texturePath);
     
     GLint getTextureID() const;
+    GLint getTextureUnit() const;
     
     void use();
     
 private:
+    static GLint nextTextureUnit;
+    
+    GLuint m_textureUnit;
+    
     char * readFile(const std::string & filename);
     
     GLuint m_textureID;
