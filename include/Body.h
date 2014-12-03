@@ -33,6 +33,9 @@ public:
     virtual void setMesh(Mesh * mesh);
 	void setMaterial(Material * material);
     void setTexture(Texture * texture);
+    
+    void setDebugMesh(Mesh * mesh);
+    void setDebugMaterial(Material * material);
 
 	Material * getMaterial() const;
 	Mesh * getMesh() const;
@@ -55,6 +58,9 @@ public:
 	// Renders the Model
 	void render();
     
+    // Renders debug information
+    void debugRender();
+    
     // Updates the object
     virtual void update(float dt);
     
@@ -66,11 +72,14 @@ protected:
     
     Mesh * m_mesh;
     
-    AABB boundingBox;
+    AABB m_boundingBox;
     
 private:
 	Material * m_material;
     Texture * m_texture;
+    
+    Mesh * m_debugMesh;
+    Material * m_debugMaterial;
     
 	glm::vec3 m_scale;
 };

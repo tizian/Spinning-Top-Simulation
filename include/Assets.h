@@ -67,7 +67,7 @@ namespace Assets {
         blueMaterial = Material(glm::vec3(0.25, 0.32, 0.6));      // blue-ish
         blueMaterial.setAmbientFactor(0.3f * blueMaterial.getDiffuseFactor());
         
-        redMaterial = Material(glm::vec3(0.6, 0.25, 0.32));      // red-ish
+        redMaterial = Material(glm::vec3(1.0, 0.0, 0.0));      // red
         redMaterial.setAmbientFactor(0.3f * redMaterial.getDiffuseFactor());
         
         yellowMaterial = Material(glm::vec3(0.6, 0.6, 0.32));      // red-ish

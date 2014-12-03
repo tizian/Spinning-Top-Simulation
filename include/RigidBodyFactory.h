@@ -8,6 +8,9 @@ namespace RigidBodyFactory {
         rb.setMaterial(&Assets::whiteMaterial);
         rb.setTexture(&Assets::lightWood);
         
+        rb.setDebugMesh(&Assets::sphere);
+        rb.setDebugMaterial(&Assets::redMaterial);
+        
 //        rb.setOrientation(glm::quat_cast(glm::rotate((float)M_PI/20.0f, glm::vec3(1, 0, 0))));
     }
     

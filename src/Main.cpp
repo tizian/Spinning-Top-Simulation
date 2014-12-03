@@ -51,6 +51,9 @@ bool slowMotion;
 // to pause the simulation
 bool pause;
 
+// render debug information (CoM only currently)
+bool debug;
+
 bool lightFollowsCamera = false;
 
 bool lKeyPressed = false;
@@ -58,6 +61,7 @@ bool xKeyPressed = false;
 bool pKeyPressed = false;
 bool nKeyPressed = false;
 bool bKeyPressed = false;
+bool periodKeyPressed = false;
 
 GLFWwindow *window;
 
@@ -234,6 +238,8 @@ int main()
     
     pause = false;
     
+    debug = false;
+    
     double accumulator = 0.0;
     //forwardStep(timeStep);
     
@@ -348,7 +354,18 @@ void render(vector<RigidBody> state) {
     light.setUniforms();
     camera.setUniforms();
     
-//    plane.render();
+    if (debug) {
+        glDisable(GL_DEPTH_TEST);
+        
+        for (int i = 0; i < state.size(); ++i)
+        {
+            state[i].debugRender();
+        }
+        
+        glEnable(GL_DEPTH_TEST);
+        
+//        plane.render();
+    }
     
     Assets::shadowShader.use();
     
@@ -369,6 +386,14 @@ void render(vector<RigidBody> state) {
 void input(float dt) {
     
     bool cleanStates = false;
+    
+    if (glfwGetKey(window, GLFW_KEY_PERIOD) && !periodKeyPressed) {
+        periodKeyPressed = true;
+        debug = !debug;
+    }
+    else if (!glfwGetKey(window, GLFW_KEY_PERIOD)) {
+        periodKeyPressed = false;
+    }
     
     if (!pause) {
         // Select Spinning Top
