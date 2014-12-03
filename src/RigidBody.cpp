@@ -66,9 +66,9 @@ void RigidBody::addForce(const vec3 force) {
 void RigidBody::addForce(const vec3 force, const vec3 position) {
     // PBS slides
     m_force += force;
+    
     vec3 taui = glm::cross(position - m_position, force);
-
-    m_torque += taui;  // Add torque: but depends on location of force... ?
+    m_torque += taui;
 }
 
 // assume ground at (x, 0, z)
@@ -177,7 +177,7 @@ std::vector<vec3> RigidBody::intersectWithGround()
 void RigidBody::update(float dt) {
     
     // Gravity
-    // addForce(vec3(0, -9.81 * m_mass, 0));  // hardcoded hack
+    addForce(vec3(0, -9.81 * m_mass, 0));  // hardcoded hack
     
     // Update state with euler integration step
 

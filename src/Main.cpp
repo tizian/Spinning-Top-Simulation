@@ -244,6 +244,8 @@ int main()
         
         vector<RigidBody> state = simulationStates[currentRenderState-1];
         
+        double tBeforeUpdate = glfwGetTime();
+        
         if (!pause)
         {
             //printf("update call\n");
@@ -285,7 +287,18 @@ int main()
         
         input(deltaTime);
         
+        double tAfterUpdate = glfwGetTime();
+        
+        double tBeforeRender = glfwGetTime();
+        
         render(state);
+        
+        double tAfterRender = glfwGetTime();
+        
+        double updateTime = tAfterUpdate - tBeforeUpdate;
+        double renderTime = tAfterRender - tBeforeRender;
+        
+        printf("time\tupdate: %f\trender: %f\n", updateTime, renderTime);
         
 //        glfwSwapInterval(0);
 		glfwSwapBuffers(window);
