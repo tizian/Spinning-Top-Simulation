@@ -171,7 +171,7 @@ vector<RigidBody> interpolateState(vector<RigidBody> fromState, vector<RigidBody
         for (int i = 0; i < fromState.size(); ++i) {
             RigidBody current = fromState[i];
             current.setPosition(fromState[i].getPosition() * (1.f-alpha) + toState[i].getPosition() * alpha);
-            current.setOrientation(fromState[i].getOrientation() * (1.f-alpha) + toState[i].getOrientation() * alpha);
+            current.setOrientation(mix(fromState[i].getOrientation(), toState[i].getOrientation(), alpha));
             returnState.push_back(current);
         }
     }

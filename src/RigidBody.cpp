@@ -213,6 +213,7 @@ void RigidBody::update(float dt) {
     vec3 normal = vec3(0, 1, 0);
     
 //    printf("m_torque: %f %f %f\n", m_torque.x, m_torque.y, m_torque.z);
+    printf("m_angularVelocity.y: %f\n",m_angularVelocity.y);
     
     // Reset forces and torque
     m_force = glm::vec3(0, 0, 0);
@@ -260,15 +261,14 @@ void RigidBody::update(float dt) {
             {
                 r = collisionPoints[i] - m_position;
                 vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r); // http://en.wikipedia.org/wiki/Angular_velocity
-                //                vec3 part = cross(m_angularVelocity, r);
-                //printf("vrel: %f %f %f\n", part.x, part.y, part.z);
-                //                printf("angularVelocity: %f %f %f\n", m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);
-                //if (abs(dot(m_angularMomentum, r) / length(part)) > 2)
+
+                //printf("bla: %f\n", abs(mat3(model()) * m_angularVelocity).y);
+                //if (abs(mat3(model()) * m_angularVelocity).y < 10)
                 //{
-                //                    addForce(vrel * 1.f /* (dot(m_angularMomentum, r) / length(part))*/, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
+                    addForce(vrel * 1.f /* (dot(m_angularMomentum, r) / length(part))*/, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
                 //m_angularMomentum *= 0.999f;
                 //} else {
-                addForce(vrel * -1.f, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
+                //    addForce(vrel * -1.f, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
                 //}
             }
             if (frictionMethod == 1)    // Impulse-Based Friction Model (Coulomb friction model)
@@ -289,8 +289,14 @@ void RigidBody::update(float dt) {
                 addImpulse(frictionImpulse, collisionPoints[i]);
             
             }
-            else if (frictionMethod == 3)   // Torque Friction from http://ch.mathworks.com/help/physmod/simscape/ref/rotationalfriction.html
+            else if (frictionMethod == 3) // MatLab friction
             {
+                int collisionPointsSize = collisionPoints.size() == 1 ? 1 : (int)collisionPoints.size() - 1;
+                r = collisionPoints[i] - m_position;
+                vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r);
+                
+                // Torque Friction from http://ch.mathworks.com/help/physmod/simscape/ref/rotationalfriction.html
+                
                 float frictionTorque; // T
                 float coulombFrictionTorque = 20; // T_C; [N*m]
                 float breakawayFrictionTorque = 25; // T_brk; [N*m];
@@ -306,14 +312,14 @@ void RigidBody::update(float dt) {
                     frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
                 }
 //                printf("frictionTorque: %f\n", frictionTorque);
-                m_torque += vec3(0,-frictionTorque / (collisionPoints.size() == 1 ? 1 : collisionPoints.size() - 1),0);
+                m_torque += 0.1f * vec3(0,-frictionTorque / collisionPointsSize,0);
                 
                 // Linear Friction from http://ch.mathworks.com/help/physmod/simscape/ref/translationalfriction.html
                 // x component
                 float frictionForce; // F
                 float coulombFrictionForce = 20; // F_C; [N]
                 float breakawayFrictionForce = 25; // F_brk; [N];
-                float v = m_linearMomentum.x / m_mass; // v
+                float v = vrel.x;//m_linearMomentum.x / m_mass; // v
                 velocityThreshold = 0.0001; // omega_th; should be between 10^-4 and 10^-6
                 viscousFrictionCoefficient = 10; // f; [N/(m//s)]; default = 100;
                 coefficient = 10; // c_v; [s/m]
@@ -324,11 +330,11 @@ void RigidBody::update(float dt) {
                 } else {
                     frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
                 }
-                printf("frictionForce.x: %f\n", frictionForce);
-                m_force += vec3(-frictionForce / (collisionPoints.size() == 1 ? 1 : collisionPoints.size() - 1),0,0);
                 
-                // z component
-                v = m_linearMomentum.z / m_mass; // v
+                addForce(0.1f * vec3(-frictionForce / collisionPointsSize,0,0), collisionPoints[i] - vec3(0, distanceGround, 0));
+                
+                // y component
+                v = vrel.y;//m_linearMomentum.z / m_mass; // v
                 if (abs(v) >= velocityThreshold)
                 {
                     frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
@@ -336,7 +342,18 @@ void RigidBody::update(float dt) {
                     frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
                 }
                 
-                m_force += vec3(0,0,-frictionForce / (collisionPoints.size() == 1 ? 1 : collisionPoints.size() - 1));
+                addForce(0.1f * vec3(0,-frictionForce / collisionPointsSize, 0), collisionPoints[i] - vec3(0, distanceGround, 0));
+                
+                // z component
+                v = vrel.z;//m_linearMomentum.z / m_mass; // v
+                if (abs(v) >= velocityThreshold)
+                {
+                    frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
+                } else {
+                    frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
+                }
+                
+                addForce(0.1f * vec3(0,0,-frictionForce / collisionPointsSize), collisionPoints[i] - vec3(0, distanceGround, 0));
                 
             }
         }
