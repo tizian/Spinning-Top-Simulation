@@ -78,9 +78,9 @@ void RigidBody::addForce(const vec3 force, const vec3 position) {
 float RigidBody::distanceToGround()
 {
     GLfloat dist = MAXFLOAT;
-    GLfloat * vertices = boundingBox.getVertices();
+    GLfloat * vertices = m_boundingBox.getVertices();
     
-    for (int i = 0; i < boundingBox.getNumVertices(); i += 3) {
+    for (int i = 0; i < m_boundingBox.getNumVertices(); i += 3) {
         vec4 tmp = model() * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
 //        printf("boundingBox: %f %f %f\n", vertices[i], vertices[i+1], vertices[i+2]);
         if (tmp.y < dist)

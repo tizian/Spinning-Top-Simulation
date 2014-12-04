@@ -51,20 +51,25 @@ bool slowMotion;
 // to pause the simulation
 bool pause;
 
-bool lightFollowsCamera = false;
+// render debug information (CoM only currently)
+bool debug;
 
 bool lKeyPressed = false;
 bool xKeyPressed = false;
 bool pKeyPressed = false;
 bool nKeyPressed = false;
 bool bKeyPressed = false;
+bool periodKeyPressed = false;
 
 GLFWwindow *window;
 
 Camera camera;
 PointLight light;
 
+Body skybox;
+
 Body plane;
+Body table;
 
 const int MAX_SIMULATION_SAVE_STATES = 1000;
 
@@ -204,11 +209,21 @@ int main()
     // STENCIL BUFFER
     glEnable(GL_STENCIL_TEST);
     
+    skybox = Body(glm::vec3(0.0));
+    skybox.setScale(glm::vec3(250.0));
+    skybox.setMesh(&Assets::skyboxBox);
+    skybox.setTexture(&Assets::skybox);
     
     plane = Body(glm::vec3(0, 0, 0));
     plane.setScale(glm::vec3(10, 1, 10));
     plane.setMesh(&Assets::plane);
     plane.setMaterial(&Assets::planeMaterial);
+    
+    table = Body(glm::vec3(0, -0.5, 0));
+    table.setScale(glm::vec3(15, 15, 15));
+    table.setMesh(&Assets::table);
+    table.setMaterial(&Assets::whiteMaterial);
+    table.setTexture(&Assets::darkWood);
     
     resetStates();
     
@@ -226,6 +241,8 @@ int main()
     light = PointLight(glm::vec3(0, 10, 0));
     
     pause = false;
+    
+    debug = false;
     
     double accumulator = 0.0;
     //forwardStep(timeStep);
@@ -324,6 +341,12 @@ void render(vector<RigidBody> state) {
     
     glViewport(0, 0, width, height);
     
+    Assets::skyboxShader.use();
+    
+    camera.setUniforms();
+    
+    skybox.render();
+    
     Assets::textureShader.use();
     
     light.setUniforms();
@@ -334,12 +357,25 @@ void render(vector<RigidBody> state) {
         state[i].render();
     }
     
+    table.render();
+    
     Assets::phongShader.use();
     
     light.setUniforms();
     camera.setUniforms();
     
-    plane.render();
+    if (debug) {
+        glDisable(GL_DEPTH_TEST);
+        
+        for (int i = 0; i < state.size(); ++i)
+        {
+            state[i].debugRender();
+        }
+        
+        glEnable(GL_DEPTH_TEST);
+        
+//        plane.render();
+    }
     
     Assets::shadowShader.use();
     
@@ -360,6 +396,14 @@ void render(vector<RigidBody> state) {
 void input(float dt) {
     
     bool cleanStates = false;
+    
+    if (glfwGetKey(window, GLFW_KEY_PERIOD) && !periodKeyPressed) {
+        periodKeyPressed = true;
+        debug = !debug;
+    }
+    else if (!glfwGetKey(window, GLFW_KEY_PERIOD)) {
+        periodKeyPressed = false;
+    }
     
     if (!pause) {
         // Select Spinning Top
@@ -472,6 +516,8 @@ void input(float dt) {
         resetCamera();
     }
     
+    skybox.setPosition(camera.getPosition());
+    
     float deltaTheta = camRotSpeed * dt;
     
     if (glfwGetKey(window, GLFW_KEY_UP)) {
@@ -531,20 +577,6 @@ void input(float dt) {
         }
     }
     
-    // Control Light
-    
-//    if (glfwGetKey(window, GLFW_KEY_L) && !lKeyPressed) {
-//        lKeyPressed = true;
-//        lightFollowsCamera = !lightFollowsCamera;
-//    } else if (!glfwGetKey(window, GLFW_KEY_L))
-//    {
-//        lKeyPressed = false;
-//    }
-    
-    if (lightFollowsCamera) {
-        light.setPosition(camera.getPosition());
-    }
-    
     // Window closing
     if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(window, 1);
@@ -564,7 +596,7 @@ void setupContext() {
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	window = glfwCreateWindow(width, height, "OpenGL Project", NULL, NULL);
+	window = glfwCreateWindow(width, height, "Spinning Spinning Tops and other things", NULL, NULL);
 
 	if (!window) {
 		fprintf(stderr, "ERROR: could not open window with GLFW3\n");

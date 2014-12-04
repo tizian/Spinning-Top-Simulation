@@ -10,7 +10,7 @@ Camera::Camera() {
 	m_fov = 50.0f * M_PI / 180.0f;
 	m_aspect = 4.0f/3.0f;
 	m_nearPlane = 0.1f;
-	m_farPlane = 100.0f;
+	m_farPlane = 500.0f;
 
 }
 

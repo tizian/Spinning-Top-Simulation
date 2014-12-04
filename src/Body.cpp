@@ -8,15 +8,22 @@ Body::Body(const glm::vec3 & position, const glm::quat & orientation, const glm:
 	m_orientation = orientation;
 	m_scale = scale;
     
+    m_boundingBox = AABB();
+    
     m_mesh = nullptr;
     m_material = nullptr;
     m_texture = nullptr;
+    
+    m_debugMesh = nullptr;
+    m_debugMaterial = nullptr;
 }
 
 Body::Body(const glm::vec3 & position) {
 	m_position = position;
     m_orientation = glm::quat();
 	m_scale = glm::vec3(1, 1, 1);
+    
+    m_boundingBox = AABB();
     
     m_mesh = nullptr;
     m_material = nullptr;
@@ -27,6 +34,8 @@ Body::Body() {
 	m_position = glm::vec3();
     m_orientation = glm::quat();
 	m_scale = glm::vec3(1, 1, 1);
+    
+    m_boundingBox = AABB();
     
     m_mesh = nullptr;
     m_material = nullptr;
@@ -52,8 +61,8 @@ void Body::calculateBoundingBox()
     }
     
     // add offset to ensure enclosure
-    boundingBox.origin = origin - vec3(0.1, 0.1, 0.1);
-    boundingBox.radii = radii + vec3(0.2, 0.2, 0.2);
+    m_boundingBox.origin = origin - vec3(0.1, 0.1, 0.1);
+    m_boundingBox.radii = radii + vec3(0.2, 0.2, 0.2);
 }
 
 void Body::setPosition(const glm::vec3 & position) {
@@ -81,6 +90,14 @@ void Body::setTexture(Texture * texture) {
     m_texture = texture;
 }
 
+void Body::setDebugMaterial(Material * material) {
+    m_debugMaterial = material;
+}
+
+void Body::setDebugMesh(Mesh * mesh) {
+    m_debugMesh = mesh;
+}
+
 glm::vec3 Body::getPosition() const {
 	return m_position;
 }
@@ -106,7 +123,7 @@ Texture * Body::getTexture() const {
 }
 
 AABB Body::getBoundingBox() {
-    return boundingBox;
+    return m_boundingBox;
 }
 
 glm::mat4 Body::translation() const {
@@ -129,18 +146,31 @@ void Body::render() {
     
     Shader::setUniform("modelMatrix", model());
     
-    m_material->setUniforms();
+    if (m_material != nullptr) {
+        m_material->setUniforms();
+    }
     
     if (m_texture != nullptr) {
         m_texture->use();
+        Shader::setUniform("tex", m_texture->getTextureUnit());
     }
-    Shader::setUniform("tex", 0);
+    
     
 	if (m_mesh == nullptr) {
 		printf("ERROR: Can't render ModelInstance. Mesh not set.\n");
 		exit(-1);
 	}
 	m_mesh->render();
+}
+
+void Body::debugRender() {
+    mat4 debugModel = translation() * glm::scale(mat4(), vec3(0.05));
+    
+    Shader::setUniform("modelMatrix", debugModel);
+    
+    m_debugMaterial->setUniforms();
+    
+    m_debugMesh->render();
 }
 
 void Body::update(float dt) {}

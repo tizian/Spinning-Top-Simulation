@@ -19,19 +19,19 @@ PointLight::PointLight(const glm::vec3 & position, const glm::vec3 & color) {
 }
 
 void PointLight::setPosition(const glm::vec3 & position) {
-	m_position = position;
+    m_position = position;
 }
 
 void PointLight::setColor(const glm::vec3 & color) {
-	m_color = color;
+    m_color = color;
 }
 
 glm::vec3 PointLight::getPosition() const {
-	return m_position;
+    return m_position;
 }
 
 glm::vec3 PointLight::getColor() const {
-	return m_color;
+    return m_color;
 }
 
 void PointLight::setUniforms() {

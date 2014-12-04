@@ -14,15 +14,9 @@ Functionality
 
 Cosmetic
 --------
-- shadow mapping
-- Texturing: wood, steel, real life (st3)
+- Shadow mapping
 - GUI with labels which buttons can be pressed and their impact
 - Sound (collision, fritcion, fade out)
-- introduce state objects to allow better timesteps and rewind.
-- pause simulation and rewinding
-- Visualize the COM with a red dot, which is always viible
-- Skybox
-- Table instead of ground
 
 Done
 ----

@@ -5,8 +5,11 @@ namespace RigidBodyFactory {
     void reset(RigidBody &rb) {
         rb = RigidBody();
         rb.setPosition(glm::vec3(0, 5, 0));
-        rb.setMaterial(&Assets::blueMaterial);
-        rb.setTexture(&Assets::checkerboard);
+        rb.setMaterial(&Assets::whiteMaterial);
+        rb.setTexture(&Assets::lightWood);
+        
+        rb.setDebugMesh(&Assets::sphere);
+        rb.setDebugMaterial(&Assets::redMaterial);
         
 //        rb.setOrientation(glm::quat_cast(glm::rotate((float)M_PI/20.0f, glm::vec3(1, 0, 0))));
     }
@@ -35,6 +38,9 @@ namespace RigidBodyFactory {
         rb.setMesh(&Assets::spinningTop2);
         //    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
         rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 1.5*4.8, 4.8)));
+        
+        
+        rb.setTexture(&Assets::brushedMetal);
     }
     
     void resetSpinningTop3(RigidBody &rb) {
