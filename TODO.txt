@@ -9,7 +9,6 @@ Functionality
 - NxN collision checks between objects with triangle-triangle intersection tests -> this should return collision point / line / area somehow
 - Maybe: Octree if performance not good enough.
 - Maybe: Resting contacts if too much time.
-- Timestep: Why doesn't this give the desired results? http://gafferongames.com/game-physics/fix-your-timestep/
 - Change mass and see if the spinnning top spins differently (less mass -> better spin) (SpinIt)
 
 Cosmetic
@@ -49,6 +48,8 @@ Yes, it spins differently, but it is unclear if correctly.
 - Texturing: wood, steel
 - Visualize the COM with a red dot, which is always visible
 - Skybox
+- Timestep: Why doesn't this give the desired results? http://gafferongames.com/game-physics/fix-your-timestep/
+    Because spinning top - ground collision took way too much time
 
 Links
 =====

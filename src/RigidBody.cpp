@@ -1,5 +1,7 @@
 #include "RigidBody.h"
 
+#include <GLFW/glfw3.h>
+
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/ext.hpp>
 
@@ -106,9 +108,9 @@ float RigidBody::distanceToGround()
     if (dist < 0)
     {
         dist = MAXFLOAT;
-        vertices = m_mesh->getVertices();
+        vertices = m_mesh->getDistinctVertices();
         
-        for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
+        for (int i = 0; i < m_mesh->getNumDistinctVertices(); i += 3)
         {
             vec4 tmp = model() * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
 //            printf("x: %f y: %f z: %f\n", tmp.x, tmp.y, tmp.z);
@@ -131,10 +133,11 @@ std::vector<vec3> RigidBody::intersectWithGround()
 //    vec3 normal = vec3(0,1,0);
     std::vector<vec3> points = std::vector<vec3>();
     
-    GLfloat * vertices = m_mesh->getVertices();
+    GLfloat * vertices = m_mesh->getDistinctVertices();
+    GLuint numVertices = m_mesh->getNumDistinctVertices();
 //    GLfloat * normals = m_mesh->getNormarls();
     
-    for (int i = 0; i < m_mesh->getNumVertices(); i += 3)
+    for (int i = 0; i < numVertices; i += 3)
     {
         vec3 vertex = vec3(vertices[i], vertices[i+1], vertices[i+2]); // body space
         vec4 tmp = model() * vec4(vertex.x, vertex.y, vertex.z, 1.0f); // world space
@@ -146,8 +149,10 @@ std::vector<vec3> RigidBody::intersectWithGround()
         {
             if (points.empty()) {
                 points.push_back(vertex);
-            } else if (points[0].y == vertex.y && std::find(points.begin(), points.end(), vertex) == points.end()) {
-                points.push_back(vertex);
+            } else if (points[0].y == vertex.y) {
+                if (std::find(points.begin(), points.end(), vertex) == points.end()) {
+                    points.push_back(vertex);
+                }
             } else if (points[0].y > vertex.y) {
                 points = std::vector<vec3>();
                 points.push_back(vertex);
@@ -213,7 +218,7 @@ void RigidBody::update(float dt) {
     vec3 normal = vec3(0, 1, 0);
     
 //    printf("m_torque: %f %f %f\n", m_torque.x, m_torque.y, m_torque.z);
-    printf("m_angularVelocity.y: %f\n",m_angularVelocity.y);
+//    printf("m_angularVelocity.y: %f\n",m_angularVelocity.y);
     
     // Reset forces and torque
     m_force = glm::vec3(0, 0, 0);
@@ -226,8 +231,10 @@ void RigidBody::update(float dt) {
             printf("First contact with ground:\n");
         }
         
+        double tBeforIntersection = glfwGetTime();
         std::vector<vec3> collisionPoints = intersectWithGround();
-        //printf("collisionPoints.size: %lu\n", collisionPoints.size());
+        double tAfterIntersection = glfwGetTime();
+//        printf("collisionPoints.size: %lu time used: %f\n", collisionPoints.size(), tAfterIntersection - tBeforIntersection);
         
         vec3 org_linearMomentum = m_linearMomentum;
         

@@ -10,8 +10,8 @@
 Mesh::Mesh(const std::string & filename) {
 	glGenVertexArrays(1, &m_vao);		// Generate a VAO
 	glGenBuffers(1, &m_vbo);			// Generate a VBO
-	m_vertices = m_normals = m_uvs = m_colors = NULL;
-	m_numVertices = m_numNormals = m_numUVs = m_numColors = 0;
+	m_vertices = m_distinctVertices = m_normals = m_uvs = m_colors = NULL;
+	m_numVertices = m_numDistinctVertices = m_numNormals = m_numUVs = m_numColors = 0;
 
 	loadFromFile(filename);
 }
@@ -28,6 +28,23 @@ void Mesh::destroy() {
 void Mesh::setGeometry(GLfloat *vertices, int numVertices) {
 	this->m_vertices = vertices;
 	this->m_numVertices = numVertices;
+    
+    std::vector<glm::vec3> distinctVertices = std::vector<glm::vec3>();
+    for (int i = 0; i < numVertices; i += 3) {
+        glm::vec3 vertex = glm::vec3(vertices[i], vertices[i+1], vertices[i+2]);
+        if (std::find(distinctVertices.begin(), distinctVertices.end(), vertex) == distinctVertices.end()) {
+            distinctVertices.push_back(vertex);
+        }
+    }
+    
+    m_numDistinctVertices = (GLuint)distinctVertices.size() * 3;
+    m_distinctVertices = new GLfloat[m_numDistinctVertices];
+    
+    for (int i = 0; i < m_numDistinctVertices; i += 3) {
+        m_distinctVertices[i] = distinctVertices[i/3].x;
+        m_distinctVertices[i+1] = distinctVertices[i/3].y;
+        m_distinctVertices[i+2] = distinctVertices[i/3].z;
+    }
 }
 
 void Mesh::setNormals(GLfloat *normals, int numNormals) {
@@ -52,6 +69,15 @@ GLfloat * Mesh::getVertices()
 
 GLuint Mesh::getNumVertices(){
     return m_numVertices;
+}
+
+GLfloat * Mesh::getDistinctVertices()
+{
+    return m_distinctVertices;
+}
+
+GLuint Mesh::getNumDistinctVertices(){
+    return m_numDistinctVertices;
 }
 
 GLfloat * Mesh::getNormals(){

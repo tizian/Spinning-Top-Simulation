@@ -44,7 +44,7 @@ static int width = 640;
 static int height = 640;
 
 // default = fixed; 1 = dynamic; 2 = gafferongames fixed; 3 = gafferongames semi-fixed
-int timeStepMethod = 0;
+int timeStepMethod = 2;
 float timeStep = 0.01;
 
 // slow motion does not work for fixed time steps. (That's fine!)
@@ -276,11 +276,12 @@ int main()
                 if (deltaTime > 0.25)
                 {
                     deltaTime = 0.25;
+                    printf("Warning: deltaTime is too big!");
                 }
                 
                 accumulator += deltaTime;
                 
-                //printf("accumulator: %f\n", accumulator);
+//                printf("accumulator: %f\n", accumulator);
                 while (accumulator >= timeStep) {
                     forwardStep(timeStep);
                     accumulator -= timeStep;
@@ -324,8 +325,10 @@ int main()
         double renderTime = tAfterRender - tBeforeRender;
         
 //        printf("time\tupdate: %f\trender: %f\n", updateTime, renderTime);
+        if (timeStepMethod == 2) { // turn off vsync or so..
+            glfwSwapInterval(0);
+        }
         
-//        glfwSwapInterval(0);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

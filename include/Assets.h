@@ -70,7 +70,8 @@ namespace Assets {
         brushedMetal = Texture("textures/brushedMetal.png");
         
         // Skybox taken from: http://www.keithlantz.net/2011/10/rendering-a-skybox-using-a-cube-map-with-opengl-and-glsl/
-        skybox = Texture("textures/skybox/xpos.png", "textures/skybox/xneg.png", "textures/skybox/ypos.png", "textures/skybox/yneg.png", "textures/skybox/zpos.png", "textures/skybox/zneg.png");
+        std::string skbx = "skybox-sky";
+        skybox = Texture("textures/"+skbx+"/xpos.png", "textures/"+skbx+"/xneg.png", "textures/"+skbx+"/ypos.png", "textures/"+skbx+"/yneg.png", "textures/"+skbx+"/zpos.png", "textures/"+skbx+"/zneg.png");
         
         planeMaterial = Material(glm::vec3(0.16, 0.55, 0.16));     // green-ish
         blueMaterial = Material(glm::vec3(0.25, 0.32, 0.6));      // blue-ish
