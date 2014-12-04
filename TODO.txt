@@ -3,7 +3,6 @@ Todo
 
 Functionality
 -------------
-- Order of events: can't check for collisions after only updating position?!
 - st1, 2 disappear if they rotate too fast (they tip over on their own (unknown why)). They tip over with a huge angular velocity and then get kick far off.
 - ground friction -> not sure yet.
 - Create (global?) list of all rigid bodies for pairwise collision handling, maybe create scene class which stores all data for the scene (spinning tops, ground, calculate collisions bewteen them, etc..)
@@ -11,7 +10,6 @@ Functionality
 - resting contacts (maybe simplified version as ground isn't really a rigid body) -> pixar pdf
 - create array / vector of all spinning tops at the beginning. Calculate inertia tensor (this is setMesh() only once) etc. Idealy save these inertia tensors as files and reload them the next time. Calculating a good inertia tensor takes more than 5 seconds.
 - Maybe whole interia tensor calculation can happen in a seperate class (pass ptr to a Mesh to the function?) -> too much unused code in Rigid body if matrix is precomputed anyway...
-- check if timestep calculation from http://gafferongames.com/game-physics/fix-your-timestep/ gives better results. If yes -> implement
 - change mass and see if the spinnning top spins differently (less mass -> better spin) (SpinIt)
 
 Cosmetic
@@ -48,6 +46,10 @@ Done
     Normal calculation was incorrect
 - change the COM for a spinning top and see if it spins differently (lower COM -> better spin) (SpinIt)
     Yes, it spins differently, but it is unclear if correctly.
+- Order of events: can't check for collisions after only updating position?!
+    Tizian is happy
+- check if timestep calculation from http://gafferongames.com/game-physics/fix-your-timestep/ gives better results. If yes -> implement
+    doesn't give better results. Non the less its now implemented, for hopefully later use.
 
 Links
 =====
