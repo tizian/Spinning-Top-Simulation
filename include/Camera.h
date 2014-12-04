@@ -23,6 +23,14 @@ public:
     // Sets camera orientation
     void setOrientation(const glm::fquat & orientation);
     
+    // Set camera speed
+    void setSpeed(const float speed);
+    void setRotationSpeed(const float speed);
+    
+    // Get camera speed
+    float getSpeed() const;
+    float getRotationSpeed() const;
+    
 	// Moves camera using world space axes
 	void move(const glm::vec3 & delta);
 
@@ -72,4 +80,7 @@ private:
 
 	float m_nearPlane;
 	float m_farPlane;
+    
+    float m_speed;
+    float m_rotationSpeed;
 };

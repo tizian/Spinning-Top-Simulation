@@ -26,6 +26,11 @@
 
 using namespace std;
 
+// glfwGetKeyOnce(...)
+// http://sourceforge.net/p/glfw/discussion/247562/thread/8f3df980/
+char keyOnce[GLFW_KEY_LAST + 1];
+#define glfwGetKeyOnce(WINDOW, KEY) (glfwGetKey(WINDOW, KEY) ?(keyOnce[KEY] ? false : (keyOnce[KEY] = true)) : (keyOnce[KEY] = false))
+
 void glfwWindowResizeCallback(GLFWwindow *window, int width, int height);
 void glfwFrameBufferSizeCallback(GLFWwindow *window, int width, int height);
 
@@ -38,12 +43,9 @@ void input(float dt);
 static int width = 640;
 static int height = 640;
 
-// default = fixed; 1 = dynamic; 2 = gafferongames fixed
+// default = fixed; 1 = dynamic; 2 = gafferongames fixed; 3 = gafferongames semi-fixed
 int timeStepMethod = 0;
 float timeStep = 0.01;
-
-float camSpeed = 8.0f;
-float camRotSpeed = 100.0f * M_PI / 180.0f;
 
 // slow motion does not work for fixed time steps. (That's fine!)
 bool slowMotion;
@@ -53,13 +55,6 @@ bool pause;
 
 // render debug information (CoM only currently)
 bool debug;
-
-bool lKeyPressed = false;
-bool xKeyPressed = false;
-bool pKeyPressed = false;
-bool nKeyPressed = false;
-bool bKeyPressed = false;
-bool periodKeyPressed = false;
 
 GLFWwindow *window;
 
@@ -75,8 +70,6 @@ const int MAX_SIMULATION_SAVE_STATES = 1000;
 
 int currentRenderState;
 vector<vector<RigidBody> > simulationStates;
-
-//RigidBody spinningTop;
 
 void resetCamera()
 {
@@ -192,6 +185,8 @@ int main()
     
 	setupContext();
 	Assets::init();
+    
+    glfwSwapInterval(0);
 
 	// DEPTH TESTING
 	glEnable(GL_DEPTH_TEST);
@@ -266,11 +261,18 @@ int main()
         if (!pause)
         {
             //printf("update call\n");
+            if (timeStepMethod == 0)
+            {
+                forwardStep(timeStep);
+                state = simulationStates[currentRenderState-1];
+            }
             if (timeStepMethod == 1)
             {
                 forwardStep(deltaTime);
                 state = simulationStates[currentRenderState-1];
-            } else if (timeStepMethod == 2) {
+            }
+            else if (timeStepMethod == 2)
+            {
                 if (deltaTime > 0.25)
                 {
                     deltaTime = 0.25;
@@ -292,9 +294,15 @@ int main()
                 } else {
                     state = simulationStates[currentRenderState-1];
                 }
-            } else {
-                forwardStep(timeStep);
-                state = simulationStates[currentRenderState-1];
+            }
+            else if (timeStepMethod == 3)
+            {
+                while (deltaTime > 0.0) {
+                    float actualDeltaTime = glm::min(deltaTime, timeStep);
+                    forwardStep(actualDeltaTime);
+                    state = simulationStates[currentRenderState-1];
+                    deltaTime -= actualDeltaTime;
+                }
             }
         }
         
@@ -397,12 +405,8 @@ void input(float dt) {
     
     bool cleanStates = false;
     
-    if (glfwGetKey(window, GLFW_KEY_PERIOD) && !periodKeyPressed) {
-        periodKeyPressed = true;
+    if (glfwGetKeyOnce(window, GLFW_KEY_PERIOD)) {
         debug = !debug;
-    }
-    else if (!glfwGetKey(window, GLFW_KEY_PERIOD)) {
-        periodKeyPressed = false;
     }
     
     if (!pause) {
@@ -491,25 +495,27 @@ void input(float dt) {
 
     // Camera
     
+    float deltaX = camera.getSpeed() * dt;
+    
     if (glfwGetKey(window, GLFW_KEY_SPACE)) {
-        camera.moveUpDown(-camSpeed * dt);
+        camera.moveUpDown(-deltaX);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) {
-        camera.moveUpDown(camSpeed * dt);
+        camera.moveUpDown(deltaX);
     }
     
     
     if (glfwGetKey(window, GLFW_KEY_W)) {
-        camera.moveForwardBackward(camSpeed * dt);
+        camera.moveForwardBackward(deltaX);
     }
     if (glfwGetKey(window, GLFW_KEY_A)) {
-        camera.moveLeftRight(camSpeed * dt);
+        camera.moveLeftRight(deltaX);
     }
     if (glfwGetKey(window, GLFW_KEY_S)) {
-        camera.moveForwardBackward(-camSpeed * dt);
+        camera.moveForwardBackward(-deltaX);
     }
     if (glfwGetKey(window, GLFW_KEY_D)) {
-        camera.moveLeftRight(-camSpeed * dt);
+        camera.moveLeftRight(-deltaX);
     }
     
     if (glfwGetKey(window, GLFW_KEY_C)) {
@@ -518,7 +524,7 @@ void input(float dt) {
     
     skybox.setPosition(camera.getPosition());
     
-    float deltaTheta = camRotSpeed * dt;
+    float deltaTheta = camera.getRotationSpeed() * dt;
     
     if (glfwGetKey(window, GLFW_KEY_UP)) {
         camera.pitch(-deltaTheta);
@@ -535,30 +541,18 @@ void input(float dt) {
     
     // Control Simulation
     
-    if (glfwGetKey(window, GLFW_KEY_P) && !pKeyPressed)
+    if (glfwGetKeyOnce(window, GLFW_KEY_P))
     {
-        pKeyPressed = true;
         pause = !pause;
-    } else if (!glfwGetKey(window, GLFW_KEY_P))
-    {
-        pKeyPressed = false;
     }
     
     if (pause) {
-        if (glfwGetKey(window, GLFW_KEY_X) && !xKeyPressed) {
-            xKeyPressed = true;
+        if (glfwGetKey(window, GLFW_KEY_X)) {
             slowMotion = !slowMotion;
         }
-        else if (!glfwGetKey(window, GLFW_KEY_X)) {
-            xKeyPressed = false;
-        }
         
-        if (glfwGetKey(window, GLFW_KEY_N) && !nKeyPressed) {
-            nKeyPressed = true;
+        if (glfwGetKey(window, GLFW_KEY_N)) {
             forwardStep(timeStep);
-        }
-        else if (!glfwGetKey(window, GLFW_KEY_N)) {
-            nKeyPressed = false;
         }
         
         if (glfwGetKey(window, GLFW_KEY_N) && glfwGetKey(window, GLFW_KEY_M)) {
@@ -568,12 +562,8 @@ void input(float dt) {
             backwardStep();
         }
         
-        if (glfwGetKey(window, GLFW_KEY_B) && !bKeyPressed) {
-            bKeyPressed = true;
+        if (glfwGetKey(window, GLFW_KEY_B)) {
             backwardStep();
-        }
-        else if (!glfwGetKey(window, GLFW_KEY_B)) {
-            bKeyPressed = false;
         }
     }
     
@@ -596,16 +586,13 @@ void setupContext() {
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	window = glfwCreateWindow(width, height, "Spinning Spinning Tops and other things", NULL, NULL);
+	window = glfwCreateWindow(width, height, "Spinning spinning tops and other things", NULL, NULL);
 
 	if (!window) {
 		fprintf(stderr, "ERROR: could not open window with GLFW3\n");
 		glfwTerminate();
 	}
-    
-    //const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    //int monitorWidth = mode->width;
-    //int monitorHeight = mode->height;
+
     glfwSetWindowPos(window, 0, 0);
     
 	glfwMakeContextCurrent(window);

@@ -11,7 +11,8 @@ Camera::Camera() {
 	m_aspect = 4.0f/3.0f;
 	m_nearPlane = 0.1f;
 	m_farPlane = 500.0f;
-
+    m_speed = 8.0f;
+    m_rotationSpeed = 100.0f * M_PI / 180.0f;
 }
 
 const glm::vec3 Camera::getPosition() const {
@@ -38,6 +39,23 @@ void Camera::setPosition(const glm::vec3 & position) {
 void Camera::setOrientation(const glm::fquat & orientation)
 {
     m_orientation = orientation;
+}
+
+// Set camera speed
+void Camera::setSpeed(const float speed) {
+    m_speed = speed;
+}
+
+void Camera::setRotationSpeed(const float speed) {
+    m_rotationSpeed = speed;
+}
+
+float Camera::getSpeed() const {
+    return m_speed;
+}
+
+float Camera::getRotationSpeed() const {
+    return m_rotationSpeed;
 }
 
 void Camera::move(const glm::vec3 & delta) {

@@ -164,7 +164,7 @@ void Body::render() {
 }
 
 void Body::debugRender() {
-    mat4 debugModel = translation() * glm::scale(mat4(), vec3(0.05));
+    mat4 debugModel = translation() * glm::scale(mat4(), vec3(0.1));
     
     Shader::setUniform("modelMatrix", debugModel);
     

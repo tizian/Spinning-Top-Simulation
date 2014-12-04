@@ -73,6 +73,20 @@ void RigidBody::addForce(const vec3 force, const vec3 position) {
     m_torque += taui;
 }
 
+void RigidBody::addImpulse(const vec3 impulse) {
+    addImpulse(impulse, m_position);
+}
+
+void RigidBody::addImpulse(const vec3 impulse, const vec3 position) {
+    m_linearMomentum += impulse;
+    
+    vec3 torqueImpulse = cross(position - m_position, impulse);
+    m_angularMomentum += torqueImpulse;
+    
+//    printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
+//    printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
+}
+
 // assume ground at (x, 0, z)
 // only accurate if rigidbody is below the ground, otherwise it returns the distance of the boundingBox to the ground
 float RigidBody::distanceToGround()
@@ -235,19 +249,13 @@ void RigidBody::update(float dt) {
 //      printf("j: %f\n", j);
         
         vec3 impulse = j * normal;
-//        impulse = impulse * (1.f/collisionPoints.size());  // In theory: only one collision point... NOW also in praxis
-//      printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
         
-        vec3 torqueImpulse = cross(r, impulse);
-//      printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
-        
-        m_linearMomentum = m_linearMomentum + impulse;
-        m_angularMomentum = m_angularMomentum + torqueImpulse;
+        addImpulse(impulse, collisionPoints[0]);
         
         for (int i = collisionPoints.size() == 1 ? 0 : 1; i < collisionPoints.size(); i++)
         {
-            if (frictionMethod == 1) {
-                // Impulse-Based Friction Model (Coulomb friction model)
+            if (frictionMethod == 1)    // Impulse-Based Friction Model (Coulomb friction model)
+            {
                 r = collisionPoints[i] - m_position;
                 vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r);
                 
@@ -261,13 +269,9 @@ void RigidBody::update(float dt) {
                 vec3 frictionImpulse = jt * tangent;
                 frictionImpulse = frictionImpulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
                 
-                vec3 torqueFrictionImpulse = cross(r, frictionImpulse);
-                
-                m_linearMomentum = m_linearMomentum + frictionImpulse;
-                m_angularMomentum = m_angularMomentum + torqueFrictionImpulse;
-            
-            } else {
-                
+                addImpulse(frictionImpulse, collisionPoints[i]);
+            }
+            else {
                 // forced based friction model
                 r = collisionPoints[i] - m_position;
                 vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r); // http://en.wikipedia.org/wiki/Angular_velocity

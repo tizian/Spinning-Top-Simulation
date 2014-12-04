@@ -17,6 +17,9 @@ public:
     void addForce(const vec3 force);
     void addForce(const vec3 force, const vec3 position);
     
+    void addImpulse(const vec3 impulse);
+    void addImpulse(const vec3 impulse, const vec3 position);
+    
     void setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv);
     
 private:
