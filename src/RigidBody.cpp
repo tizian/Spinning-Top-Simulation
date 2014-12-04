@@ -9,7 +9,7 @@
 
 vec3 maxAngularVelocity = vec3(1,1,1) * 100000000.f; // 100 000 000 is an arbitrary but resonable limit to avoid nan
 
-int frictionMethod = 0; // default = forced based friction; 1 = Impulse-Based Friction Model (Coulomb friction model); NYI 2 = Wikipedia; NYI 3 = MatLab
+int frictionMethod = 3; // default = forced based friction; 1 = Impulse-Based Friction Model (Coulomb friction model); NYI 2 = Wikipedia; 3 = MatLab
 
 bool firstTime;
 
@@ -212,6 +212,8 @@ void RigidBody::update(float dt) {
     float distanceGround = distanceToGround();
     vec3 normal = vec3(0, 1, 0);
     
+//    printf("m_torque: %f %f %f\n", m_torque.x, m_torque.y, m_torque.z);
+    
     // Reset forces and torque
     m_force = glm::vec3(0, 0, 0);
     m_torque = glm::vec3(0, 0, 0);
@@ -275,17 +277,15 @@ void RigidBody::update(float dt) {
                 // forced based friction model
                 r = collisionPoints[i] - m_position;
                 vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r); // http://en.wikipedia.org/wiki/Angular_velocity
-                vec3 part = cross(m_angularVelocity, r);
+//                vec3 part = cross(m_angularVelocity, r);
                 //printf("vrel: %f %f %f\n", part.x, part.y, part.z);
-                printf("length: %f\n", length(part));
-                printf("length angular: %f\n", dot(m_angularMomentum, r));
-                printf("coefficient: %f\n", dot(m_angularMomentum, r) / length(part));
+//                printf("angularVelocity: %f %f %f\n", m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);
                 //if (abs(dot(m_angularMomentum, r) / length(part)) > 2)
                 //{
-                    addForce(vrel * 1.f /* (dot(m_angularMomentum, r) / length(part))*/, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
+//                    addForce(vrel * 1.f /* (dot(m_angularMomentum, r) / length(part))*/, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
                     //m_angularMomentum *= 0.999f;
                 //} else {
-                //    addForce(vrel * -1.f, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
+                    addForce(vrel * -1.f, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
                 //}
                 
             }

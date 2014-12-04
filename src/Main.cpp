@@ -323,7 +323,7 @@ int main()
         double updateTime = tAfterUpdate - tBeforeUpdate;
         double renderTime = tAfterRender - tBeforeRender;
         
-        printf("time\tupdate: %f\trender: %f\n", updateTime, renderTime);
+//        printf("time\tupdate: %f\trender: %f\n", updateTime, renderTime);
         
 //        glfwSwapInterval(0);
 		glfwSwapBuffers(window);
