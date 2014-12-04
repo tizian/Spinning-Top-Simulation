@@ -3,14 +3,14 @@ Todo
 
 Functionality
 -------------
-- st1, 2 disappear if they rotate too fast (they tip over on their own (unknown why)). They tip over with a huge angular velocity and then get kick far off.
-- ground friction -> not sure yet.
-- Create (global?) list of all rigid bodies for pairwise collision handling, maybe create scene class which stores all data for the scene (spinning tops, ground, calculate collisions bewteen them, etc..)
-- arbitrary mesh-mesh collision: pairwise triangle-triangle intersection tests for detection -> pixar pdf for handling the actual collisions (edge, plane vs edge, edge collisions)
-- resting contacts (maybe simplified version as ground isn't really a rigid body) -> pixar pdf
-- create array / vector of all spinning tops at the beginning. Calculate inertia tensor (this is setMesh() only once) etc. Idealy save these inertia tensors as files and reload them the next time. Calculating a good inertia tensor takes more than 5 seconds.
-- Maybe whole interia tensor calculation can happen in a seperate class (pass ptr to a Mesh to the function?) -> too much unused code in Rigid body if matrix is precomputed anyway...
-- change mass and see if the spinnning top spins differently (less mass -> better spin) (SpinIt)
+- STs disappear when spinning "too fast"
+- Ground friction / rotational friction
+- Arbitrary collisions
+- NxN collision checks between objects with triangle-triangle intersection tests -> this should return collision point / line / area somehow
+- Maybe: Octree if performance not good enough.
+- Maybe: Resting contacts if too much time.
+- Timestep: Why doesn't this give the desired results? http://gafferongames.com/game-physics/fix-your-timestep/
+- Change mass and see if the spinnning top spins differently (less mass -> better spin) (SpinIt)
 
 Cosmetic
 --------
@@ -33,17 +33,22 @@ Done
 - slow motion
 - fix collision handling with plane -> pixar pdf
 - ST1 tips over? (But ST3 doesn't...)
-    recreating the mesh fixed the problem, but it is unclear why.
+recreating the mesh fixed the problem, but it is unclear why.
 - test big timesteps. Current implementation should be able to handle those (bisection), but probably doesn't :-/
-    the bisection only correctly handles collisions, but euler still has problems with big timesteps
+the bisection only correctly handles collisions, but euler still has problems with big timesteps
 - check normals in meshes. Specially sp3 and sp4, where the lowest vertex does have strange normals -> no collision detection
-    Normal calculation was incorrect
+Normal calculation was incorrect
 - change the COM for a spinning top and see if it spins differently (lower COM -> better spin) (SpinIt)
-    Yes, it spins differently, but it is unclear if correctly.
+Yes, it spins differently, but it is unclear if correctly.
 - Order of events: can't check for collisions after only updating position?!
-    Tizian is happy
-- check if timestep calculation from http://gafferongames.com/game-physics/fix-your-timestep/ gives better results. If yes -> implement
-    doesn't give better results. Non the less its now implemented, for hopefully later use.
+- create array / vector of all spinning tops at the beginning. Calculate inertia tensor (this is setMesh() only once) etc. Idealy save these inertia tensors as files and reload them the next time. Calculating a good inertia tensor takes more than 5 seconds.
+- Maybe whole interia tensor calculation can happen in a seperate class (pass ptr to a Mesh to the function?) -> too much unused code in Rigid body if matrix is precomputed anyway...
+- introduce state objects to allow better timesteps and rewind.
+- pause simulation and rewinding
+- Table instead of ground
+- Texturing: wood, steel
+- Visualize the COM with a red dot, which is always visible
+- Skybox
 
 Links
 =====
