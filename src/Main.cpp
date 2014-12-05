@@ -544,16 +544,21 @@ void input(float dt) {
     
     // Control Simulation
     
+    if (glfwGetKeyOnce(window, GLFW_KEY_X)) {
+        slowMotion = !slowMotion;
+        if (slowMotion) {
+            printf("Slow motion turned on.\n");
+        } else {
+            printf("Slow motion turned off.\n");
+        }
+    }
+    
     if (glfwGetKeyOnce(window, GLFW_KEY_P))
     {
         pause = !pause;
     }
     
     if (pause) {
-        if (glfwGetKey(window, GLFW_KEY_X)) {
-            slowMotion = !slowMotion;
-        }
-        
         if (glfwGetKey(window, GLFW_KEY_N)) {
             forwardStep(timeStep);
         }

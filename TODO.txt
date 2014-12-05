@@ -3,7 +3,6 @@ Todo
 
 Functionality
 -------------
-- STs disappear when spinning "too fast"
 - Ground friction / rotational friction
 - Arbitrary collisions
 - NxN collision checks between objects with triangle-triangle intersection tests -> this should return collision point / line / area somehow
@@ -50,6 +49,8 @@ Yes, it spins differently, but it is unclear if correctly.
 - Skybox
 - Timestep: Why doesn't this give the desired results? http://gafferongames.com/game-physics/fix-your-timestep/
     Because spinning top - ground collision took way too much time
+- STs disappear when spinning "too fast"
+    the orientation quaternion was not normalized in for some calculations
 
 Links
 =====

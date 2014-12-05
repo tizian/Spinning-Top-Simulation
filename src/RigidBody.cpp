@@ -47,9 +47,13 @@ void RigidBody::setDefaults() {
 
 void RigidBody::printState()
 {
+    printf("\n");
     printf("m_position: %f %f %f\n", m_position.x, m_position.y, m_position.z);
     printf("m_orientation: %f %f %f %f\n", m_orientation.w, m_orientation.x, m_orientation.y, m_orientation.z);
+    printf("m_linearMomentum: %f %f %f\n", m_linearMomentum.x, m_linearMomentum.y, m_linearMomentum.z);
+    printf("m_angularMomentum: %f %f %f\n", m_angularMomentum.x, m_angularMomentum.y, m_angularMomentum.z);
     printf("m_angularVelocity: %f %f %f\n", m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);
+    printf("\n");
 }
 
 void RigidBody::setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv) {
@@ -204,8 +208,11 @@ void RigidBody::update(float dt) {
 
     m_position = m_position + dt * m_linearMomentum / m_mass;                               // x(t) = x(t) + dt * M^-1 * P(t)
     
-    quat omega = quat(1.0, m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);  // Convert omega(t) to a quaternion to do rotation
+    quat omega = quat(1.f, m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);  // Convert omega(t) to a quaternion to do rotation
     m_orientation = m_orientation + 0.5f * dt * omega * m_orientation;                      // q(t) = q(t) + dt * 1/2 * omega(t) * q(t)
+    
+    // normalize orientation quaternion
+    m_orientation = normalize(m_orientation);
     
     m_linearMomentum = m_linearMomentum + dt * m_force;                                                                     // P(t) = P(t) + dt * F(t)
     m_rotationMatrix = mat3(mat3_cast(m_orientation));                                                                      // convert quaternion q(t) to matrix R(t)
@@ -228,7 +235,7 @@ void RigidBody::update(float dt) {
     if (distanceGround < 0)
     {
         if (firstTime) {
-            printf("First contact with ground:\n");
+            printf("First contact with ground:\n\tdistance: %f\n", distanceGround);
         }
         
         double tBeforIntersection = glfwGetTime();
@@ -381,8 +388,5 @@ void RigidBody::update(float dt) {
 //    m_angularMomentum *= 0.999f;
 //    m_linearMomentum *= 0.999f;
     
-    // normalize orientation quaternion
-    m_orientation = normalize(m_orientation);
-    
-    //printState();
+//    printState();
 }
