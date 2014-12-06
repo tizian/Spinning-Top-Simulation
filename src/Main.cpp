@@ -276,7 +276,7 @@ int main()
                 if (deltaTime > 0.25)
                 {
                     deltaTime = 0.25;
-                    printf("Warning: deltaTime is too big!");
+                    printf("Warning: deltaTime is too big!\n");
                 }
                 
                 accumulator += deltaTime;

@@ -69,8 +69,8 @@ namespace InertiaTensor {
         
         if (mesh != nullptr)
         {
-            vec3 origin = body->getBoundingBox().origin;
-            vec3 radii = body->getBoundingBox().radii;
+            vec3 origin = body->getBoundingBox().getOrigin();
+            vec3 radii = body->getBoundingBox().getRadii();
             
             int numVertices = mesh->getNumVertices();
             GLfloat * vertices = mesh->getVertices();

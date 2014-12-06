@@ -64,8 +64,6 @@ public:
     // Updates the object
     virtual void update(float dt);
     
-    void calculateBoundingBox();
-    
 protected:
     glm::vec3 m_position; // Should be the center of mass
     glm::quat m_orientation;
