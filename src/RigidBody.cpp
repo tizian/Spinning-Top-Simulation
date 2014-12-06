@@ -36,6 +36,7 @@ RigidBody::RigidBody() : Body() {
 }
 
 void RigidBody::setDefaults() {
+    m_active = true;
     m_mass = 1;
     m_linearMomentum = vec3(0, 0, 0);
     m_angularMomentum = vec3(0, 0, 0);
@@ -77,6 +78,8 @@ void RigidBody::addForce(const vec3 force, const vec3 position) {
     
     vec3 taui = glm::cross(position - m_position, force);
     m_torque += taui;
+    
+    m_active = true;
 }
 
 void RigidBody::addImpulse(const vec3 impulse) {
@@ -88,6 +91,8 @@ void RigidBody::addImpulse(const vec3 impulse, const vec3 position) {
     
     vec3 torqueImpulse = cross(position - m_position, impulse);
     m_angularMomentum += torqueImpulse;
+    
+    m_active = true;
     
 //    printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
 //    printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
@@ -200,6 +205,8 @@ std::vector<vec3> RigidBody::intersectWithGround()
 }
 
 void RigidBody::update(float dt) {
+    
+    if (!m_active) return;      // Hacked "resting contacts"
     
     // Gravity
     addForce(vec3(0, -9.81 * m_mass, 0));  // hardcoded hack
@@ -314,7 +321,7 @@ void RigidBody::update(float dt) {
                 float frictionTorque; // T
                 float coulombFrictionTorque = 20; // T_C; [N*m]
                 float breakawayFrictionTorque = 25; // T_brk; [N*m];
-                float omega = m_angularVelocity.y; // w
+                float omega = m_angularVelocity.x; // w
                 float velocityThreshold = 0.001; // omega_th; should be between 10^-3 and 10^-5
                 float viscousFrictionCoefficient = 0.001; // f; [N*m/(rad/s)];
                 float coefficient = 10; // c_v; [rad/s]
@@ -325,8 +332,27 @@ void RigidBody::update(float dt) {
                 } else {
                     frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
                 }
-//                printf("frictionTorque: %f\n", frictionTorque);
+                m_torque += 0.1f * vec3(-frictionTorque / collisionPointsSize,0,0);
+                
+                omega = m_angularVelocity.y;
+                
+                if (abs(omega) >= velocityThreshold)
+                {
+                    frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
+                } else {
+                    frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
+                }
                 m_torque += 0.1f * vec3(0,-frictionTorque / collisionPointsSize,0);
+                
+                omega = m_angularVelocity.z;
+                
+                if (abs(omega) >= velocityThreshold)
+                {
+                    frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
+                } else {
+                    frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
+                }
+                m_torque += 0.1f * vec3(0,0,-frictionTorque / collisionPointsSize);
                 
                 // Linear Friction from http://ch.mathworks.com/help/physmod/simscape/ref/translationalfriction.html
                 // x component
@@ -382,6 +408,9 @@ void RigidBody::update(float dt) {
             printf("\tm_linearMomentum: %f %f %f\n", m_linearMomentum.x, m_linearMomentum.y, m_linearMomentum.z);
             firstTime = false;
         }
+        
+//        printf("lin mom: %f\trot mom: %f\n", length(m_linearMomentum), length(m_angularMomentum));
+        if (length(m_linearMomentum) < 0.15 && length(m_angularMomentum) < 0.15) m_active = false;
     }
     
     // Fake slowing down
@@ -389,4 +418,6 @@ void RigidBody::update(float dt) {
 //    m_linearMomentum *= 0.999f;
     
 //    printState();
+    
+    
 }
