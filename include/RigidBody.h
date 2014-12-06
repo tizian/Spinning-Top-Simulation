@@ -23,6 +23,8 @@ public:
     void setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv);
     
 private:
+    bool m_active;
+    
     void setDefaults();
     
     void printState();

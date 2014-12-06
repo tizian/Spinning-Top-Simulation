@@ -208,15 +208,16 @@ int main()
     skybox.setScale(glm::vec3(250.0));
     skybox.setMesh(&Assets::skyboxBox);
     skybox.setTexture(&Assets::skybox);
+    skybox.setPosition(vec3(0, 0, 0));
     
     plane = Body(glm::vec3(0, 0, 0));
     plane.setScale(glm::vec3(10, 1, 10));
     plane.setMesh(&Assets::plane);
     plane.setMaterial(&Assets::planeMaterial);
     
-    table = Body(glm::vec3(0, -0.5, 0));
-    table.setScale(glm::vec3(15, 15, 15));
-    table.setMesh(&Assets::table);
+    table = Body(glm::vec3(0, -1, 0));
+    table.setScale(glm::vec3(15, 1, 15));
+    table.setMesh(&Assets::cube);
     table.setMaterial(&Assets::whiteMaterial);
     table.setTexture(&Assets::darkWood);
     
@@ -525,7 +526,7 @@ void input(float dt) {
         resetCamera();
     }
     
-    skybox.setPosition(camera.getPosition());
+//    skybox.setPosition(camera.getPosition());
     
     float deltaTheta = camera.getRotationSpeed() * dt;
     

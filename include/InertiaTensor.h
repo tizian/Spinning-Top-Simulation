@@ -60,6 +60,8 @@ namespace InertiaTensor {
     // using the raytracing approach
     mat3 calculateInertiaTensor(Body * body)
     {
+        srand(0);
+        
         int sampleCount = NUMBER_SAMPLES; // should be higher! But then we need to avoid calculating everything when 1, 2 or 3 is pressed.
         mat3 bodyInertiaTensor = mat3({0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f});
         
@@ -78,6 +80,9 @@ namespace InertiaTensor {
             // do monte-carlo integration by using sampleCount samples inside bounding box
             for (int i = 0; i < sampleCount; ++i)
             {
+                if (i % 1000 == 0) {
+                    printf("i: %d\n", i);
+                }
                 // get sample inside boundingbox
                 vec3 sample = origin + vec3((float)rand() / (float)RAND_MAX * radii.x, (float)rand() / (float)RAND_MAX * radii.y, (float)rand() / (float)RAND_MAX * radii.z);
                 //printf("sample: %f %f %f\n", sample.x, sample.y, sample.z);

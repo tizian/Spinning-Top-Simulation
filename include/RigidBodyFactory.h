@@ -18,70 +18,87 @@ namespace RigidBodyFactory {
     
     void resetSphere(RigidBody &rb) {
         reset(rb);
-        rb.setMesh(&Assets::sphere);
         rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.5, 2.5, 2.5)));
+        
+        rb.setMesh(&Assets::sphere);
     }
     
     void resetCube(RigidBody &rb) {
         reset(rb);
-        rb.setMesh(&Assets::cube);
         rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(1.5, 1.5, 1.5)));
+        
+        rb.setMesh(&Assets::cube);
     }
     
     void resetSpinningTop1(RigidBody &rb) {
         reset(rb);
-        rb.setMesh(&Assets::spinningTop1);
         //    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 3.4, 5)));
         rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 1.5*5, 5)));
+        
+        rb.setMesh(&Assets::spinningTop1);
     }
     
     void resetSpinningTop2(RigidBody &rb) {
         reset(rb);
-        rb.setMesh(&Assets::spinningTop2);
-        //    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
-        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 1.5*4.8, 4.8)));
         
+        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
+//        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 1.5*4.8, 4.8)));
+        
+        rb.setMesh(&Assets::spinningTop2);
         
         rb.setTexture(&Assets::brushedMetal);
     }
     
     void resetSpinningTop3(RigidBody &rb) {
         reset(rb);
-        rb.setMesh(&Assets::spinningTop3);
-        //    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 2.4, 3.6)));
+        
+        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 2.4, 3.6)));
 //        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 1.5*3.6, 3.6)));
-        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(1.19, 2.42, 1.19)));
+        
+        rb.setMesh(&Assets::spinningTop3);
     }
     
     void resetSpinningTop3Top(RigidBody &rb) {
         reset(rb);
-        rb.setMesh(&Assets::spinningTop3Top);
+        
         rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(1.19, 2.42, 1.19)));    // After 1 Mio. samples
         rb.setMaterial(&Assets::yellowMaterial);
+        
+        rb.setMesh(&Assets::spinningTop3Top);
     }
     
     void resetSpinningTop3Bottom(RigidBody &rb) {
         reset(rb);
-        rb.setMesh(&Assets::spinningTop3Bottom);
+        
         rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.79, 2.42, 2.79)));    // After 1 Mio. samples
         rb.setMaterial(&Assets::redMaterial);
+        
+        rb.setMesh(&Assets::spinningTop3Bottom);
     }
     
     void resetSpinningTop4(RigidBody &rb) {
         reset(rb);
-        rb.setMesh(&Assets::spinningTop4);
+        
         rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2, 2, 2)));
+        
+        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.06, 2.03, 2.06)));    // After 1 Mio. samples
+        
+        rb.setMesh(&Assets::spinningTop4);
     }
     
     void resetSpinningTop5(RigidBody &rb) {
         reset(rb);
-        rb.setMesh(&Assets::spinningTop5);
+        
         rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.16, 3.89, 3.16)));    // After 1 Mio. samples
+        
+        rb.setMesh(&Assets::spinningTop5);
     }
     
     void resetSpinningTop6(RigidBody &rb) {
         reset(rb);
-        rb.setMesh(&Assets::spinningTop6);
+        
         rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.63, 3.28, 3.63)));    // After 1 Mio. samples
+        
+        rb.setMesh(&Assets::spinningTop6);
     }
 };
