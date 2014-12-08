@@ -6,6 +6,7 @@
 #include <glm/ext.hpp>
 
 #include <algorithm>
+#include <numeric>
 
 #include "InertiaTensor.h"
 
@@ -44,6 +45,7 @@ void RigidBody::setDefaults() {
     m_force = vec3(0, 0, 0);
     m_torque = vec3(0, 0, 0);
     firstTime = true;
+    m_lastVelocities = std::vector<float>();
 }
 
 void RigidBody::printState()
@@ -409,8 +411,21 @@ void RigidBody::update(float dt) {
             firstTime = false;
         }
         
-//        printf("lin mom: %f\trot mom: %f\n", length(m_linearMomentum), length(m_angularMomentum));
-        if (length(m_linearMomentum) < 0.15 && length(m_angularMomentum) < 0.15) m_active = false;
+        float vel = length(m_linearMomentum/m_mass + m_angularVelocity);
+        m_lastVelocities.push_back(vel);
+        if (m_lastVelocities.size() > 10) {
+            auto start = m_lastVelocities.end() - 10;
+            auto end = m_lastVelocities.end();
+            
+            m_lastVelocities = std::vector<float>(start, end);
+        }
+        float average = std::accumulate(m_lastVelocities.begin(), m_lastVelocities.end(), 0.0);
+        average /= m_lastVelocities.size();
+        printf("vel: %f\n", average);
+        
+        if (average < 0.6) m_active = false;
+        
+//        if (length(m_linearMomentum) < 0.15 && length(m_angularMomentum) < 0.15) m_active = false;
     }
     
     // Fake slowing down

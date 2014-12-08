@@ -48,6 +48,8 @@ private:
     vec3 m_force;               // F(t)
     vec3 m_torque;              // tau(t)
     
+    std::vector<float> m_lastVelocities;
+    
     float distanceToGround();
     std::vector<vec3> intersectWithGround();
 };
