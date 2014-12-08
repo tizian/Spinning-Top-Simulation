@@ -9,7 +9,7 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "Texture.h"
-#include "AABB.h"
+#include "OOBB.h"
 
 using namespace glm;
 
@@ -41,7 +41,7 @@ public:
 	Mesh * getMesh() const;
     Texture * getTexture() const;
     
-    AABB getBoundingBox();
+    OOBB getBoundingBox();
     
 	// Returns translation matrix
 	glm::mat4 translation() const;
@@ -70,7 +70,7 @@ protected:
     
     Mesh * m_mesh;
     
-    AABB m_boundingBox;
+    OOBB m_boundingBox;
     
 private:
 	Material * m_material;

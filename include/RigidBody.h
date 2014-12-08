@@ -22,6 +22,8 @@ public:
     
     void setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv);
     
+    int type; // sphere, cube, sp1, etc...
+    
 private:
     bool m_active;
     

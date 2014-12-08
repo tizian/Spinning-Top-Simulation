@@ -8,7 +8,7 @@ Body::Body(const glm::vec3 & position, const glm::quat & orientation, const glm:
 	m_orientation = orientation;
 	m_scale = scale;
     
-    m_boundingBox = AABB();
+    m_boundingBox = OOBB();
     
     m_mesh = nullptr;
     m_material = nullptr;
@@ -23,7 +23,7 @@ Body::Body(const glm::vec3 & position) {
     m_orientation = glm::quat();
 	m_scale = glm::vec3(1, 1, 1);
     
-    m_boundingBox = AABB();
+    m_boundingBox = OOBB();
     
     m_mesh = nullptr;
     m_material = nullptr;
@@ -35,7 +35,7 @@ Body::Body() {
     m_orientation = glm::quat();
 	m_scale = glm::vec3(1, 1, 1);
     
-    m_boundingBox = AABB();
+    m_boundingBox = OOBB();
     
     m_mesh = nullptr;
     m_material = nullptr;
@@ -60,7 +60,7 @@ void Body::setMaterial(Material * material) {
 
 void Body::setMesh(Mesh * mesh) {
     m_mesh = mesh;
-    m_boundingBox = AABB(mesh);
+    m_boundingBox = OOBB(mesh);
 }
 
 void Body::setTexture(Texture * texture) {
@@ -99,7 +99,7 @@ Texture * Body::getTexture() const {
     return m_texture;
 }
 
-AABB Body::getBoundingBox() {
+OOBB Body::getBoundingBox() {
     return m_boundingBox;
 }
 

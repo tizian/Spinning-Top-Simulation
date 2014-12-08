@@ -415,43 +415,79 @@ void input(float dt) {
     
     if (!pause) {
         // Select Spinning Top
-        RigidBody spinningTop = simulationStates[currentRenderState-1][0];
+        //RigidBody spinningTop = simulationStates[currentRenderState-1][0];
+        int type = -1;
         
         if (glfwGetKeyOnce(window, GLFW_KEY_1)) {
-            RigidBodyFactory::resetSpinningTop1(spinningTop);
-            cleanStates = true;
+            type = 1;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_2)) {
-            RigidBodyFactory::resetSpinningTop2(spinningTop);
-            cleanStates = true;
+            type = 2;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_3)) {
-            RigidBodyFactory::resetSpinningTop3(spinningTop);
-            cleanStates = true;
+            type = 3;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_4)) {
-            RigidBodyFactory::resetSpinningTop4(spinningTop);
-            cleanStates = true;
+            type = 4;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_5)) {
-            RigidBodyFactory::resetSpinningTop5(spinningTop);
-            cleanStates = true;
+            type = 5;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_6)) {
-            RigidBodyFactory::resetSpinningTop6(spinningTop);
-            cleanStates = true;
+            type = 6;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_9)) {
-            RigidBodyFactory::resetCube(spinningTop);
-            cleanStates = true;
+            type = 9;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_0)) {
-            RigidBodyFactory::resetSphere(spinningTop);
+            type = 0;
+        }
+        
+        if (type != -1)
+        {
+            int k = -1;
+            
+            for (int i = 0; i < simulationStates[currentRenderState-1].size() && k == -1; ++i) {
+                if (simulationStates[currentRenderState-1][i].type == type)
+                {
+                    k = i;
+                }
+            }
+            
+            if (k == -1)
+            {
+                RigidBody spinningTop;
+                if (type == 1)
+                {
+                    RigidBodyFactory::resetSpinningTop1(spinningTop);
+                } else if (type == 2) {
+                    RigidBodyFactory::resetSpinningTop2(spinningTop);
+                } else if (type == 3) {
+                    RigidBodyFactory::resetSpinningTop3(spinningTop);
+                } else if (type == 4) {
+                    RigidBodyFactory::resetSpinningTop4(spinningTop);
+                } else if (type == 5) {
+                    RigidBodyFactory::resetSpinningTop5(spinningTop);
+                } else if (type == 6) {
+                    RigidBodyFactory::resetSpinningTop6(spinningTop);
+                } else if (type == 9) {
+                    RigidBodyFactory::resetCube(spinningTop);
+                } else if (type == 0) {
+                    RigidBodyFactory::resetSphere(spinningTop);
+                }
+                
+                simulationStates[currentRenderState-1].push_back(spinningTop);
+            } else {
+                //RigidBodyFactory::resetSpinningTop1(simulationStates[currentRenderState-1][k]);
+                simulationStates[currentRenderState-1].erase(simulationStates[currentRenderState-1].begin()+k);
+            }
+            
             cleanStates = true;
         }
         
-        simulationStates[currentRenderState-1][0] = spinningTop;
-        
+        //simulationStates[currentRenderState-1][0] = spinningTop;
+        if (simulationStates[currentRenderState-1].size() > 0)
+        {
         // Control Spinning Top
         
         if (glfwGetKey(window, GLFW_KEY_T)) {
@@ -463,7 +499,7 @@ void input(float dt) {
             cleanStates = true;
         }
         
-        spinningTop = simulationStates[currentRenderState-1][0];
+        RigidBody spinningTop = simulationStates[currentRenderState-1][0];
         
         if (glfwGetKey(window, GLFW_KEY_U)) {
             spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition());
@@ -491,7 +527,7 @@ void input(float dt) {
         }
         
         simulationStates[currentRenderState-1][0] = spinningTop;
-        
+        }
         if (cleanStates) {
             removeOldStates();
         }

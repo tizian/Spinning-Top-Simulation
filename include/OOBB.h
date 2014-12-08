@@ -7,11 +7,11 @@
 
 #include <vector>
 
-class AABB {
+class OOBB {
 public:
-    AABB();
-    AABB(std::vector<glm::vec3> includedTriangles, glm::vec3 origin, glm::vec3 radii);
-    AABB(Mesh * mesh);
+    OOBB();
+    OOBB(std::vector<glm::vec3> includedTriangles, glm::vec3 origin, glm::vec3 radii);
+    OOBB(Mesh * mesh);
     
     glm::vec3 getOrigin();
     glm::vec3 getRadii();
@@ -36,5 +36,5 @@ private:
     
     std::vector<glm::vec3> m_includedTriangles; //Triangle: 1,2,3 and 4,5,6 and...
     
-    std::vector<AABB> children;
+    std::vector<OOBB> children;
 };

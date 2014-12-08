@@ -80,26 +80,26 @@ namespace IntersectionTest {
         
         if (rayDirection.x != 0 && rayDirection.y != 0 && rayDirection.z != 0)
         {
-            *t = tmax1;
+            *t = tmin1;
             return (tmin1 < tmax1 && tmin2 < tmax2 && tmin3 < tmax3);
         } else if (rayDirection.x != 0 && rayDirection.y != 0)
         {
-            *t = tmax1;
+            *t = tmin1;
             return (tmin1 < tmax1 && rayOrigin.z >= boxOrigin.z && rayOrigin.z <= boxOrigin.z + boxRadii.z);
         } else if (rayDirection.z != 0 && rayDirection.y != 0) {
-            *t = tmax2;
+            *t = tmin2;
             return (tmin2 < tmax2 && rayOrigin.x >= boxOrigin.x && rayOrigin.x <= boxOrigin.x + boxRadii.x);
         } else if (rayDirection.z != 0 && rayDirection.x != 0) {
-            *t = tmax3;
+            *t = tmin3;
             return (tmin3 < tmax3 && rayOrigin.y >= boxOrigin.y && rayOrigin.y <= boxOrigin.y + boxRadii.y);
         } else if (rayDirection.x != 0) {
-            *t = boxOrigin.x - rayOrigin.x / rayDirection.x;
+            *t = std::min((boxOrigin.x - rayOrigin.x) / rayDirection.x, (boxOrigin.x + boxRadii.x - rayOrigin.x) / rayDirection.x);
             return (rayOrigin.y >= boxOrigin.y && rayOrigin.y <= boxOrigin.y + boxRadii.y && rayOrigin.z >= boxOrigin.z && rayOrigin.z <= boxOrigin.z + boxRadii.z);
         } else if (rayDirection.y != 0) {
-            *t = boxOrigin.y - rayOrigin.y / rayDirection.y;
+            *t = std::min((boxOrigin.y - rayOrigin.y) / rayDirection.y, (boxOrigin.y + boxRadii.y - rayOrigin.y) / rayDirection.y);
             return (rayOrigin.x >= boxOrigin.x && rayOrigin.x <= boxOrigin.x + boxRadii.x && rayOrigin.z >= boxOrigin.z && rayOrigin.z <= boxOrigin.z + boxRadii.z);
         } else if (rayDirection.z != 0) {
-            *t = boxOrigin.z - rayOrigin.z / rayDirection.z;
+            *t = std::min((boxOrigin.z - rayOrigin.z) / rayDirection.z, (boxOrigin.z + boxRadii.z - rayOrigin.z) / rayDirection.z);
             return (rayOrigin.y >= boxOrigin.y && rayOrigin.y <= boxOrigin.y + boxRadii.y && rayOrigin.x >= boxOrigin.x && rayOrigin.x <= boxOrigin.x + boxRadii.x);
         }
         
@@ -108,6 +108,7 @@ namespace IntersectionTest {
         return false;
     }
     
+    // The box needs to be axis-aligned (AABB)
     static bool intersectionTriangleBox(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3, glm::vec3 origin, glm::vec3 radii)
     {
         if (point1 == point2 || point1 == point3 || point2 == point3)
@@ -244,6 +245,87 @@ namespace IntersectionTest {
             {
                 return true;
             }
+        }
+        
+        // no intersection
+        
+        return false;
+    }
+    
+    // Intersection of two OOBBs
+    // idea: triangulate one box and transform it into the world of the other one, so we have a AABB - traingle intersection
+    static bool intersectionBoxBox(glm::vec3 box1Origin, glm::vec3 box1Radii, glm::mat4 box1ModelMat, glm::vec3 box2Origin, glm::vec3 box2Radii, glm::mat4 box2ModelMat)
+    {
+        glm::vec3 realBox1Origin = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z, 1.f));
+
+        glm::vec3 realBox1CornerX = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z, 1.f));
+        glm::vec3 realBox1CornerY = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x, box1Origin.y + box1Radii.y, box1Origin.z, 1.f));
+        glm::vec3 realBox1CornerZ = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::vec3 realBox1CornerXY = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y + box1Radii.y, box1Origin.z, 1.f));
+        glm::vec3 realBox1CornerXZ = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::vec3 realBox1CornerYZ = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x, box1Origin.y + box1Radii.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::vec3 realBox1CornerXYZ = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y + box1Radii.y, box1Origin.z + box1Radii.z, 1.f));
+        
+        // adjacent to the origin of box1
+        if (intersectionTriangleBox(realBox1Origin, realBox1CornerX, realBox1CornerXY, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        if (intersectionTriangleBox(realBox1Origin, realBox1CornerY, realBox1CornerXY, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        if (intersectionTriangleBox(realBox1Origin, realBox1CornerX, realBox1CornerXZ, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        if (intersectionTriangleBox(realBox1Origin, realBox1CornerZ, realBox1CornerXZ, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        if (intersectionTriangleBox(realBox1Origin, realBox1CornerY, realBox1CornerYZ, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        if (intersectionTriangleBox(realBox1Origin, realBox1CornerZ, realBox1CornerYZ, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        // adjacent to origin1 + radii1
+        if (intersectionTriangleBox(realBox1CornerXYZ, realBox1CornerX, realBox1CornerXY, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        if (intersectionTriangleBox(realBox1CornerXYZ, realBox1CornerY, realBox1CornerXY, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        if (intersectionTriangleBox(realBox1CornerXYZ, realBox1CornerX, realBox1CornerXZ, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        if (intersectionTriangleBox(realBox1CornerXYZ, realBox1CornerZ, realBox1CornerXZ, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        if (intersectionTriangleBox(realBox1CornerXYZ, realBox1CornerY, realBox1CornerYZ, box2Origin, box2Radii))
+        {
+            return true;
+        }
+        
+        if (intersectionTriangleBox(realBox1CornerXYZ, realBox1CornerZ, realBox1CornerYZ, box2Origin, box2Radii))
+        {
+            return true;
         }
         
         // no intersection

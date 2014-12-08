@@ -1,13 +1,13 @@
-#include "AABB.h"
+#include "OOBB.h"
 
 #include "IntersectionTest.h"
 
-AABB::AABB()
+OOBB::OOBB()
 {
     setDefaults();
 }
 
-AABB::AABB(std::vector<glm::vec3> includedTriangles, glm::vec3 origin, glm::vec3 radii)
+OOBB::OOBB(std::vector<glm::vec3> includedTriangles, glm::vec3 origin, glm::vec3 radii)
 {
     setDefaults();
     
@@ -17,7 +17,7 @@ AABB::AABB(std::vector<glm::vec3> includedTriangles, glm::vec3 origin, glm::vec3
     m_radii = radii;
 }
 
-AABB::AABB(Mesh * mesh) {
+OOBB::OOBB(Mesh * mesh) {
     setDefaults();
     
     std::vector<glm::vec3> includedTriangles = std::vector<glm::vec3>();
@@ -48,7 +48,7 @@ AABB::AABB(Mesh * mesh) {
     {
         
         split();
-        printf("AABB includedTriangles: %lu radii: %f %f %f\n", includedTriangles.size()/3, m_radii.x, m_radii.y, m_radii.z);
+        printf("OOBB includedTriangles: %lu radii: %f %f %f\n", includedTriangles.size()/3, m_radii.x, m_radii.y, m_radii.z);
         int sum = 0;
         for (int i = 0; i < children.size(); ++i) {
             sum += children[i].getIncludedTriangles().size()/3;
@@ -60,28 +60,28 @@ AABB::AABB(Mesh * mesh) {
     }
 }
 
-glm::vec3 AABB::getOrigin() {
+glm::vec3 OOBB::getOrigin() {
     return m_origin;
 }
 
 
-glm::vec3 AABB::getRadii() {
+glm::vec3 OOBB::getRadii() {
     return m_radii;
 }
 
-GLuint AABB::getNumVertices() {
+GLuint OOBB::getNumVertices() {
     return 3*8; // To be consistent with Mesh.cpp
 }
 
-GLfloat * AABB::getVertices() {
+GLfloat * OOBB::getVertices() {
     return m_vertices;
 }
 
-std::vector<glm::vec3> AABB::getIncludedTriangles() {
+std::vector<glm::vec3> OOBB::getIncludedTriangles() {
     return m_includedTriangles;
 }
 
-void AABB::split() {
+void OOBB::split() {
     if (children.size() == 0) {
         glm::vec3 childRadii = m_radii * 0.5f;
         
@@ -138,20 +138,20 @@ void AABB::split() {
         }
         
         for (int i = 0; i < triangles.size(); ++i) {
-            children.push_back(AABB(triangles[i], origins[i], childRadii));
+            children.push_back(OOBB(triangles[i], origins[i], childRadii));
         }
     }
 }
 
-void AABB::setDefaults() {
+void OOBB::setDefaults() {
     m_origin = glm::vec3(0,0,0);
     m_radii = glm::vec3(0,0,0);
     
     std::vector<GLfloat> m_includedTriangles = std::vector<GLfloat>();
-    children = std::vector<AABB>();
+    children = std::vector<OOBB>();
 }
 
-void AABB::calculateBoundingBox() {
+void OOBB::calculateBoundingBox() {
     std::vector<glm::vec3> includedTriangles = m_includedTriangles;
     
     // calculate origin and radii
