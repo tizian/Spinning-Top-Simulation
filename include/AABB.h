@@ -19,13 +19,15 @@ public:
     GLuint getNumVertices();
     GLfloat * getVertices();
     
+    std::vector<glm::vec3> getIncludedTriangles();
+    
     void split();
     
 private:
     
     void setDefaults();
     
-    void calculateBoundingBox(std::vector<glm::vec3> includedTriangles);
+    void calculateBoundingBox();
     
     glm::vec3 m_origin; // lower left corner
     glm::vec3 m_radii; // width, height, depth

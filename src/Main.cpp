@@ -417,35 +417,35 @@ void input(float dt) {
         // Select Spinning Top
         RigidBody spinningTop = simulationStates[currentRenderState-1][0];
         
-        if (glfwGetKey(window, GLFW_KEY_1)) {
+        if (glfwGetKeyOnce(window, GLFW_KEY_1)) {
             RigidBodyFactory::resetSpinningTop1(spinningTop);
             cleanStates = true;
         }
-        else if (glfwGetKey(window, GLFW_KEY_2)) {
+        else if (glfwGetKeyOnce(window, GLFW_KEY_2)) {
             RigidBodyFactory::resetSpinningTop2(spinningTop);
             cleanStates = true;
         }
-        else if (glfwGetKey(window, GLFW_KEY_3)) {
+        else if (glfwGetKeyOnce(window, GLFW_KEY_3)) {
             RigidBodyFactory::resetSpinningTop3(spinningTop);
             cleanStates = true;
         }
-        else if (glfwGetKey(window, GLFW_KEY_4)) {
+        else if (glfwGetKeyOnce(window, GLFW_KEY_4)) {
             RigidBodyFactory::resetSpinningTop4(spinningTop);
             cleanStates = true;
         }
-        else if (glfwGetKey(window, GLFW_KEY_5)) {
+        else if (glfwGetKeyOnce(window, GLFW_KEY_5)) {
             RigidBodyFactory::resetSpinningTop5(spinningTop);
             cleanStates = true;
         }
-        else if (glfwGetKey(window, GLFW_KEY_6)) {
+        else if (glfwGetKeyOnce(window, GLFW_KEY_6)) {
             RigidBodyFactory::resetSpinningTop6(spinningTop);
             cleanStates = true;
         }
-        else if (glfwGetKey(window, GLFW_KEY_9)) {
+        else if (glfwGetKeyOnce(window, GLFW_KEY_9)) {
             RigidBodyFactory::resetCube(spinningTop);
             cleanStates = true;
         }
-        else if (glfwGetKey(window, GLFW_KEY_0)) {
+        else if (glfwGetKeyOnce(window, GLFW_KEY_0)) {
             RigidBodyFactory::resetSphere(spinningTop);
             cleanStates = true;
         }

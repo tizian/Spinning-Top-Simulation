@@ -1,9 +1,6 @@
 #include "AABB.h"
 
-bool intersetcion(glm::vec3 point1, glm::vec3 point2, glm::vec3 point3, glm::vec3 origin, glm::vec3 radii)
-{
-    return true;
-}
+#include "IntersectionTest.h"
 
 AABB::AABB()
 {
@@ -13,6 +10,8 @@ AABB::AABB()
 AABB::AABB(std::vector<glm::vec3> includedTriangles, glm::vec3 origin, glm::vec3 radii)
 {
     setDefaults();
+    
+    m_includedTriangles = includedTriangles;
     
     m_origin = origin;
     m_radii = radii;
@@ -29,7 +28,36 @@ AABB::AABB(Mesh * mesh) {
         includedTriangles.push_back(vertex);
     }
     
-    calculateBoundingBox(includedTriangles);
+    bool equalVerticesInSameTriangle = false;
+    GLfloat * vertices = mesh->getVertices();
+    for (int i = 0; i < mesh->getNumVertices(); i += 9) {
+        glm::vec3 vertex1 = glm::vec3(vertices[i], vertices[i+1], vertices[i+2]);
+        glm::vec3 vertex2 = glm::vec3(vertices[i+3], vertices[i+4], vertices[i+5]);
+        glm::vec3 vertex3 = glm::vec3(vertices[i+6], vertices[i+7], vertices[i+8]);
+        
+        if (vertex1 == vertex2 || vertex1 == vertex3 || vertex2 == vertex3)
+        {
+            equalVerticesInSameTriangle = true;
+        }
+    }
+    
+    m_includedTriangles = includedTriangles;
+    calculateBoundingBox();
+    
+    if (!equalVerticesInSameTriangle)
+    {
+        
+        split();
+        printf("AABB includedTriangles: %lu radii: %f %f %f\n", includedTriangles.size()/3, m_radii.x, m_radii.y, m_radii.z);
+        int sum = 0;
+        for (int i = 0; i < children.size(); ++i) {
+            sum += children[i].getIncludedTriangles().size()/3;
+            printf("\tchild: %d includedTriangles: %lu radii %f %f %f\n", i, children[i].getIncludedTriangles().size()/3, children[i].getRadii().x, children[i].getRadii().y, children[i].getRadii().z);
+        }
+        printf("\tSum of triangles in children: %d\n",sum);
+    } else {
+        printf("ERROR: Could not create Octree, because there are equal vertices in the same triangles.\n");
+    }
 }
 
 glm::vec3 AABB::getOrigin() {
@@ -47,6 +75,10 @@ GLuint AABB::getNumVertices() {
 
 GLfloat * AABB::getVertices() {
     return m_vertices;
+}
+
+std::vector<glm::vec3> AABB::getIncludedTriangles() {
+    return m_includedTriangles;
 }
 
 void AABB::split() {
@@ -97,10 +129,10 @@ void AABB::split() {
             glm::vec3 point3 = m_includedTriangles[i+2];
             
             for (int j = 0; j < origins.size(); ++j) {
-                if (intersetcion(point1, point2, point3, origins[i], childRadii)) {
-                    triangles[i].push_back(point1);
-                    triangles[i].push_back(point2);
-                    triangles[i].push_back(point3);
+                if (IntersectionTest::intersectionTriangleBox(point1, point2, point3, origins[j], childRadii)) {
+                    triangles[j].push_back(point1);
+                    triangles[j].push_back(point2);
+                    triangles[j].push_back(point3);
                 }
             }
         }
@@ -119,7 +151,8 @@ void AABB::setDefaults() {
     children = std::vector<AABB>();
 }
 
-void AABB::calculateBoundingBox(std::vector<glm::vec3> includedTriangles) {
+void AABB::calculateBoundingBox() {
+    std::vector<glm::vec3> includedTriangles = m_includedTriangles;
     
     // calculate origin and radii
     m_origin = glm::vec3(0,0,0);
