@@ -103,4 +103,4 @@ namespace InertiaTensor {
         
         return glm::inverse(bodyInertiaTensor);
     }
-}
+};

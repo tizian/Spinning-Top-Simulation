@@ -5,6 +5,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#include "IntersectionTest.h"
+
 #include <vector>
 
 class OOBB {

@@ -15,14 +15,11 @@
 #include <vector>
 
 #include "Assets.h"
-#include "Camera.h"
-#include "Shader.h"
-#include "Body.h"
-#include "Mesh.h"
+#include "Simulation.h"
+
+
 #include "PointLight.h"
-#include "Material.h"
-#include "RigidBody.h"
-#include "RigidBodyFactory.h"
+#include "Camera.h"
 
 using namespace std;
 
@@ -37,7 +34,7 @@ void glfwFrameBufferSizeCallback(GLFWwindow *window, int width, int height);
 void setupContext();
 void destroyContext();
 
-void render(vector<RigidBody> state);
+void render(vector<RigidBody> * state);
 void input(float dt);
 
 static int width = 640;
@@ -66,10 +63,7 @@ Body skybox;
 Body plane;
 Body table;
 
-const int MAX_SIMULATION_SAVE_STATES = 1000;
-
-int currentRenderState;
-vector<vector<RigidBody> > simulationStates;
+Simulation simulation;
 
 void resetCamera()
 {
@@ -79,104 +73,61 @@ void resetCamera()
     camera.setAspectRatio((float)width/height);
 }
 
-void addTorque() {
-    RigidBody spinningTop = simulationStates[currentRenderState-1][0];
-    
+void addTorque(RigidBody * rb) {
     vec3 F1 = vec3(0, 0, 10);
     vec3 F2 = vec3(0, 0, -10);
     
-    vec3 P1 = spinningTop.getPosition() + glm::vec3(1, 0, 0);
-    vec3 P2 = spinningTop.getPosition() + glm::vec3(-1, 0, 0);
+    vec3 P1 = rb->getPosition() + glm::vec3(1, 0, 0);
+    vec3 P2 = rb->getPosition() + glm::vec3(-1, 0, 0);
     
-    F1 = mat3(spinningTop.model()) * F1;
-    F2 = mat3(spinningTop.model()) * F2;
+    F1 = mat3(rb->model()) * F1;
+    F2 = mat3(rb->model()) * F2;
     
-    P1 = mat3(spinningTop.model()) * P1;
-    P2 = mat3(spinningTop.model()) * P2;
+    P1 = mat3(rb->model()) * P1;
+    P2 = mat3(rb->model()) * P2;
     
-    spinningTop.addForce(F1, P1);
-    spinningTop.addForce(F2, P2);
-    simulationStates[currentRenderState-1][0] = spinningTop;
+    rb->addForce(F1, P1);
+    rb->addForce(F2, P2);
 }
 
-void addReverseTorque() {
-    RigidBody spinningTop = simulationStates[currentRenderState-1][0];
-    
+void addReverseTorque(RigidBody * rb) {
     vec3 F1 = vec3(0, 0, -10);
     vec3 F2 = vec3(0, 0, 10);
     
-    vec3 P1 = spinningTop.getPosition() + glm::vec3(1, 0, 0);
-    vec3 P2 = spinningTop.getPosition() + glm::vec3(-1, 0, 0);
+    vec3 P1 = rb->getPosition() + glm::vec3(1, 0, 0);
+    vec3 P2 = rb->getPosition() + glm::vec3(-1, 0, 0);
     
-    F1 = mat3(spinningTop.model()) * F1;
-    F2 = mat3(spinningTop.model()) * F2;
+    F1 = mat3(rb->model()) * F1;
+    F2 = mat3(rb->model()) * F2;
     
-    P1 = mat3(spinningTop.model()) * P1;
-    P2 = mat3(spinningTop.model()) * P2;
+    P1 = mat3(rb->model()) * P1;
+    P2 = mat3(rb->model()) * P2;
     
-    spinningTop.addForce(F1, P1);
-    spinningTop.addForce(F2, P2);
-    simulationStates[currentRenderState-1][0] = spinningTop;
-}
-
-void resetStates() {
-    currentRenderState = 0;
-    simulationStates = vector<vector<RigidBody> >();
-}
-
-void forwardStep(float dt) {
-    if (currentRenderState == simulationStates.size()) {
-        vector<RigidBody> bodies = vector<RigidBody>();
-        for (int i = 0; i < simulationStates[currentRenderState-1].size(); ++i) {
-            bodies.push_back(simulationStates[currentRenderState-1][i]);
-        }
-        
-        for (int i = 0; i < bodies.size(); ++i) {
-            bodies[i].update(dt);
-        }
-        
-        simulationStates.push_back(bodies);
-        
-        if (simulationStates.size() > MAX_SIMULATION_SAVE_STATES) {
-            simulationStates.erase(simulationStates.begin());
-        }
-        else {
-            currentRenderState++;
-        }
-    }
-    else if (currentRenderState < simulationStates.size()) {
-        currentRenderState++;
-    }
-}
-
-void backwardStep() {
-    if (currentRenderState == 1) return;
-    currentRenderState--;
-}
-
-void removeOldStates() {
-    for (int i = 0; i < simulationStates.size() - currentRenderState; i++) {
-        simulationStates.pop_back();
-    }
+    rb->addForce(F1, P1);
+    rb->addForce(F2, P2);
 }
 
 // return (1-alpha) * fromState + alpha * toState;
 // interpolates positiona and orientation
-vector<RigidBody> interpolateState(vector<RigidBody> fromState, vector<RigidBody> toState, float alpha)
+void interpolateStates(vector<RigidBody> * fromState, vector<RigidBody> * toState, vector<RigidBody> *interpolatedState, float alpha)
 {
-    vector<RigidBody> returnState = vector<RigidBody>();
-    
-    if (fromState.size() == toState.size())
-    {
-        for (int i = 0; i < fromState.size(); ++i) {
-            RigidBody current = fromState[i];
-            current.setPosition(fromState[i].getPosition() * (1.f-alpha) + toState[i].getPosition() * alpha);
-            current.setOrientation(mix(fromState[i].getOrientation(), toState[i].getOrientation(), alpha));
-            returnState.push_back(current);
-        }
+    if (interpolatedState->size() > 0) {
+        interpolatedState->clear();
     }
     
-    return returnState;
+    if (fromState->size() != toState->size()) {
+        interpolatedState = toState;
+    }
+    else {
+        for (int i = 0; i < fromState->size(); i++) {
+            RigidBody current = fromState->at(i);
+            
+            current.setPosition(mix(fromState->at(i).getPosition(), toState->at(i).getPosition(), alpha));
+            current.setOrientation(mix(fromState->at(i).getOrientation(), toState->at(i).getOrientation(), alpha));
+            
+            interpolatedState->push_back(current);
+        }
+    }
 }
 
 int main()
@@ -221,13 +172,7 @@ int main()
     table.setMaterial(&Assets::whiteMaterial);
     table.setTexture(&Assets::darkWood);
     
-    resetStates();
-    
-    RigidBody spinningTop;
-    RigidBodyFactory::resetSpinningTop1(spinningTop);
-    vector<RigidBody> initialState = vector<RigidBody> {spinningTop};
-    simulationStates.push_back(initialState);
-    currentRenderState++;
+    simulation = Simulation();
 
     glfwGetFramebufferSize(window, &width, &height);
     printf("Framebuffer width: %d height: %d\n", width, height);
@@ -255,7 +200,7 @@ int main()
             deltaTime /= 8;
         }
         
-        vector<RigidBody> state = simulationStates[currentRenderState-1];
+        vector<RigidBody> renderState = *simulation.getCurrentState();
         
         double tBeforeUpdate = glfwGetTime();
         
@@ -264,13 +209,13 @@ int main()
             //printf("update call\n");
             if (timeStepMethod == 0)
             {
-                forwardStep(timeStep);
-                state = simulationStates[currentRenderState-1];
+                simulation.forwardStep(timeStep);
+                renderState = *simulation.getCurrentState();
             }
             if (timeStepMethod == 1)
             {
-                forwardStep(deltaTime);
-                state = simulationStates[currentRenderState-1];
+                simulation.forwardStep(deltaTime);
+                renderState = *simulation.getCurrentState();
             }
             else if (timeStepMethod == 2)
             {
@@ -284,25 +229,30 @@ int main()
                 
 //                printf("accumulator: %f\n", accumulator);
                 while (accumulator >= timeStep) {
-                    forwardStep(timeStep);
+                    simulation.forwardStep(timeStep);
                     accumulator -= timeStep;
                 }
                 
                 double alpha = accumulator / timeStep;
                 
-                if (currentRenderState > 1)
+                if (simulation.getNumberOfStates() > 1)
                 {
-                    state = interpolateState(simulationStates[currentRenderState-2], simulationStates[currentRenderState-1], alpha);
-                } else {
-                    state = simulationStates[currentRenderState-1];
+                    vector<RigidBody> interpolatedState = vector<RigidBody>();
+                    
+                    interpolateStates(simulation.getLastState(), simulation.getCurrentState(), &interpolatedState, alpha);
+                    
+                    renderState = interpolatedState;
+                }
+                else {
+                    renderState = *simulation.getCurrentState();
                 }
             }
             else if (timeStepMethod == 3)
             {
                 while (deltaTime > 0.0) {
                     float actualDeltaTime = glm::min(deltaTime, timeStep);
-                    forwardStep(actualDeltaTime);
-                    state = simulationStates[currentRenderState-1];
+                    simulation.forwardStep(actualDeltaTime);
+                    renderState = *simulation.getCurrentState();
                     deltaTime -= actualDeltaTime;
                 }
             }
@@ -318,7 +268,7 @@ int main()
         
         double tBeforeRender = glfwGetTime();
         
-        render(state);
+        render(&renderState);
         
         double tAfterRender = glfwGetTime();
         
@@ -326,6 +276,7 @@ int main()
         double renderTime = tAfterRender - tBeforeRender;
         
 //        printf("time\tupdate: %f\trender: %f\n", updateTime, renderTime);
+        
         if (timeStepMethod == 2) { // turn off vsync or so..
             glfwSwapInterval(0);
         }
@@ -342,7 +293,7 @@ int main()
 	return 0;
 }
 
-void render(vector<RigidBody> state) {
+void render(vector<RigidBody> * state) {
     // clear drawing surface
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -364,9 +315,9 @@ void render(vector<RigidBody> state) {
     light.setUniforms();
     camera.setUniforms();
     
-    for (int i = 0; i < state.size(); ++i)
+    for (int i = 0; i < state->size(); ++i)
     {
-        state[i].render();
+        state->at(i).render();
     }
     
     table.render();
@@ -379,9 +330,9 @@ void render(vector<RigidBody> state) {
     if (debug) {
         glDisable(GL_DEPTH_TEST);
         
-        for (int i = 0; i < state.size(); ++i)
+        for (int i = 0; i < state->size(); ++i)
         {
-            state[i].debugRender();
+            state->at(i).debugRender();
         }
         
         glEnable(GL_DEPTH_TEST);
@@ -399,9 +350,9 @@ void render(vector<RigidBody> state) {
     camera.setUniforms();
     Shader::setUniform("shadowColor", glm::vec4(0, 0, 0, 0.6));
     
-    for (int i = 0; i < state.size(); ++i)
+    for (int i = 0; i < state->size(); ++i)
     {
-        state[i].render();
+        state->at(i).render();
     }
 }
 
@@ -414,122 +365,74 @@ void input(float dt) {
     }
     
     if (!pause) {
-        // Select Spinning Top
-        //RigidBody spinningTop = simulationStates[currentRenderState-1][0];
-        int type = -1;
         
         if (glfwGetKeyOnce(window, GLFW_KEY_1)) {
-            type = 1;
+            simulation.addRigidBody(1);
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_2)) {
-            type = 2;
+            simulation.addRigidBody(2);
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_3)) {
-            type = 3;
+            simulation.addRigidBody(3);
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_4)) {
-            type = 4;
+            simulation.addRigidBody(4);
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_5)) {
-            type = 5;
+            simulation.addRigidBody(5);
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_6)) {
-            type = 6;
+            simulation.addRigidBody(6);
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_9)) {
-            type = 9;
+            simulation.addRigidBody(9);
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_0)) {
-            type = 0;
+            simulation.addRigidBody(0);
         }
         
-        if (type != -1)
-        {
-            int k = -1;
+        if (glfwGetKeyOnce(window, GLFW_KEY_TAB)) {
+            simulation.toggleActiveRigidBody();
+        }
+        
+        if (glfwGetKeyOnce(window, GLFW_KEY_BACKSPACE)) {
+            simulation.removeActiveRigidBody();
+        }
+        
+        if (glfwGetKeyOnce(window, GLFW_KEY_Q)) {
+            simulation.removeAllRigidBodies();
+        }
+        
+        
+        // Control spinning top
+        RigidBody * spinningTop = simulation.getActiveRigidBody();
+        if (spinningTop != nullptr) {
             
-            for (int i = 0; i < simulationStates[currentRenderState-1].size() && k == -1; ++i) {
-                if (simulationStates[currentRenderState-1][i].type == type)
-                {
-                    k = i;
-                }
+            if (glfwGetKey(window, GLFW_KEY_T)) {
+                addTorque(spinningTop);
+            }
+            if (glfwGetKey(window, GLFW_KEY_R)) {
+                addReverseTorque(spinningTop);
             }
             
-            if (k == -1)
-            {
-                RigidBody spinningTop;
-                if (type == 1)
-                {
-                    RigidBodyFactory::resetSpinningTop1(spinningTop);
-                } else if (type == 2) {
-                    RigidBodyFactory::resetSpinningTop2(spinningTop);
-                } else if (type == 3) {
-                    RigidBodyFactory::resetSpinningTop3(spinningTop);
-                } else if (type == 4) {
-                    RigidBodyFactory::resetSpinningTop4(spinningTop);
-                } else if (type == 5) {
-                    RigidBodyFactory::resetSpinningTop5(spinningTop);
-                } else if (type == 6) {
-                    RigidBodyFactory::resetSpinningTop6(spinningTop);
-                } else if (type == 9) {
-                    RigidBodyFactory::resetCube(spinningTop);
-                } else if (type == 0) {
-                    RigidBodyFactory::resetSphere(spinningTop);
-                }
-                
-                simulationStates[currentRenderState-1].push_back(spinningTop);
-            } else {
-                //RigidBodyFactory::resetSpinningTop1(simulationStates[currentRenderState-1][k]);
-                simulationStates[currentRenderState-1].erase(simulationStates[currentRenderState-1].begin()+k);
+            if (glfwGetKey(window, GLFW_KEY_U)) {
+                spinningTop->addForce(glm::vec3(0, 0, -10), spinningTop->getPosition());
             }
-            
-            cleanStates = true;
-        }
-        
-        //simulationStates[currentRenderState-1][0] = spinningTop;
-        if (simulationStates[currentRenderState-1].size() > 0)
-        {
-        // Control Spinning Top
-        
-        if (glfwGetKey(window, GLFW_KEY_T)) {
-            addTorque();
-            cleanStates = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_R)) {
-            addReverseTorque();
-            cleanStates = true;
-        }
-        
-        RigidBody spinningTop = simulationStates[currentRenderState-1][0];
-        
-        if (glfwGetKey(window, GLFW_KEY_U)) {
-            spinningTop.addForce(glm::vec3(0, 0, -10), spinningTop.getPosition());
-            cleanStates = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_H)) {
-            spinningTop.addForce(glm::vec3(-10, 0, 0), spinningTop.getPosition());
-            cleanStates = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_J)) {
-            spinningTop.addForce(glm::vec3(0, 0, 10), spinningTop.getPosition());
-            cleanStates = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_K)) {
-            spinningTop.addForce(glm::vec3(10, 0, 0), spinningTop.getPosition());
-            cleanStates = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
-            spinningTop.addForce(glm::vec3(0, 20, 0), spinningTop.getPosition());
-            cleanStates = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_I)) {
-            spinningTop.addForce(glm::vec3(5, 0, 0), spinningTop.getPosition() + glm::vec3(0, 1, 0));
-            cleanStates = true;
-        }
-        
-        simulationStates[currentRenderState-1][0] = spinningTop;
-        }
-        if (cleanStates) {
-            removeOldStates();
+            if (glfwGetKey(window, GLFW_KEY_H)) {
+                spinningTop->addForce(glm::vec3(-10, 0, 0), spinningTop->getPosition());
+            }
+            if (glfwGetKey(window, GLFW_KEY_J)) {
+                spinningTop->addForce(glm::vec3(0, 0, 10), spinningTop->getPosition());
+            }
+            if (glfwGetKey(window, GLFW_KEY_K)) {
+                spinningTop->addForce(glm::vec3(10, 0, 0), spinningTop->getPosition());
+            }
+            if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
+                spinningTop->addForce(glm::vec3(0, 20, 0), spinningTop->getPosition());
+            }
+            if (glfwGetKey(window, GLFW_KEY_I)) {
+                spinningTop->addForce(glm::vec3(5, 0, 0), spinningTop->getPosition() + glm::vec3(0, 1, 0));
+            }
         }
     }
 
@@ -596,19 +499,19 @@ void input(float dt) {
     }
     
     if (pause) {
-        if (glfwGetKey(window, GLFW_KEY_N)) {
-            forwardStep(timeStep);
+        if (glfwGetKeyOnce(window, GLFW_KEY_N)) {
+            simulation.forwardStep(timeStep);
         }
         
         if (glfwGetKey(window, GLFW_KEY_N) && glfwGetKey(window, GLFW_KEY_M)) {
-            forwardStep(timeStep);
+            simulation.forwardStep(timeStep);
         }
         if (glfwGetKey(window, GLFW_KEY_B) && glfwGetKey(window, GLFW_KEY_M)) {
-            backwardStep();
+            simulation.backwardStep();
         }
         
-        if (glfwGetKey(window, GLFW_KEY_B)) {
-            backwardStep();
+        if (glfwGetKeyOnce(window, GLFW_KEY_B)) {
+            simulation.backwardStep();
         }
     }
     

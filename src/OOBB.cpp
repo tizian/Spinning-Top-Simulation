@@ -1,7 +1,5 @@
 #include "OOBB.h"
 
-#include "IntersectionTest.h"
-
 OOBB::OOBB()
 {
     setDefaults();

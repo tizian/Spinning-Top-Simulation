@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "Shader.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 

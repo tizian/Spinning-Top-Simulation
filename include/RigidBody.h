@@ -24,6 +24,8 @@ public:
     
     int type; // sphere, cube, sp1, etc...
     
+    bool isCurrentlyActive;
+    
 private:
     bool m_active;
     

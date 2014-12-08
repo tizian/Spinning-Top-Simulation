@@ -8,8 +8,6 @@
 #include <algorithm>
 #include <numeric>
 
-#include "InertiaTensor.h"
-
 vec3 maxAngularVelocity = vec3(1,1,1) * 100000000.f; // 100 000 000 is an arbitrary but resonable limit to avoid nan
 
 int frictionMethod = 3; // default = forced based friction; 1 = Impulse-Based Friction Model (Coulomb friction model); NYI 2 = Wikipedia; 3 = MatLab
@@ -46,6 +44,7 @@ void RigidBody::setDefaults() {
     m_torque = vec3(0, 0, 0);
     firstTime = true;
     m_lastVelocities = std::vector<float>();
+    isCurrentlyActive = false;
 }
 
 void RigidBody::printState()
