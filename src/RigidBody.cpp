@@ -421,7 +421,7 @@ void RigidBody::update(float dt) {
         }
         float average = std::accumulate(m_lastVelocities.begin(), m_lastVelocities.end(), 0.0);
         average /= m_lastVelocities.size();
-        printf("vel: %f\n", average);
+//        printf("vel: %f\n", average);
         
         if (average < 0.6) m_active = false;
         
