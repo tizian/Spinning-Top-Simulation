@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <queue>
 
 vec3 maxAngularVelocity = vec3(1,1,1) * 100000000.f; // 100 000 000 is an arbitrary but resonable limit to avoid nan
 
@@ -69,6 +70,11 @@ void RigidBody::setMesh(Mesh *mesh) {
 //    printf("body inertia tensor inv:\n\t%f %f %f\n\t%f %f %f\n\t%f %f %f\n", m_bodyInertiaTensorInv[0][0], m_bodyInertiaTensorInv[0][1], m_bodyInertiaTensorInv[0][2], m_bodyInertiaTensorInv[1][0], m_bodyInertiaTensorInv[1][1], m_bodyInertiaTensorInv[1][2], m_bodyInertiaTensorInv[2][0], m_bodyInertiaTensorInv[2][1], m_bodyInertiaTensorInv[2][2]);
 }
 
+OOBB RigidBody::getBoundingBox()
+{
+    return m_boundingBox;
+}
+
 void RigidBody::addForce(const vec3 force) {
     addForce(force, m_position);
 }
@@ -99,6 +105,86 @@ void RigidBody::addImpulse(const vec3 impulse, const vec3 position) {
 //    printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
 }
 
+std::vector<glm::vec3> RigidBody::intersectWith(Body & body)
+{
+    std::vector<glm::vec3> intersectionPoints = std::vector<glm::vec3>();
+    
+    mat4 myModel = model();
+    mat4 bodyModel = body.model();
+    
+    if (IntersectionTest::intersectionBoxBox(getBoundingBox().getOrigin(), getBoundingBox().getRadii(), myModel, body.getBoundingBox().getOrigin(), body.getBoundingBox().getRadii(), bodyModel)) {
+        
+        std::vector<OOBB> myChildren = getBoundingBox().getChildren();
+        std::vector<OOBB> myBoundingBoxes = std::vector<OOBB>();
+        
+        for (int i = 0; i < myChildren.size(); ++i) {
+            if (IntersectionTest::intersectionBoxBox(myChildren[i].getOrigin(), myChildren[i].getRadii(), myModel, body.getBoundingBox().getOrigin(), body.getBoundingBox().getRadii(), bodyModel)) {
+                myBoundingBoxes.push_back(myChildren[i]);
+            }
+        }
+        
+        std::vector<OOBB> bodyChildren = body.getBoundingBox().getChildren();
+        std::vector<OOBB> bodyBoundingBoxes = std::vector<OOBB>();
+        
+        for (int i = 0; i < bodyChildren.size(); ++i) {
+            if (IntersectionTest::intersectionBoxBox(bodyChildren[i].getOrigin(), bodyChildren[i].getRadii(), bodyModel, getBoundingBox().getOrigin(), getBoundingBox().getRadii(), myModel)) {
+                bodyBoundingBoxes.push_back(bodyChildren[i]);
+            }
+        }
+        
+        for (int i = 0; i < myBoundingBoxes.size() && intersectionPoints.size() == 0; ++i) {
+            
+            for (int j = 0; j < bodyBoundingBoxes.size() && intersectionPoints.size() == 0; ++j) {
+                if (IntersectionTest::intersectionBoxBox(myBoundingBoxes[i].getOrigin(), myBoundingBoxes[i].getRadii(), myModel, bodyBoundingBoxes[j].getOrigin(), bodyBoundingBoxes[j].getRadii(), bodyModel))
+                {
+                    //printf("intersection between:\nbox1\n\torigin: %f %f %f\n\tradii: %f %f %f\n\tm_position: %f %f %f\nbox2\n\torigin: %f %f %f\n\tradii: %f %f %f\n\tm_position: %f %f %f\n", myBoundingBoxes[i].getOrigin().x, myBoundingBoxes[i].getOrigin().y, myBoundingBoxes[i].getOrigin().z, myBoundingBoxes[i].getRadii().x, myBoundingBoxes[i].getRadii().y, myBoundingBoxes[i].getRadii().z, getPosition().x, getPosition().y, getPosition().z, bodyBoundingBoxes[i].getOrigin().x, bodyBoundingBoxes[i].getOrigin().y, bodyBoundingBoxes[i].getOrigin().z, bodyBoundingBoxes[i].getRadii().x, bodyBoundingBoxes[i].getRadii().y, bodyBoundingBoxes[i].getRadii().z, body.getPosition().x, body.getPosition().y, body.getPosition().z);
+                    
+                    std::vector<glm::vec3> bodyTriangles =  bodyBoundingBoxes[j].getIncludedTriangles();
+                    std::vector<glm::vec3> myTriangles =  myBoundingBoxes[i].getIncludedTriangles();
+                    
+                    glm::vec3 point11;
+                    glm::vec3 point12;
+                    glm::vec3 point13;
+                    
+                    glm::vec3 point21;
+                    glm::vec3 point22;
+                    glm::vec3 point23;
+                    
+                    for (int p = 0; p < myTriangles.size(); p += 3) {
+                        for (int k = 0; k < bodyTriangles.size(); k += 3) {
+                            
+                            point11 = myTriangles[p];
+                            point11 = vec3(myModel * vec4(point11.x, point11.y, point11.z, 1.f));
+                            point12 = myTriangles[p+1];
+                            point12 = vec3(myModel * vec4(point12.x, point12.y, point12.z, 1.f));
+                            point13 = myTriangles[p+2];
+                            point13 = vec3(myModel * vec4(point13.x, point13.y, point13.z, 1.f));
+                            
+                            
+                            point21 = bodyTriangles[k];
+                            point21 = vec3(bodyModel * vec4(point21.x, point21.y, point21.z, 1.f));
+                            point22 = bodyTriangles[k+1];
+                            point22 = vec3(bodyModel * vec4(point22.x, point22.y, point22.z, 1.f));
+                            point23 = bodyTriangles[k+2];
+                            point23 = vec3(bodyModel * vec4(point23.x, point23.y, point23.z, 1.f));
+                            
+                            glm::vec3 intersectionPoint;
+                            
+                            if (IntersectionTest::intersectionTriangleTriangle(point11, point12, point13, point21, point22, point23, intersectionPoint))
+                            {
+                                intersectionPoints.push_back(intersectionPoint);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return intersectionPoints;
+}
+
+
 // assume ground at (x, 0, z)
 // only accurate if rigidbody is below the ground, otherwise it returns the distance of the boundingBox to the ground
 float RigidBody::distanceToGround()
@@ -106,8 +192,10 @@ float RigidBody::distanceToGround()
     GLfloat dist = MAXFLOAT;
     GLfloat * vertices = m_boundingBox.getVertices();
     
+    mat4 myModel = model();
+    
     for (int i = 0; i < m_boundingBox.getNumVertices(); i += 3) {
-        vec4 tmp = model() * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
+        vec4 tmp = myModel * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
 //        printf("boundingBox: %f %f %f\n", vertices[i], vertices[i+1], vertices[i+2]);
         if (tmp.y < dist)
         {
@@ -122,7 +210,7 @@ float RigidBody::distanceToGround()
         
         for (int i = 0; i < m_mesh->getNumDistinctVertices(); i += 3)
         {
-            vec4 tmp = model() * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
+            vec4 tmp = myModel * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
 //            printf("x: %f y: %f z: %f\n", tmp.x, tmp.y, tmp.z);
             if (tmp.y < dist)
             {
@@ -147,10 +235,12 @@ std::vector<vec3> RigidBody::intersectWithGround()
     GLuint numVertices = m_mesh->getNumDistinctVertices();
 //    GLfloat * normals = m_mesh->getNormarls();
     
+    mat4 myModel = model();
+    
     for (int i = 0; i < numVertices; i += 3)
     {
         vec3 vertex = vec3(vertices[i], vertices[i+1], vertices[i+2]); // body space
-        vec4 tmp = model() * vec4(vertex.x, vertex.y, vertex.z, 1.0f); // world space
+        vec4 tmp = myModel * vec4(vertex.x, vertex.y, vertex.z, 1.0f); // world space
         vertex = vec3(tmp.x, tmp.y, tmp.z);
         
 //        tmp = transpose(inverse(model())) * vec4(normals[i], normals[i+1], normals[i+2], 1.f);
@@ -253,7 +343,6 @@ void RigidBody::update(float dt) {
         
         vec3 org_linearMomentum = m_linearMomentum;
         
-
         // Impulse-Based Collision Response
         
 //        printf("THE collision point: %f %f %f\n", collisionPoints[0].x, collisionPoints[0].y, collisionPoints[0].z);

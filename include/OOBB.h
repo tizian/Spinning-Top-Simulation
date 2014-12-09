@@ -22,6 +22,7 @@ public:
     GLfloat * getVertices();
     
     std::vector<glm::vec3> getIncludedTriangles();
+    std::vector<OOBB> getChildren();
     
     void split();
     

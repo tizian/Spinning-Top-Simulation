@@ -64,6 +64,11 @@ public:
     // Updates the object
     virtual void update(float dt);
     
+    void setDebugPoint(glm::vec3 debugPoint)
+    {
+        m_debugPoint = debugPoint;
+    }
+    
 protected:
     glm::vec3 m_position; // Should be the center of mass
     glm::quat m_orientation;
@@ -80,4 +85,6 @@ private:
     Material * m_debugMaterial;
     
 	glm::vec3 m_scale;
+    
+    glm::vec3 m_debugPoint;
 };

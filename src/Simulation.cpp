@@ -42,6 +42,25 @@ void Simulation::forwardStep(float dt) {
         newState.push_back(state->at(i));
     }
     
+    // collision detection and response
+    for (int i = 0; i < newState.size(); ++i) {
+        for (int j = i+1; j < newState.size(); ++j) {
+            std::vector<glm::vec3> intersections = newState[i].intersectWith(newState[j]);
+            if (intersections.size() > 0)
+            {
+                printf("collision with: %lu points\n", intersections.size());
+                //newState[i].setDebugPoint(intersections[0]);
+                //newState[j].setDebugPoint(intersections[0]);
+                
+                vec3 direction = (newState[i].getPosition() - newState[j].getPosition());
+                direction *= (1.f/length(direction));
+                newState[i].addImpulse(1.f * direction); // hardcoded hack
+                newState[j].addImpulse(-1.5f * direction); // hardcoded hack
+            }
+        }
+    }
+    
+    // update rigidbodies
     for (int i = 0; i < newState.size(); i++) {
         newState[i].update(dt);
     }
