@@ -3,7 +3,7 @@
 namespace IntersectionTest {
 
     // http://en.wikipedia.org/wiki/Möller–Trumbore_intersection_algorithm
-    static bool intersectionRayTriangle(const glm::vec3 point1, const glm::vec3 point2, const glm::vec3 point3, const glm::vec3 rayOrigin, const glm::vec3 rayDirection, float * out)
+    static bool intersectionRayTriangle(const glm::vec3 point1, const glm::vec3 point2, const glm::vec3 point3, const glm::vec3 rayOrigin, const glm::vec3 rayDirection, float & output)
     {
         glm::vec3 e1, e2;  //Edge1, Edge2
         glm::vec3 P, Q, T;
@@ -41,7 +41,7 @@ namespace IntersectionTest {
         t = glm::dot(e2, Q) * inv_det;
         
         if(t > eps) { //ray intersection
-            *out = t;
+            output = t;
             return true;
         }
         
@@ -167,7 +167,7 @@ namespace IntersectionTest {
         
         // check if a line intersects the box
         
-        float t;
+        float t = 0;
         
         glm::vec3 origin1 = point1;
         glm::vec3 direction1 = point2 - point1;
@@ -207,7 +207,7 @@ namespace IntersectionTest {
         origin1 = origin;
         direction1 = radii;
         
-        if (intersectionRayTriangle(point1, point2, point3, origin1, direction1, &t))
+        if (intersectionRayTriangle(point1, point2, point3, origin1, direction1, t))
         {
             if (t >= 0 && t <= 1)
             {
@@ -218,7 +218,7 @@ namespace IntersectionTest {
         origin2 = origin + glm::vec3(radii.x, 0, 0);
         direction2 = glm::vec3(-radii.x, radii.y, radii.z);
         
-        if (intersectionRayTriangle(point1, point2, point3, origin2, direction2, &t))
+        if (intersectionRayTriangle(point1, point2, point3, origin2, direction2, t))
         {
             if (t >= 0 && t <= 1)
             {
@@ -229,7 +229,7 @@ namespace IntersectionTest {
         origin3 = origin + glm::vec3(0, radii.y, 0);
         direction3 = glm::vec3(radii.x, -radii.y, radii.z);
         
-        if (intersectionRayTriangle(point1, point2, point3, origin3, direction3, &t))
+        if (intersectionRayTriangle(point1, point2, point3, origin3, direction3, t))
         {
             if (t >= 0 && t <= 1)
             {
@@ -240,7 +240,7 @@ namespace IntersectionTest {
         glm::vec3 origin4 = origin + glm::vec3(0, 0, radii.z);
         glm::vec3 direction4 = glm::vec3(radii.x, radii.y, -radii.z);
         
-        if (intersectionRayTriangle(point1, point2, point3, origin4, direction4, &t))
+        if (intersectionRayTriangle(point1, point2, point3, origin4, direction4, t))
         {
             if (t >= 0 && t <= 1)
             {

@@ -73,26 +73,9 @@ void resetCamera()
     camera.setAspectRatio((float)width/height);
 }
 
-void addTorque(RigidBody * rb) {
-    vec3 F1 = vec3(0, 0, 10);
-    vec3 F2 = vec3(0, 0, -10);
-    
-    vec3 P1 = rb->getPosition() + glm::vec3(1, 0, 0);
-    vec3 P2 = rb->getPosition() + glm::vec3(-1, 0, 0);
-    
-    F1 = mat3(rb->model()) * F1;
-    F2 = mat3(rb->model()) * F2;
-    
-    P1 = mat3(rb->model()) * P1;
-    P2 = mat3(rb->model()) * P2;
-    
-    rb->addForce(F1, P1);
-    rb->addForce(F2, P2);
-}
-
-void addReverseTorque(RigidBody * rb) {
-    vec3 F1 = vec3(0, 0, -10);
-    vec3 F2 = vec3(0, 0, 10);
+void addTorque(RigidBody * rb, vec3 force) {
+    vec3 F1 = force;
+    vec3 F2 = -1.f * force;
     
     vec3 P1 = rb->getPosition() + glm::vec3(1, 0, 0);
     vec3 P2 = rb->getPosition() + glm::vec3(-1, 0, 0);
@@ -137,8 +120,10 @@ int main()
 	setupContext();
 	Assets::init();
     
-    glfwSwapInterval(0);
-
+    if (timeStepMethod == 2) { // turn off vsync or so..
+        glfwSwapInterval(0);
+    }
+    
 	// DEPTH TESTING
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -277,10 +262,6 @@ int main()
         
 //        printf("time\tupdate: %f\trender: %f\n", updateTime, renderTime);
         
-        if (timeStepMethod == 2) { // turn off vsync or so..
-            glfwSwapInterval(0);
-        }
-        
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -409,29 +390,29 @@ void input(float dt) {
         if (spinningTop != nullptr) {
             
             if (glfwGetKey(window, GLFW_KEY_T)) {
-                addTorque(spinningTop);
+                addTorque(spinningTop, vec3(0,0,10) * dt/timeStep);
             }
             if (glfwGetKey(window, GLFW_KEY_R)) {
-                addReverseTorque(spinningTop);
+                addTorque(spinningTop, vec3(0,0,-10) * dt/timeStep);
             }
             
             if (glfwGetKey(window, GLFW_KEY_U)) {
-                spinningTop->addForce(glm::vec3(0, 0, -10), spinningTop->getPosition());
+                spinningTop->addForce(glm::vec3(0, 0, -10) * dt/timeStep, spinningTop->getPosition());
             }
             if (glfwGetKey(window, GLFW_KEY_H)) {
-                spinningTop->addForce(glm::vec3(-10, 0, 0), spinningTop->getPosition());
+                spinningTop->addForce(glm::vec3(-10, 0, 0) * dt/timeStep, spinningTop->getPosition());
             }
             if (glfwGetKey(window, GLFW_KEY_J)) {
-                spinningTop->addForce(glm::vec3(0, 0, 10), spinningTop->getPosition());
+                spinningTop->addForce(glm::vec3(0, 0, 10) * dt/timeStep, spinningTop->getPosition());
             }
             if (glfwGetKey(window, GLFW_KEY_K)) {
-                spinningTop->addForce(glm::vec3(10, 0, 0), spinningTop->getPosition());
+                spinningTop->addForce(glm::vec3(10, 0, 0) * dt/timeStep, spinningTop->getPosition());
             }
             if (glfwGetKey(window, GLFW_KEY_Y)) { // Is actually Z on a swiss/german keyboard
-                spinningTop->addForce(glm::vec3(0, 20, 0), spinningTop->getPosition());
+                spinningTop->addForce(glm::vec3(0, 20, 0) * dt/timeStep, spinningTop->getPosition());
             }
             if (glfwGetKey(window, GLFW_KEY_I)) {
-                spinningTop->addForce(glm::vec3(5, 0, 0), spinningTop->getPosition() + glm::vec3(0, 1, 0));
+                spinningTop->addForce(glm::vec3(5, 0, 0) * dt/timeStep, spinningTop->getPosition() + glm::vec3(0, 1, 0));
             }
         }
     }
