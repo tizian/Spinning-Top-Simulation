@@ -16,6 +16,17 @@ Mesh::Mesh(const std::string & filename) {
 	loadFromFile(filename);
 }
 
+Mesh::Mesh(GLfloat * vertices, int numVertices) {
+    if (vertices != nullptr) {
+        glGenVertexArrays(1, &m_vao);		// Generate a VAO
+        glGenBuffers(1, &m_vbo);			// Generate a VBO
+        m_vertices = m_distinctVertices = m_normals = m_uvs = m_colors = NULL;
+        m_numVertices = m_numDistinctVertices = m_numNormals = m_numUVs = m_numColors = 0;
+        
+        setGeometry(vertices, numVertices);
+    }
+}
+
 void Mesh::destroy() {
 	glDisableVertexAttribArray(m_vPosition);
 	glDisableVertexAttribArray(m_vNormal);

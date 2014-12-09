@@ -22,6 +22,7 @@
 #include "Camera.h"
 
 using namespace std;
+using namespace glm;
 
 // glfwGetKeyOnce(...)
 // http://sourceforge.net/p/glfw/discussion/247562/thread/8f3df980/
@@ -296,10 +297,14 @@ void render(vector<RigidBody> * state) {
     light.setUniforms();
     camera.setUniforms();
     
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
     for (int i = 0; i < state->size(); ++i)
     {
         state->at(i).render();
     }
+    
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
     table.render();
     

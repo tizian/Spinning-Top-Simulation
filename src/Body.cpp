@@ -3,6 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+using namespace glm;
+
 Body::Body(const glm::vec3 & position, const glm::quat & orientation, const glm::vec3 & scale) {
 	m_position = position;
 	m_orientation = orientation;
@@ -14,7 +16,8 @@ Body::Body(const glm::vec3 & position, const glm::quat & orientation, const glm:
     m_material = nullptr;
     m_texture = nullptr;
     
-    m_debugMesh = nullptr;
+    m_boundingBoxMesh = nullptr;
+    m_centerOfMassMesh = nullptr;
     m_debugMaterial = nullptr;
 }
 
@@ -28,6 +31,10 @@ Body::Body(const glm::vec3 & position) {
     m_mesh = nullptr;
     m_material = nullptr;
     m_texture = nullptr;
+    
+    m_boundingBoxMesh = nullptr;
+    m_centerOfMassMesh = nullptr;
+    m_debugMaterial = nullptr;
 }
 
 Body::Body() {
@@ -40,6 +47,10 @@ Body::Body() {
     m_mesh = nullptr;
     m_material = nullptr;
     m_texture = nullptr;
+    
+    m_boundingBoxMesh = nullptr;
+    m_centerOfMassMesh = nullptr;
+    m_debugMaterial = nullptr;
 }
 
 void Body::setPosition(const glm::vec3 & position) {
@@ -71,8 +82,8 @@ void Body::setDebugMaterial(Material * material) {
     m_debugMaterial = material;
 }
 
-void Body::setDebugMesh(Mesh * mesh) {
-    m_debugMesh = mesh;
+void Body::setCenterOfMassMesh(Mesh * mesh) {
+    m_centerOfMassMesh = mesh;
 }
 
 glm::vec3 Body::getPosition() const {
@@ -147,7 +158,7 @@ void Body::debugRender() {
     
     m_debugMaterial->setUniforms();
     
-    m_debugMesh->render();
+    m_centerOfMassMesh->render();
 }
 
 void Body::update(float dt) {}

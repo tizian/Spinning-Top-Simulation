@@ -11,8 +11,6 @@
 #include "Texture.h"
 #include "OOBB.h"
 
-using namespace glm;
-
 // An Object with transformation, material, texture, ...
 
 class Body
@@ -21,8 +19,8 @@ public:
 	Body(const glm::vec3 & position, const glm::quat & orientation, const glm::vec3 & scale);
 	Body(const glm::vec3 & position);
 	Body();
-
-	void setPosition(const glm::vec3 & position);
+    
+    void setPosition(const glm::vec3 & position);
 	void setOrientation(const glm::quat & orientation);
 	void setScale(const glm::vec3 & scale);
     
@@ -34,7 +32,7 @@ public:
 	void setMaterial(Material * material);
     void setTexture(Texture * texture);
     
-    void setDebugMesh(Mesh * mesh);
+    void setCenterOfMassMesh(Mesh * mesh);
     void setDebugMaterial(Material * material);
 
 	Material * getMaterial() const;
@@ -76,7 +74,8 @@ private:
 	Material * m_material;
     Texture * m_texture;
     
-    Mesh * m_debugMesh;
+    Mesh * m_centerOfMassMesh;
+    Mesh * m_boundingBoxMesh;
     Material * m_debugMaterial;
     
 	glm::vec3 m_scale;
