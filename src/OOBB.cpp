@@ -79,6 +79,11 @@ std::vector<glm::vec3> OOBB::getIncludedTriangles() {
     return m_includedTriangles;
 }
 
+std::vector<OOBB> OOBB::getChildren()
+{
+    return children;
+}
+
 void OOBB::split() {
     if (children.size() == 0) {
         glm::vec3 childRadii = m_radii * 0.5f;

@@ -151,8 +151,12 @@ void Body::render() {
 	m_mesh->render();
 }
 
+
+
 void Body::debugRender() {
-    mat4 debugModel = translation() * glm::scale(mat4(), vec3(0.1));
+    //mat4 trans = translation();
+    mat4 trans = glm::translate(glm::mat4(), m_debugPoint);
+    mat4 debugModel = trans * glm::scale(mat4(), vec3(0.1));
     
     Shader::setUniform("modelMatrix", debugModel);
     

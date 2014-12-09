@@ -257,15 +257,17 @@ namespace IntersectionTest {
     // idea: triangulate one box and transform it into the world of the other one, so we have a AABB - traingle intersection
     static bool intersectionBoxBox(glm::vec3 box1Origin, glm::vec3 box1Radii, glm::mat4 box1ModelMat, glm::vec3 box2Origin, glm::vec3 box2Radii, glm::mat4 box2ModelMat)
     {
-        glm::vec3 realBox1Origin = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z, 1.f));
-
-        glm::vec3 realBox1CornerX = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z, 1.f));
-        glm::vec3 realBox1CornerY = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x, box1Origin.y + box1Radii.y, box1Origin.z, 1.f));
-        glm::vec3 realBox1CornerZ = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z + box1Radii.z, 1.f));
-        glm::vec3 realBox1CornerXY = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y + box1Radii.y, box1Origin.z, 1.f));
-        glm::vec3 realBox1CornerXZ = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z + box1Radii.z, 1.f));
-        glm::vec3 realBox1CornerYZ = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x, box1Origin.y + box1Radii.y, box1Origin.z + box1Radii.z, 1.f));
-        glm::vec3 realBox1CornerXYZ = glm::vec3(glm::inverse(box2ModelMat) * box1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y + box1Radii.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::mat4 invBox2MoldeMatTimesBox1ModelMat = glm::inverse(box2ModelMat) * box1ModelMat;
+        
+        glm::vec3 realBox1Origin = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z, 1.f));
+        
+        glm::vec3 realBox1CornerX = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z, 1.f));
+        glm::vec3 realBox1CornerY = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y + box1Radii.y, box1Origin.z, 1.f));
+        glm::vec3 realBox1CornerZ = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::vec3 realBox1CornerXY = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y + box1Radii.y, box1Origin.z, 1.f));
+        glm::vec3 realBox1CornerXZ = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::vec3 realBox1CornerYZ = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y + box1Radii.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::vec3 realBox1CornerXYZ = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y + box1Radii.y, box1Origin.z + box1Radii.z, 1.f));
         
         // adjacent to the origin of box1
         if (intersectionTriangleBox(realBox1Origin, realBox1CornerX, realBox1CornerXY, box2Origin, box2Radii))
@@ -328,6 +330,50 @@ namespace IntersectionTest {
         {
             return true;
         }
+        
+        // no intersection
+        
+        return false;
+    }
+  
+    // output: collision point
+    static bool intersectionTriangleTriangle(glm::vec3 point11, glm::vec3 point12, glm::vec3 point13, glm::vec3 point21, glm::vec3 point22, glm::vec3 point23, glm::vec3 & output)
+    {
+        // line triangle intersection
+        float t;
+        
+        glm::vec3 direction = point12 - point11;
+        if (IntersectionTest::intersectionRayTriangle(point21, point22, point23, point11, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                output = point11 + t * direction;
+                return true;
+            }
+        }
+        
+        direction = point13 - point11;
+        if (IntersectionTest::intersectionRayTriangle(point21, point22, point23, point11, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                output = point11 + t * direction;
+                return true;
+            }
+        }
+        
+        direction = point13 - point12;
+        if (IntersectionTest::intersectionRayTriangle(point21, point22, point23, point12, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                output = point12 + t * direction;
+                return true;
+            }
+        }
+        
+        // triangle included in the other one
+        // this does not happen (hopefully)
         
         // no intersection
         

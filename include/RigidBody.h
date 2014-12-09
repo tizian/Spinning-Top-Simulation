@@ -13,6 +13,9 @@ public:
     virtual void update(float dt);
     
     virtual void setMesh(Mesh *mesh);
+    void setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv);
+    
+    OOBB getBoundingBox();
     
     void addForce(const glm::vec3 force);
     void addForce(const glm::vec3 force, const glm::vec3 position);
@@ -25,6 +28,8 @@ public:
     int type; // sphere, cube, sp1, etc...
     
     bool isCurrentlyActive;
+    
+    std::vector<glm::vec3> intersectWith(Body & body);
     
 private:
     bool m_active;
