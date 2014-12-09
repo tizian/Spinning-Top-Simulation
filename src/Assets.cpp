@@ -34,6 +34,7 @@ Material Assets::redMaterial;
 Material Assets::yellowMaterial;
 Material Assets::whiteMaterial;
 Material Assets::slightlyRedMaterial;
+Material Assets::slightlyGreenMaterial;
 
 void Assets::init() {
     phongShader = Shader("shaders/phong.glslv", "shaders/phong.glslf");
@@ -82,6 +83,9 @@ void Assets::init() {
     
     slightlyRedMaterial = Material(glm::vec3(1.0, 0.6, 0.6));      // slightly red
     slightlyRedMaterial.setAmbientFactor(0.3f * slightlyRedMaterial.getDiffuseFactor());
+    
+    slightlyGreenMaterial = Material(glm::vec3(0.6, 1.0, 0.6));
+    slightlyGreenMaterial.setAmbientFactor(0.3f * slightlyGreenMaterial.getDiffuseFactor());
 }
 
 void Assets::destroy() {

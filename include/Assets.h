@@ -41,6 +41,7 @@ namespace Assets {
     extern Material yellowMaterial;
     extern Material whiteMaterial;
     extern Material slightlyRedMaterial;
+    extern Material slightlyGreenMaterial;
     
     extern void init();
     

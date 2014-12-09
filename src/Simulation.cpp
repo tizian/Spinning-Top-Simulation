@@ -86,12 +86,19 @@ void Simulation::removeActiveRigidBody() {
     
     vector<RigidBody> * state = &m_simulationStates.back();
     state->erase(state->begin() + m_activeRigidBody);
-    m_activeRigidBody--;
+    m_activeRigidBody++;
+    if (m_activeRigidBody > state->size() - 1) {
+        m_activeRigidBody = 0;
+    }
+    if (state->size() == 0) {
+        m_activeRigidBody = -1;
+    }
     
     if (m_activeRigidBody == -1) {
         return;
     }
     getActiveRigidBody()->isCurrentlyActive = true;
+    getActiveRigidBody()->setMaterial(&Assets::slightlyGreenMaterial);
 }
 
 void Simulation::removeAllRigidBodies() {
@@ -116,9 +123,8 @@ void Simulation::toggleActiveRigidBody() {
             m_activeRigidBody = 0;
         }
         getActiveRigidBody()->isCurrentlyActive = true;
-        getActiveRigidBody()->setMaterial(&Assets::slightlyRedMaterial);
+        getActiveRigidBody()->setMaterial(&Assets::slightlyGreenMaterial);
     }
-    
 }
 
 void Simulation::addRigidBody(int type) {
@@ -131,6 +137,6 @@ void Simulation::addRigidBody(int type) {
     if (m_activeRigidBody == -1) {
         m_activeRigidBody = 0;
         getActiveRigidBody()->isCurrentlyActive = true;
-        getActiveRigidBody()->setMaterial(&Assets::slightlyRedMaterial);
+        getActiveRigidBody()->setMaterial(&Assets::slightlyGreenMaterial);
     }
 }
