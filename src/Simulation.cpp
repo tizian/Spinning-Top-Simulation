@@ -52,8 +52,8 @@ void Simulation::forwardStep(float dt) {
                 //newState[i].setDebugPoint(intersections[0]);
                 //newState[j].setDebugPoint(intersections[0]);
                 
-                vec3 direction = (newState[i].getPosition() - newState[j].getPosition());
-                direction *= (1.f/length(direction));
+                glm::vec3 direction = (newState[i].getPosition() - newState[j].getPosition());
+                direction *= (1.f/glm::length(direction));
                 newState[i].addImpulse(1.f * direction); // hardcoded hack
                 newState[j].addImpulse(-1.5f * direction); // hardcoded hack
             }

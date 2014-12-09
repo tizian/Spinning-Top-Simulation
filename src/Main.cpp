@@ -297,14 +297,10 @@ void render(vector<RigidBody> * state) {
     light.setUniforms();
     camera.setUniforms();
     
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    
     for (int i = 0; i < state->size(); ++i)
     {
         state->at(i).render();
     }
-    
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
     table.render();
     

@@ -13,7 +13,7 @@ public:
     virtual void update(float dt);
     
     virtual void setMesh(Mesh *mesh);
-    void setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv);
+    void setBodyInertiaTensorInv(const glm::mat3 bodyInertiaTensorInv);
     
     OOBB getBoundingBox();
     
@@ -22,8 +22,6 @@ public:
     
     void addImpulse(const glm::vec3 impulse);
     void addImpulse(const glm::vec3 impulse, const glm::vec3 position);
-    
-    void setBodyInertiaTensorInv(const glm::mat3 bodyInertiaTensorInv);
     
     int type; // sphere, cube, sp1, etc...
     
