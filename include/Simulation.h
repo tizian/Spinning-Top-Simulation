@@ -2,6 +2,7 @@
 
 #include "RigidBody.h"
 #include "RigidBodyFactory.h"
+#include "DebugPoint.h"
 
 class Simulation {
 public:
@@ -23,8 +24,14 @@ public:
     void addRigidBody(int type);
     void removeAllRigidBodies();
     
+    std::vector<DebugPoint> getDebugPoints();
+    void showDebugPoint(DebugPoint p);
+    void showDebugPoint(glm::vec3 position);
+    void showDebugPoint(glm::vec3 position, glm::vec3 color);
+    
 private:
     std::vector<std::vector<RigidBody> > m_simulationStates;
+    std::vector<DebugPoint> m_debugPoints;
     
     int m_activeRigidBody;
 };

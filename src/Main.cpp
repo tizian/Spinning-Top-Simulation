@@ -64,6 +64,9 @@ Body skybox;
 Body plane;
 Body table;
 
+Material debugMaterial;
+Body debugPoint;
+
 Simulation simulation;
 
 void resetCamera()
@@ -157,6 +160,13 @@ int main()
     table.setMesh(&Assets::cube);
     table.setMaterial(&Assets::whiteMaterial);
     table.setTexture(&Assets::darkWood);
+    
+    debugMaterial = Material();
+    
+    debugPoint = Body(glm::vec3(0.0));
+    debugPoint.setScale(glm::vec3(0.1));
+    debugPoint.setMesh(&Assets::sphere);
+    debugPoint.setMaterial(&debugMaterial);
     
     simulation = Simulation();
 
@@ -312,9 +322,12 @@ void render(vector<RigidBody> * state) {
     if (debug) {
         glDisable(GL_DEPTH_TEST);
         
-        for (int i = 0; i < state->size(); ++i)
-        {
-            state->at(i).debugRender();
+        vector<DebugPoint> debugPoints = simulation.getDebugPoints();
+        for (int i = 0; i < debugPoints.size(); i++) {
+            debugMaterial.setColor(debugPoints[i].color);
+            debugPoint.setPosition(debugPoints[i].position);
+            
+            debugPoint.render();
         }
         
         glEnable(GL_DEPTH_TEST);

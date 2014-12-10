@@ -15,10 +15,6 @@ Body::Body(const glm::vec3 & position, const glm::quat & orientation, const glm:
     m_mesh = nullptr;
     m_material = nullptr;
     m_texture = nullptr;
-    
-    m_boundingBoxMesh = nullptr;
-    m_centerOfMassMesh = nullptr;
-    m_debugMaterial = nullptr;
 }
 
 Body::Body(const glm::vec3 & position) {
@@ -31,10 +27,6 @@ Body::Body(const glm::vec3 & position) {
     m_mesh = nullptr;
     m_material = nullptr;
     m_texture = nullptr;
-    
-    m_boundingBoxMesh = nullptr;
-    m_centerOfMassMesh = nullptr;
-    m_debugMaterial = nullptr;
 }
 
 Body::Body() {
@@ -47,10 +39,6 @@ Body::Body() {
     m_mesh = nullptr;
     m_material = nullptr;
     m_texture = nullptr;
-    
-    m_boundingBoxMesh = nullptr;
-    m_centerOfMassMesh = nullptr;
-    m_debugMaterial = nullptr;
 }
 
 void Body::setPosition(const glm::vec3 & position) {
@@ -76,14 +64,6 @@ void Body::setMesh(Mesh * mesh) {
 
 void Body::setTexture(Texture * texture) {
     m_texture = texture;
-}
-
-void Body::setDebugMaterial(Material * material) {
-    m_debugMaterial = material;
-}
-
-void Body::setCenterOfMassMesh(Mesh * mesh) {
-    m_centerOfMassMesh = mesh;
 }
 
 glm::vec3 Body::getPosition() const {
@@ -149,20 +129,6 @@ void Body::render() {
 		exit(-1);
 	}
 	m_mesh->render();
-}
-
-
-
-void Body::debugRender() {
-    //mat4 trans = translation();
-    mat4 trans = glm::translate(glm::mat4(), m_debugPoint);
-    mat4 debugModel = trans * glm::scale(mat4(), vec3(0.1));
-    
-    Shader::setUniform("modelMatrix", debugModel);
-    
-    m_debugMaterial->setUniforms();
-    
-    m_centerOfMassMesh->render();
 }
 
 void Body::update(float dt) {}

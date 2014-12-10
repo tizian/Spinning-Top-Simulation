@@ -6,9 +6,6 @@ void RigidBodyFactory::reset(RigidBody &rb) {
     rb.setMaterial(&Assets::whiteMaterial);
     rb.setTexture(&Assets::lightWood);
     
-    rb.setCenterOfMassMesh(&Assets::sphere);
-    rb.setDebugMaterial(&Assets::redMaterial);
-    
     //        rb.setOrientation(glm::quat_cast(glm::rotate((float)M_PI, glm::vec3(1, 0, 0))));
     //        rb.addForce(vec3(0,0,400), rb.getPosition() + vec3(1,0,0));
     //        rb.addForce(vec3(0,0,-400), rb.getPosition() + vec3(-1,0,0));

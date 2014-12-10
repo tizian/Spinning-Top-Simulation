@@ -31,9 +31,6 @@ public:
     virtual void setMesh(Mesh * mesh);
 	void setMaterial(Material * material);
     void setTexture(Texture * texture);
-    
-    void setCenterOfMassMesh(Mesh * mesh);
-    void setDebugMaterial(Material * material);
 
 	Material * getMaterial() const;
 	Mesh * getMesh() const;
@@ -56,16 +53,8 @@ public:
 	// Renders the Model
 	void render();
     
-    // Renders debug information
-    void debugRender();
-    
     // Updates the object
     virtual void update(float dt);
-    
-    void setDebugPoint(glm::vec3 debugPoint)
-    {
-        m_debugPoint = debugPoint;
-    }
     
 protected:
     glm::vec3 m_position; // Should be the center of mass
@@ -78,10 +67,6 @@ protected:
 private:
 	Material * m_material;
     Texture * m_texture;
-    
-    Mesh * m_centerOfMassMesh;
-    Mesh * m_boundingBoxMesh;
-    Material * m_debugMaterial;
     
 	glm::vec3 m_scale;
     
