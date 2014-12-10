@@ -1,5 +1,9 @@
 #include "RigidBody.h"
 
+#ifndef MAXFLOAT
+    #define MAXFLOAT      3.40282347e+37F
+#endif
+
 #include <GLFW/glfw3.h>
 
 #include <glm/gtc/matrix_access.hpp>
