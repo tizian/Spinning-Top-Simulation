@@ -3,18 +3,19 @@ Todo
 
 Functionality
 -------------
-- Ground friction / rotational friction
+- tweak Ground friction / rotational friction
 - Arbitrary collisions
 - NxN collision checks between objects with triangle-triangle intersection tests -> this should return collision point / line / area somehow
-- Maybe: Octree if performance not good enough.
 - Maybe: Resting contacts if too much time.
 - Change mass and see if the spinnning top spins differently (less mass -> better spin) (SpinIt)
 
 Cosmetic
 --------
-- Shadow mapping
-- GUI with labels which buttons can be pressed and their impact
-- Sound (collision, fritcion, fade out)
+- nicer table textures
+- visualize an arbitrary point in world coordinates
+- NGH Shadow mapping
+- NGH GUI with labels which buttons can be pressed and their impact
+- NGH Sound (collision, fritcion, fade out)
 
 Done
 ----
@@ -51,6 +52,8 @@ Yes, it spins differently, but it is unclear if correctly.
     Because spinning top - ground collision took way too much time
 - STs disappear when spinning "too fast"
     the orientation quaternion was not normalized in for some calculations
+- Maybe: Octree if performance not good enough.
+    Done, but needs to be improved
 
 Links
 =====
