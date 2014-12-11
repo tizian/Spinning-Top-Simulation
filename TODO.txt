@@ -13,7 +13,6 @@ Functionality
 Cosmetic
 --------
 - nicer table textures
-- visualize an arbitrary point in world coordinates
 - NGH Shadow mapping
 - NGH GUI with labels which buttons can be pressed and their impact
 - NGH Sound (collision, fritcion, fade out)
@@ -55,6 +54,7 @@ Yes, it spins differently, but it is unclear if correctly.
     the orientation quaternion was not normalized in for some calculations
 - Maybe: Octree if performance not good enough.
     Done, but needs to be improved
+- visualize an arbitrary point in world coordinates
 
 Links
 =====

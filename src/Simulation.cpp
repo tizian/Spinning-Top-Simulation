@@ -101,7 +101,7 @@ void Simulation::removeActiveRigidBody() {
         return;
     }
     getActiveRigidBody()->isCurrentlyActive = false;
-    getActiveRigidBody()->setMaterial(&Assets::whiteMaterial);
+    getActiveRigidBody()->setMaterial(Assets::getWhiteMaterial());
     
     vector<RigidBody> * state = &m_simulationStates.back();
     state->erase(state->begin() + m_activeRigidBody);
@@ -117,7 +117,7 @@ void Simulation::removeActiveRigidBody() {
         return;
     }
     getActiveRigidBody()->isCurrentlyActive = true;
-    getActiveRigidBody()->setMaterial(&Assets::slightlyGreenMaterial);
+    getActiveRigidBody()->setMaterial(Assets::getSlightlyGreenMaterial());
 }
 
 void Simulation::removeAllRigidBodies() {
@@ -134,7 +134,7 @@ void Simulation::toggleActiveRigidBody() {
     }
     else {
         getActiveRigidBody()->isCurrentlyActive = false;
-        getActiveRigidBody()->setMaterial(&Assets::whiteMaterial);
+        getActiveRigidBody()->setMaterial(Assets::getWhiteMaterial());
         if (m_activeRigidBody < state->size() - 1) {
             m_activeRigidBody++;
         }
@@ -142,7 +142,7 @@ void Simulation::toggleActiveRigidBody() {
             m_activeRigidBody = 0;
         }
         getActiveRigidBody()->isCurrentlyActive = true;
-        getActiveRigidBody()->setMaterial(&Assets::slightlyGreenMaterial);
+        getActiveRigidBody()->setMaterial(Assets::getSlightlyGreenMaterial());
     }
 }
 
@@ -156,7 +156,7 @@ void Simulation::addRigidBody(int type) {
     if (m_activeRigidBody == -1) {
         m_activeRigidBody = 0;
         getActiveRigidBody()->isCurrentlyActive = true;
-        getActiveRigidBody()->setMaterial(&Assets::slightlyGreenMaterial);
+        getActiveRigidBody()->setMaterial(Assets::getSlightlyGreenMaterial());
     }
 }
 
