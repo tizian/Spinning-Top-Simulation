@@ -341,17 +341,22 @@ namespace IntersectionTest {
     }
   
     // output: collision point
-    static bool intersectionTriangleTriangle(glm::vec3 point11, glm::vec3 point12, glm::vec3 point13, glm::vec3 point21, glm::vec3 point22, glm::vec3 point23, glm::vec3 & output)
+    static bool intersectionTriangleTriangle(glm::vec3 point11, glm::vec3 point12, glm::vec3 point13, glm::vec3 point21, glm::vec3 point22, glm::vec3 point23, glm::vec3 & outputPoint, glm::vec3 & ouputNormal)
     {
         // line triangle intersection
         float t;
         
+        glm::vec3 normal1 = glm::cross(point12 - point11, point13 - point11);
+        glm::vec3 normal2 = glm::cross(point22 - point21, point23 - point21);
+        
+        // line from 1 intersects 2
         glm::vec3 direction = point12 - point11;
         if (IntersectionTest::intersectionRayTriangle(point21, point22, point23, point11, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
             {
-                output = point11 + t * direction;
+                outputPoint = point11 + t * direction;
+                ouputNormal = normal2;
                 return true;
             }
         }
@@ -361,7 +366,8 @@ namespace IntersectionTest {
         {
             if (t >= 0.f && t <= 1.f)
             {
-                output = point11 + t * direction;
+                outputPoint = point11 + t * direction;
+                ouputNormal = normal2;
                 return true;
             }
         }
@@ -371,7 +377,43 @@ namespace IntersectionTest {
         {
             if (t >= 0.f && t <= 1.f)
             {
-                output = point12 + t * direction;
+                outputPoint = point12 + t * direction;
+                ouputNormal = normal2;
+                return true;
+            }
+        }
+        
+        // line from 2 intersects 1
+        
+        direction = point22 - point21;
+        if (IntersectionTest::intersectionRayTriangle(point11, point12, point13, point21, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                outputPoint = point21 + t * direction;
+                ouputNormal = normal1;
+                return true;
+            }
+        }
+        
+        direction = point23 - point21;
+        if (IntersectionTest::intersectionRayTriangle(point11, point12, point13, point21, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                outputPoint = point21 + t * direction;
+                ouputNormal = normal1;
+                return true;
+            }
+        }
+        
+        direction = point23 - point22;
+        if (IntersectionTest::intersectionRayTriangle(point11, point12, point13, point22, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                outputPoint = point22 + t * direction;
+                ouputNormal = normal1;
                 return true;
             }
         }

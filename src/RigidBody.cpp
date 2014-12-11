@@ -111,9 +111,9 @@ void RigidBody::addImpulse(const vec3 impulse, const vec3 position) {
 //    printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
 }
 
-std::vector<glm::vec3> intersectOctrees(OOBB & one, mat4 & modelOne, OOBB & two, mat4 & modelTwo)
+std::vector<Contact> intersectOctrees(OOBB & one, mat4 & modelOne, OOBB & two, mat4 & modelTwo)
 {
-    std::vector<glm::vec3> intersectionPoints = std::vector<glm::vec3>();
+    std::vector<Contact> intersectionPoints = std::vector<Contact>();
     
     if (IntersectionTest::intersectionBoxBox(one.getOrigin(), one.getRadii(), modelOne, two.getOrigin(), two.getRadii(), modelTwo)) {
         
@@ -170,10 +170,22 @@ std::vector<glm::vec3> intersectOctrees(OOBB & one, mat4 & modelOne, OOBB & two,
                     point23 = vec3(modelTwo * vec4(point23.x, point23.y, point23.z, 1.f));
                     
                     glm::vec3 intersectionPoint;
+                    glm::vec3 intersectionNormal;
                     
-                    if (IntersectionTest::intersectionTriangleTriangle(point11, point12, point13, point21, point22, point23, intersectionPoint))
+                    if (IntersectionTest::intersectionTriangleTriangle(point11, point12, point13, point21, point22, point23, intersectionPoint, intersectionNormal))
                     {
-                        intersectionPoints.push_back(intersectionPoint);
+                        Contact contact;
+                        contact.p = intersectionPoint;
+                        contact.n = -1.f * intersectionNormal;
+                        
+                        /*glm::vec3 tmp1 = intersectionNormal * (1.f/length(intersectionNormal));
+                        glm::vec3 tmp2 = vec3(modelTwo * vec4(0,0,0,1)) - vec3(modelOne * vec4(0,0,0,1));
+                        tmp2 *= -1.f/length(tmp2);
+                        
+                        printf("cross length: %f\n", length(cross(tmp1, tmp2)));
+                        printf("dot: %f\n", dot(tmp1, tmp2));*/
+                        
+                        intersectionPoints.push_back(contact);
                     }
                 }
             }
@@ -183,9 +195,9 @@ std::vector<glm::vec3> intersectOctrees(OOBB & one, mat4 & modelOne, OOBB & two,
     return intersectionPoints;
 }
 
-std::vector<glm::vec3> RigidBody::intersectWith(Body & body)
+std::vector<Contact> RigidBody::intersectWith(Body & body)
 {
-    std::vector<glm::vec3> intersectionPoints = std::vector<glm::vec3>();
+    std::vector<Contact> intersectionPoints = std::vector<Contact>();
     
     mat4 myModel = model();
     mat4 bodyModel = body.model();

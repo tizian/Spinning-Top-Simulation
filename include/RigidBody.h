@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Body.h"
+#include "Contact.h"
 
 #include <vector>
 
@@ -27,7 +28,7 @@ public:
     
     bool isCurrentlyActive;
     
-    std::vector<glm::vec3> intersectWith(Body & body);
+    std::vector<Contact> intersectWith(Body & body);
     
 private:
     bool m_active;

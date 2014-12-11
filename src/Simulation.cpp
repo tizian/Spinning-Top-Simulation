@@ -47,7 +47,7 @@ void Simulation::forwardStep(float dt) {
     // collision detection and response
     for (int i = 0; i < newState.size(); ++i) {
         for (int j = i+1; j < newState.size(); ++j) {
-            std::vector<glm::vec3> intersections = newState[i].intersectWith(newState[j]);
+            std::vector<Contact> intersections = newState[i].intersectWith(newState[j]);
             if (intersections.size() > 0)
             {
                 printf("collision with: %lu points\n", intersections.size());
