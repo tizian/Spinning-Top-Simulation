@@ -43,7 +43,7 @@ void RigidBodyFactory::resetSpinningTop2(RigidBody &rb) {
     reset(rb);
     
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
-    //        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 1.5*4.8, 4.8)));
+//    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 1.5*4.8, 4.8)));
     
     rb.setMesh(Assets::getSpinningTop2());
     
