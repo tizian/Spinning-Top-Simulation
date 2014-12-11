@@ -13,6 +13,8 @@
 #include <numeric>
 #include <queue>
 
+#include "Assets.h"
+
 using namespace glm;
 
 vec3 maxAngularVelocity = vec3(1,1,1) * 100000000.f; // 100 000 000 is an arbitrary but resonable limit to avoid nan
@@ -52,6 +54,7 @@ void RigidBody::setDefaults() {
     firstTime = true;
     m_lastVelocities = std::vector<float>();
     isCurrentlyActive = false;
+    octreeMeshes = new std::vector<Body>();
 }
 
 void RigidBody::printState()
@@ -546,6 +549,71 @@ void RigidBody::update(float dt) {
 //    m_linearMomentum *= 0.999f;
     
 //    printState();
+    
+    
+}
+
+void RigidBody::renderOctree()
+{
+    if (octreeMeshes->size() == 0)
+    {
+        Material * pointMaterial = new Material(vec3(1,0,0));
+        
+        int size = 3*8;
+        
+        std::queue<OOBB*> boxes = std::queue<OOBB*>();
+        boxes.push(getBoundingBox());
+        
+        while (!boxes.empty()) {
+            OOBB * box = boxes.front();
+            boxes.pop();
+            
+            for (int i = 0; i < size; i += 3) {
+                glm::vec3 vertex1 = vec3(box->getVertices()[i], box->getVertices()[i+1], box->getVertices()[i+2]);
+                glm::vec3 vertex2 = vec3(box->getVertices()[(i+3)%size], box->getVertices()[(i+4)%size], box->getVertices()[(i+5)%size]);
+                
+                Body point = Body((vertex1 + vertex2) * 0.5f);
+                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.01f));
+                point.setMesh(&Assets::cube);
+                point.setMaterial(pointMaterial);
+                
+                point.setOrientation(getOrientation());
+                
+                octreeMeshes->push_back(point);
+            }
+            
+            int tmp[4] {5,4,7,6};
+            
+            for (int i = 0; i < 3*4; i += 3) {
+                glm::vec3 vertex1 = vec3(box->getVertices()[i], box->getVertices()[i+1], box->getVertices()[i+2]);
+                glm::vec3 vertex2 = vec3(box->getVertices()[(3*tmp[i/3])%size], box->getVertices()[(3*tmp[i/3]+1)%size], box->getVertices()[(3*tmp[i/3]+2)%size]);
+                
+                Body point = Body((vertex1 + vertex2) * 0.5f);
+                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.01f));
+                point.setMesh(&Assets::cube);
+                point.setMaterial(pointMaterial);
+                
+                point.setOrientation(getOrientation());
+                
+                octreeMeshes->push_back(point);
+            }
+            
+            for (int i = 0; i < box->getChildren()->size(); ++i) {
+                boxes.push(&box->getChildren()->at(i));
+            }
+            
+        }
+        
+    } else {
+        
+        for (int i = 0; i < octreeMeshes->size(); ++i) {
+            glm::vec3 tmp = octreeMeshes->at(i).getPosition();
+            octreeMeshes->at(i).setPosition(tmp + m_position);
+            octreeMeshes->at(i).setOrientation(getOrientation());
+            octreeMeshes->at(i).render();
+            octreeMeshes->at(i).setPosition(tmp);
+        }
+    }
     
     
 }

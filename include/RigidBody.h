@@ -30,6 +30,8 @@ public:
     
     std::vector<Contact> intersectWith(RigidBody & body);
     
+    void renderOctree();
+    
 private:
     bool m_active;
     
@@ -62,4 +64,6 @@ private:
     std::vector<float> m_lastVelocities;
     
     OOBB * m_boundingBox;
+    
+    std::vector<Body> * octreeMeshes;
 };

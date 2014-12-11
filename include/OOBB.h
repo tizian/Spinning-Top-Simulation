@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Mesh.h"
-
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include "IntersectionTest.h"
-
 #include <vector>
+
+#include "Mesh.h"
+#include "IntersectionTest.h"
 
 class OOBB {
 public:
@@ -40,6 +39,8 @@ private:
     
     void setDepths(int depth);
     
+    void setBoundingVertices();
+    
     glm::vec3 m_origin; // lower left corner
     glm::vec3 m_radii; // width, height, depth
     
@@ -47,7 +48,7 @@ private:
     
     std::vector<glm::vec3> m_includedTriangles; //Triangle: 1,2,3 and 4,5,6 and...
     
-    std::vector<OOBB> children;
+    std::vector<OOBB> m_children;
     
     int m_depth;
 };

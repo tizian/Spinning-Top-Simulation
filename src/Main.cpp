@@ -21,7 +21,6 @@
 #include "Assets.h"
 #include "Simulation.h"
 
-
 #include "PointLight.h"
 #include "Camera.h"
 
@@ -57,6 +56,9 @@ bool pause;
 
 // render debug information (CoM only currently)
 bool debug;
+
+// render the octrees of the spinning tops
+bool showOctree;
 
 GLFWwindow *window;
 
@@ -323,6 +325,13 @@ void render(vector<RigidBody> * state) {
     light.setUniforms();
     camera.setUniforms();
     
+    if (showOctree)
+    {
+        for (int i = 0; i < state->size(); ++i) {
+            state->at(i).renderOctree();
+        }
+    }
+    
     if (debug) {
         glDisable(GL_DEPTH_TEST);
         
@@ -357,10 +366,16 @@ void render(vector<RigidBody> * state) {
 
 void input(float dt) {
     
-    bool cleanStates = false;
-    
     if (glfwGetKeyOnce(window, GLFW_KEY_PERIOD)) {
         debug = !debug;
+    }
+    
+    if (glfwGetKeyOnce(window, GLFW_KEY_O)) {
+        showOctree = !showOctree;
+    }
+    
+    if (glfwGetKeyOnce(window, GLFW_KEY_TAB)) {
+        simulation.toggleActiveRigidBody();
     }
     
     if (!pause) {
@@ -388,10 +403,6 @@ void input(float dt) {
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_0)) {
             simulation.addRigidBody(0);
-        }
-        
-        if (glfwGetKeyOnce(window, GLFW_KEY_TAB)) {
-            simulation.toggleActiveRigidBody();
         }
         
         if (glfwGetKeyOnce(window, GLFW_KEY_BACKSPACE)) {

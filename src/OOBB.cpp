@@ -18,6 +18,8 @@ OOBB::OOBB(std::vector<glm::vec3> includedTriangles, glm::vec3 origin, glm::vec3
     
     m_origin = origin;
     m_radii = radii;
+    
+    setBoundingVertices();
 }
 
 OOBB::OOBB(Mesh * mesh) {
@@ -85,11 +87,11 @@ std::vector<glm::vec3> OOBB::getIncludedTriangles() {
 
 std::vector<OOBB> * OOBB::getChildren()
 {
-    return &children;
+    return &m_children;
 }
 
 void OOBB::split(int depth) {
-    if (children.size() == 0 && m_includedTriangles.size()/3 > maxNumberOfTriangles && depth < maxDepth) {
+    if (m_children.size() == 0 && m_includedTriangles.size()/3 > maxNumberOfTriangles && depth < maxDepth) {
         glm::vec3 childRadii = m_radii * 0.5f;
         
         glm::vec3 child1Origin = m_origin;
@@ -151,9 +153,9 @@ void OOBB::split(int depth) {
                 child.split(depth + 1);
                 if (child.getChildren()->size() == 1)
                 {
-                    children.push_back(child.getChildren()->at(0));
+                    m_children.push_back(child.getChildren()->at(0));
                 } else {
-                    children.push_back(child);
+                    m_children.push_back(child);
                 }
             }
         }
@@ -166,19 +168,19 @@ void OOBB::realPrint(int depth)
         printf("\t");
     }
     
-    printf("OOBB includedTriangles: %lu children: %lu depth: %d\n", m_includedTriangles.size()/3, children.size(), m_depth);
+    printf("OOBB includedTriangles: %lu children: %lu depth: %d\n", m_includedTriangles.size()/3, m_children.size(), m_depth);
 //    printf("OOBB includedTriangles: %lu origin: %f %f %f radii: %f %f %f children: %lu\n", m_includedTriangles.size()/3, m_origin.x, m_origin.y, m_origin.z, m_radii.x,m_radii.y, m_radii.z, children.size());
     
-    for (int i = 0; i < children.size(); ++i) {
-        children[i].realPrint(depth + 1);
+    for (int i = 0; i < m_children.size(); ++i) {
+        m_children[i].realPrint(depth + 1);
     }
 }
 
 void OOBB::setDepths(int depth)
 {
     m_depth = depth;
-    for (int i = 0; i < children.size(); ++i) {
-        children[i].setDepths(depth + 1);
+    for (int i = 0; i < m_children.size(); ++i) {
+        m_children[i].setDepths(depth + 1);
     }
 }
 
@@ -221,7 +223,7 @@ void OOBB::setDefaults() {
     m_radii = glm::vec3(0,0,0);
     
     std::vector<GLfloat> m_includedTriangles = std::vector<GLfloat>();
-    children = std::vector<OOBB>();
+    m_children = std::vector<OOBB>();
     
     m_depth = 0;
 }
@@ -247,6 +249,12 @@ void OOBB::calculateBoundingBox() {
     m_origin -= glm::vec3(0.1, 0.1, 0.1);
     m_radii += glm::vec3(0.2, 0.2, 0.2);
     
+    setBoundingVertices();
+}
+
+
+void OOBB::setBoundingVertices()
+{
     // calculate my own vertices
     m_vertices = new GLfloat[3*8];
     
@@ -258,19 +266,19 @@ void OOBB::calculateBoundingBox() {
     m_vertices[4] = m_origin.y;
     m_vertices[5] = m_origin.z;
     
-    m_vertices[6] = m_origin.x;
+    m_vertices[6] = m_origin.x + m_radii.x;
     m_vertices[7] = m_origin.y + m_radii.y;
     m_vertices[8] = m_origin.z;
     
-    m_vertices[9] = m_origin.x;
-    m_vertices[10] = m_origin.y;
+    m_vertices[9] = m_origin.x + m_radii.x;
+    m_vertices[10] = m_origin.y + m_radii.y;
     m_vertices[11] = m_origin.z + m_radii.z;
     
     m_vertices[12] = m_origin.x + m_radii.x;
-    m_vertices[13] = m_origin.y + m_radii.y;
-    m_vertices[14] = m_origin.z;
+    m_vertices[13] = m_origin.y;
+    m_vertices[14] = m_origin.z + m_radii.z;
     
-    m_vertices[15] = m_origin.x + m_radii.x;
+    m_vertices[15] = m_origin.x;
     m_vertices[16] = m_origin.y;
     m_vertices[17] = m_origin.z + m_radii.z;
     
@@ -278,11 +286,11 @@ void OOBB::calculateBoundingBox() {
     m_vertices[19] = m_origin.y + m_radii.y;
     m_vertices[20] = m_origin.z + m_radii.z;
     
-    m_vertices[21] = m_origin.x + m_radii.x;
+    m_vertices[21] = m_origin.x;
     m_vertices[22] = m_origin.y + m_radii.y;
-    m_vertices[23] = m_origin.z + m_radii.z;
+    m_vertices[23] = m_origin.z;
+    
 }
-
 
 
 
