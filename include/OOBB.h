@@ -21,16 +21,24 @@ public:
     GLuint getNumVertices();
     GLfloat * getVertices();
     
+    int getDepth();
+    
     std::vector<glm::vec3> getIncludedTriangles();
     std::vector<OOBB> getChildren();
     
-    void split();
+    void split(int depth);
+    
+    void print(bool recursive);
     
 private:
     
     void setDefaults();
     
     void calculateBoundingBox();
+    
+    void realPrint(int depth);
+    
+    void setDepths(int depth);
     
     glm::vec3 m_origin; // lower left corner
     glm::vec3 m_radii; // width, height, depth
@@ -40,4 +48,6 @@ private:
     std::vector<glm::vec3> m_includedTriangles; //Triangle: 1,2,3 and 4,5,6 and...
     
     std::vector<OOBB> children;
+    
+    int m_depth;
 };

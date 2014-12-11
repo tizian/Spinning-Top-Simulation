@@ -1,5 +1,10 @@
 #include "OOBB.h"
 
+#include<queue>
+
+int maxNumberOfTriangles = 20;
+int maxDepth = 10;
+
 OOBB::OOBB()
 {
     setDefaults();
@@ -44,15 +49,9 @@ OOBB::OOBB(Mesh * mesh) {
     
     if (!equalVerticesInSameTriangle)
     {
-        
-        split();
-        printf("OOBB includedTriangles: %lu radii: %f %f %f\n", includedTriangles.size()/3, m_radii.x, m_radii.y, m_radii.z);
-        int sum = 0;
-        for (int i = 0; i < children.size(); ++i) {
-            sum += children[i].getIncludedTriangles().size()/3;
-            printf("\tchild: %d includedTriangles: %lu radii %f %f %f\n", i, children[i].getIncludedTriangles().size()/3, children[i].getRadii().x, children[i].getRadii().y, children[i].getRadii().z);
-        }
-        printf("\tSum of triangles in children: %d\n",sum);
+        split(0);
+        setDepths(0);
+        print(false);
     } else {
         printf("ERROR: Could not create Octree, because there are equal vertices in the same triangles.\n");
     }
@@ -75,6 +74,11 @@ GLfloat * OOBB::getVertices() {
     return m_vertices;
 }
 
+int OOBB::getDepth()
+{
+    return m_depth;
+}
+
 std::vector<glm::vec3> OOBB::getIncludedTriangles() {
     return m_includedTriangles;
 }
@@ -84,8 +88,8 @@ std::vector<OOBB> OOBB::getChildren()
     return children;
 }
 
-void OOBB::split() {
-    if (children.size() == 0) {
+void OOBB::split(int depth) {
+    if (children.size() == 0 && m_includedTriangles.size()/3 > maxNumberOfTriangles && depth < maxDepth) {
         glm::vec3 childRadii = m_radii * 0.5f;
         
         glm::vec3 child1Origin = m_origin;
@@ -107,14 +111,14 @@ void OOBB::split() {
         origins.push_back(child7Origin);
         origins.push_back(child8Origin);
         
-        std::vector<glm::vec3> child1Triangles =std::vector<glm::vec3>();
-        std::vector<glm::vec3> child2Triangles =std::vector<glm::vec3>();
-        std::vector<glm::vec3> child3Triangles =std::vector<glm::vec3>();
-        std::vector<glm::vec3> child4Triangles =std::vector<glm::vec3>();
-        std::vector<glm::vec3> child5Triangles =std::vector<glm::vec3>();
-        std::vector<glm::vec3> child6Triangles =std::vector<glm::vec3>();
-        std::vector<glm::vec3> child7Triangles =std::vector<glm::vec3>();
-        std::vector<glm::vec3> child8Triangles =std::vector<glm::vec3>();
+        std::vector<glm::vec3> child1Triangles = std::vector<glm::vec3>();
+        std::vector<glm::vec3> child2Triangles = std::vector<glm::vec3>();
+        std::vector<glm::vec3> child3Triangles = std::vector<glm::vec3>();
+        std::vector<glm::vec3> child4Triangles = std::vector<glm::vec3>();
+        std::vector<glm::vec3> child5Triangles = std::vector<glm::vec3>();
+        std::vector<glm::vec3> child6Triangles = std::vector<glm::vec3>();
+        std::vector<glm::vec3> child7Triangles = std::vector<glm::vec3>();
+        std::vector<glm::vec3> child8Triangles = std::vector<glm::vec3>();
         
         std::vector<std::vector<glm::vec3> > triangles =std::vector<std::vector<glm::vec3> >();
         triangles.push_back(child1Triangles);
@@ -141,9 +145,75 @@ void OOBB::split() {
         }
         
         for (int i = 0; i < triangles.size(); ++i) {
-            children.push_back(OOBB(triangles[i], origins[i], childRadii));
+            if (triangles[i].size() > 0)
+            {
+                OOBB child = OOBB(triangles[i], origins[i], childRadii);
+                child.split(depth + 1);
+                if (child.getChildren().size() == 1)
+                {
+                    children.push_back(child.getChildren()[0]);
+                } else {
+                    children.push_back(child);
+                }
+            }
         }
     }
+}
+
+void OOBB::realPrint(int depth)
+{
+    for (int i = 0; i < depth; ++i) {
+        printf("\t");
+    }
+    
+    printf("OOBB includedTriangles: %lu children: %lu depth: %d\n", m_includedTriangles.size()/3, children.size(), m_depth);
+//    printf("OOBB includedTriangles: %lu origin: %f %f %f radii: %f %f %f children: %lu\n", m_includedTriangles.size()/3, m_origin.x, m_origin.y, m_origin.z, m_radii.x,m_radii.y, m_radii.z, children.size());
+    
+    for (int i = 0; i < children.size(); ++i) {
+        children[i].realPrint(depth + 1);
+    }
+}
+
+void OOBB::setDepths(int depth)
+{
+    m_depth = depth;
+    for (int i = 0; i < children.size(); ++i) {
+        children[i].setDepths(depth + 1);
+    }
+}
+
+
+void OOBB::print(bool recursive)
+{
+    if (recursive) {
+        realPrint(0);
+    } else {
+        int totalTrianglesOnLowestLevel = 0;
+        int totalNodeCount = 0;
+        int totalDepth = 0;
+        std::queue<OOBB> toVisit = std::queue<OOBB>();
+        toVisit.push(*this);
+        
+        while (!toVisit.empty()) {
+            totalNodeCount++;
+            
+            OOBB next = toVisit.front();
+            toVisit.pop();
+            
+            for (int i = 0; i < next.getChildren().size(); ++i) {
+                toVisit.push(next.getChildren()[i]);
+            }
+            
+            if (next.getChildren().size() == 0)
+            {
+                totalTrianglesOnLowestLevel += next.getIncludedTriangles().size()/3;
+                totalDepth = std::max(totalDepth, next.getDepth());
+            }
+        }
+        
+        printf("OOBB origin: %f %f %f radii: %f %f %f includedTriangles: %lu totalTrianglesOnLowestLevel: %d totalNodeCount: %d depth: %d\n", m_origin.x, m_origin.y, m_origin.z, m_radii.x,m_radii.y, m_radii.z, m_includedTriangles.size()/3, totalTrianglesOnLowestLevel, totalNodeCount, totalDepth);
+    }
+    
 }
 
 void OOBB::setDefaults() {
@@ -152,6 +222,8 @@ void OOBB::setDefaults() {
     
     std::vector<GLfloat> m_includedTriangles = std::vector<GLfloat>();
     children = std::vector<OOBB>();
+    
+    m_depth = 0;
 }
 
 void OOBB::calculateBoundingBox() {
