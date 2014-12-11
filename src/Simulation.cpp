@@ -36,13 +36,7 @@ size_t Simulation::getNumberOfStates() {
 void Simulation::forwardStep(float dt) {
     m_debugPoints.clear();
     
-    vector<RigidBody> newState = vector<RigidBody>();
-    
-    vector<RigidBody> * state = &m_simulationStates.back();
-    
-    for (int i = 0; i < m_simulationStates.back().size(); i++) {
-        newState.push_back(state->at(i));
-    }
+    vector<RigidBody> newState = m_simulationStates.back();
     
     // collision detection and response
     for (int i = 0; i < newState.size(); ++i) {
@@ -181,7 +175,7 @@ void Simulation::showDebugPoint(glm::vec3 position) {
     showDebugPoint(p);
 }
 
-void Simulation::showDebugPoint(glm::vec3 position, glm::vec3 color) {
+void Simulation::showDebugPoint(glm::vec3 position, glm::vec3 color) {
     DebugPoint p;
     p.color = color;
     p.position = position;

@@ -36,8 +36,6 @@ public:
 	Mesh * getMesh() const;
     Texture * getTexture() const;
     
-    OOBB getBoundingBox();
-    
 	// Returns translation matrix
 	glm::mat4 translation() const;
 
@@ -61,8 +59,6 @@ protected:
     glm::quat m_orientation;
     
     Mesh * m_mesh;
-    
-    OOBB m_boundingBox;
     
 private:
 	Material * m_material;

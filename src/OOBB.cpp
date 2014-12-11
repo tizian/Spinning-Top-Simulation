@@ -83,9 +83,9 @@ std::vector<glm::vec3> OOBB::getIncludedTriangles() {
     return m_includedTriangles;
 }
 
-std::vector<OOBB> OOBB::getChildren()
+std::vector<OOBB> * OOBB::getChildren()
 {
-    return children;
+    return &children;
 }
 
 void OOBB::split(int depth) {
@@ -149,9 +149,9 @@ void OOBB::split(int depth) {
             {
                 OOBB child = OOBB(triangles[i], origins[i], childRadii);
                 child.split(depth + 1);
-                if (child.getChildren().size() == 1)
+                if (child.getChildren()->size() == 1)
                 {
-                    children.push_back(child.getChildren()[0]);
+                    children.push_back(child.getChildren()->at(0));
                 } else {
                     children.push_back(child);
                 }
@@ -200,11 +200,11 @@ void OOBB::print(bool recursive)
             OOBB next = toVisit.front();
             toVisit.pop();
             
-            for (int i = 0; i < next.getChildren().size(); ++i) {
-                toVisit.push(next.getChildren()[i]);
+            for (int i = 0; i < next.getChildren()->size(); ++i) {
+                toVisit.push(next.getChildren()->at(i));
             }
             
-            if (next.getChildren().size() == 0)
+            if (next.getChildren()->size() == 0)
             {
                 totalTrianglesOnLowestLevel += next.getIncludedTriangles().size()/3;
                 totalDepth = std::max(totalDepth, next.getDepth());
