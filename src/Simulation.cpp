@@ -181,7 +181,7 @@ void Simulation::showDebugPoint(glm::vec3 position) {
     showDebugPoint(p);
 }
 
-void Simulation::showDebugPoint(glm::vec3 position, glm::vec3 color) {
+void Simulation::showDebugPoint(glm::vec3 position, glm::vec3 color) {
     DebugPoint p;
     p.color = color;
     p.position = position;
