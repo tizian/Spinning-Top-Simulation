@@ -16,7 +16,7 @@ public:
     virtual void setMesh(Mesh *mesh);
     void setBodyInertiaTensorInv(const glm::mat3 bodyInertiaTensorInv);
     
-    OOBB getBoundingBox();
+    OOBB * getBoundingBox();
     
     void addForce(const glm::vec3 force);
     void addForce(const glm::vec3 force, const glm::vec3 position);
@@ -28,7 +28,7 @@ public:
     
     bool isCurrentlyActive;
     
-    std::vector<Contact> intersectWith(Body & body);
+    std::vector<Contact> intersectWith(RigidBody & body);
     
 private:
     bool m_active;
@@ -36,6 +36,9 @@ private:
     void setDefaults();
     
     void printState();
+    
+    float distanceToGround();
+    std::vector<glm::vec3> intersectWithGround();
     
     // constant values
     //virtual mat3 getBodyInertiaTensorInv() const;  // Override for all rigid bodies: depends on shape
@@ -58,6 +61,5 @@ private:
     
     std::vector<float> m_lastVelocities;
     
-    float distanceToGround();
-    std::vector<glm::vec3> intersectWithGround();
+    OOBB * m_boundingBox;
 };

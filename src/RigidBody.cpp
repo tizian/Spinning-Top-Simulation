@@ -71,12 +71,14 @@ void RigidBody::setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv) {
 
 void RigidBody::setMesh(Mesh *mesh) {
     Body::setMesh(mesh);
+
+    m_boundingBox = new OOBB(mesh);
     
 //    m_bodyInertiaTensorInv = InertiaTensor::calculateInertiaTensor(this);
 //    printf("body inertia tensor inv:\n\t%f %f %f\n\t%f %f %f\n\t%f %f %f\n", m_bodyInertiaTensorInv[0][0], m_bodyInertiaTensorInv[0][1], m_bodyInertiaTensorInv[0][2], m_bodyInertiaTensorInv[1][0], m_bodyInertiaTensorInv[1][1], m_bodyInertiaTensorInv[1][2], m_bodyInertiaTensorInv[2][0], m_bodyInertiaTensorInv[2][1], m_bodyInertiaTensorInv[2][2]);
 }
 
-OOBB RigidBody::getBoundingBox()
+OOBB * RigidBody::getBoundingBox()
 {
     return m_boundingBox;
 }
@@ -111,37 +113,37 @@ void RigidBody::addImpulse(const vec3 impulse, const vec3 position) {
 //    printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
 }
 
-std::vector<Contact> intersectOctrees(OOBB & one, mat4 & modelOne, OOBB & two, mat4 & modelTwo)
+std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, mat4 & modelTwo)
 {
     std::vector<Contact> intersectionPoints = std::vector<Contact>();
     
-    if (IntersectionTest::intersectionBoxBox(one.getOrigin(), one.getRadii(), modelOne, two.getOrigin(), two.getRadii(), modelTwo)) {
+    if (IntersectionTest::intersectionBoxBox(one->getOrigin(), one->getRadii(), modelOne, two->getOrigin(), two->getRadii(), modelTwo)) {
         
-        std::vector<OOBB> childrenOne = one.getChildren();
-        std::vector<OOBB> childrenTwo = two.getChildren();
+        std::vector<OOBB> * childrenOne = one->getChildren();
+        std::vector<OOBB> * childrenTwo = two->getChildren();
         
-        if (childrenOne.size() > 0 && childrenTwo.size() > 0)
+        if (childrenOne->size() > 0 && childrenTwo->size() > 0)
         {
-            for (int i = 0; i < childrenOne.size() && intersectionPoints.size() == 0; ++i) {
-                for (int j = 0; j < childrenTwo.size() && intersectionPoints.size() == 0; ++j) {
-                    intersectionPoints = intersectOctrees(childrenOne[i], modelOne, childrenTwo[j], modelTwo);
+            for (int i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
+                for (int j = 0; j < childrenTwo->size() && intersectionPoints.size() == 0; ++j) {
+                    intersectionPoints = intersectOctrees(&childrenOne->at(i), modelOne, &childrenTwo->at(j), modelTwo);
                 }
             }
-        } else if (childrenOne.size() > 0) {
+        } else if (childrenOne->size() > 0) {
             
-            for (int i = 0; i < childrenOne.size() && intersectionPoints.size() == 0; ++i) {
-                intersectionPoints = intersectOctrees(childrenOne[i], modelOne, two, modelTwo);
+            for (int i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
+                intersectionPoints = intersectOctrees(&childrenOne->at(i), modelOne, two, modelTwo);
             }
             
-        } else if (childrenTwo.size() > 0) {
+        } else if (childrenTwo->size() > 0) {
         
-            for (int i = 0; i < childrenTwo.size() && intersectionPoints.size() == 0; ++i) {
-                intersectionPoints = intersectOctrees(one, modelOne, childrenTwo[i], modelTwo);
+            for (int i = 0; i < childrenTwo->size() && intersectionPoints.size() == 0; ++i) {
+                intersectionPoints = intersectOctrees(one, modelOne, &childrenTwo->at(i), modelTwo);
             }
             
         } else {
-            std::vector<glm::vec3> trianglesOne =  one.getIncludedTriangles();
-            std::vector<glm::vec3> trianglesTwo =  two.getIncludedTriangles();
+            std::vector<glm::vec3> trianglesOne =  one->getIncludedTriangles();
+            std::vector<glm::vec3> trianglesTwo =  two->getIncludedTriangles();
             
             glm::vec3 point11;
             glm::vec3 point12;
@@ -195,14 +197,14 @@ std::vector<Contact> intersectOctrees(OOBB & one, mat4 & modelOne, OOBB & two, m
     return intersectionPoints;
 }
 
-std::vector<Contact> RigidBody::intersectWith(Body & body)
+std::vector<Contact> RigidBody::intersectWith(RigidBody & body)
 {
     std::vector<Contact> intersectionPoints = std::vector<Contact>();
     
     mat4 myModel = model();
     mat4 bodyModel = body.model();
-    OOBB myBoundingBox = getBoundingBox();
-    OOBB bodyBoundingBox = body.getBoundingBox();
+    OOBB * myBoundingBox = getBoundingBox();
+    OOBB * bodyBoundingBox = body.getBoundingBox();
     intersectionPoints = intersectOctrees(myBoundingBox, myModel, bodyBoundingBox, bodyModel);
     
     return intersectionPoints;
@@ -213,11 +215,11 @@ std::vector<Contact> RigidBody::intersectWith(Body & body)
 float RigidBody::distanceToGround()
 {
     GLfloat dist = MAXFLOAT;
-    GLfloat * vertices = m_boundingBox.getVertices();
+    GLfloat * vertices = m_boundingBox->getVertices();
     
     mat4 myModel = model();
     
-    for (int i = 0; i < m_boundingBox.getNumVertices(); i += 3) {
+    for (int i = 0; i < m_boundingBox->getNumVertices(); i += 3) {
         vec4 tmp = myModel * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
 //        printf("boundingBox: %f %f %f\n", vertices[i], vertices[i+1], vertices[i+2]);
         if (tmp.y < dist)

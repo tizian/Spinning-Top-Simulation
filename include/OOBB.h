@@ -24,7 +24,7 @@ public:
     int getDepth();
     
     std::vector<glm::vec3> getIncludedTriangles();
-    std::vector<OOBB> getChildren();
+    std::vector<OOBB> * getChildren();
     
     void split(int depth);
     
