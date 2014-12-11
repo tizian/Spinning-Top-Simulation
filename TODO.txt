@@ -3,6 +3,7 @@ Todo
 
 Functionality
 -------------
+- Nutation!
 - tweak Ground friction / rotational friction
 - Arbitrary collisions
 - NxN collision checks between objects with triangle-triangle intersection tests -> this should return collision point / line / area somehow
