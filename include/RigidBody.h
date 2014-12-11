@@ -69,4 +69,6 @@ private:
     std::vector<float> m_lastVelocities;
     
     OOBB * m_boundingBox;
+    
+    std::vector<Body> * octreeMeshes;
 };
