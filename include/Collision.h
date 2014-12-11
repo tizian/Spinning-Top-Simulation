@@ -165,7 +165,7 @@ namespace Collision {
         vec3 org_linearMomentumA = a.getLinearMomentum();
         vec3 org_linearMomentumB = b.getLinearMomentum();
         
-        int numberContacts = contacts.size();
+//        int numberContacts = contacts.size();
         for (int i = 0; i < contacts.size(); i++) {
             vec3 point = contacts[0].p;
             vec3 normal = contacts[0].n;
@@ -179,7 +179,7 @@ namespace Collision {
             vec3 vrel = va - vb;
             
             float vrelMagnitude = dot(normal, vrel);
-            printf("vrel: %f\n", vrelMagnitude);
+//            printf("vrel: %f\n", vrelMagnitude);
         
             if (vrelMagnitude > 0.8) return;
         
