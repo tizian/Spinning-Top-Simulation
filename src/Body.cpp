@@ -3,6 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+using namespace glm;
+
 Body::Body(const glm::vec3 & position, const glm::quat & orientation, const glm::vec3 & scale) {
 	m_position = position;
 	m_orientation = orientation;
@@ -13,9 +15,6 @@ Body::Body(const glm::vec3 & position, const glm::quat & orientation, const glm:
     m_mesh = nullptr;
     m_material = nullptr;
     m_texture = nullptr;
-    
-    m_debugMesh = nullptr;
-    m_debugMaterial = nullptr;
 }
 
 Body::Body(const glm::vec3 & position) {
@@ -65,14 +64,6 @@ void Body::setMesh(Mesh * mesh) {
 
 void Body::setTexture(Texture * texture) {
     m_texture = texture;
-}
-
-void Body::setDebugMaterial(Material * material) {
-    m_debugMaterial = material;
-}
-
-void Body::setDebugMesh(Mesh * mesh) {
-    m_debugMesh = mesh;
 }
 
 glm::vec3 Body::getPosition() const {
@@ -138,20 +129,6 @@ void Body::render() {
 		exit(-1);
 	}
 	m_mesh->render();
-}
-
-
-
-void Body::debugRender() {
-    //mat4 trans = translation();
-    mat4 trans = glm::translate(glm::mat4(), m_debugPoint);
-    mat4 debugModel = trans * glm::scale(mat4(), vec3(0.1));
-    
-    Shader::setUniform("modelMatrix", debugModel);
-    
-    m_debugMaterial->setUniforms();
-    
-    m_debugMesh->render();
 }
 
 void Body::update(float dt) {}

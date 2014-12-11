@@ -1,5 +1,9 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
+#include <algorithm>
+
 namespace IntersectionTest {
 
     // http://en.wikipedia.org/wiki/Möller–Trumbore_intersection_algorithm

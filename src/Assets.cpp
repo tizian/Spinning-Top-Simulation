@@ -70,22 +70,16 @@ void Assets::init() {
     
     planeMaterial = Material(glm::vec3(0.16, 0.55, 0.16));     // green-ish
     blueMaterial = Material(glm::vec3(0.25, 0.32, 0.6));      // blue-ish
-    blueMaterial.setAmbientFactor(0.3f * blueMaterial.getDiffuseFactor());
     
     redMaterial = Material(glm::vec3(1.0, 0.0, 0.0));      // red
-    redMaterial.setAmbientFactor(0.3f * redMaterial.getDiffuseFactor());
     
-    yellowMaterial = Material(glm::vec3(0.6, 0.6, 0.32));      // red-ish
-    yellowMaterial.setAmbientFactor(0.3f * yellowMaterial.getDiffuseFactor());
+    yellowMaterial = Material(glm::vec3(0.6, 0.6, 0.32));  // red-ish
     
-    whiteMaterial = Material(glm::vec3(1.0, 1.0, 1.0));      // red-ish
-    whiteMaterial.setAmbientFactor(0.5f * whiteMaterial.getDiffuseFactor());
+    whiteMaterial = Material(glm::vec3(1.0, 1.0, 1.0));
     
     slightlyRedMaterial = Material(glm::vec3(1.0, 0.6, 0.6));      // slightly red
-    slightlyRedMaterial.setAmbientFactor(0.3f * slightlyRedMaterial.getDiffuseFactor());
     
     slightlyGreenMaterial = Material(glm::vec3(0.6, 1.0, 0.6));
-    slightlyGreenMaterial.setAmbientFactor(0.3f * slightlyGreenMaterial.getDiffuseFactor());
 }
 
 void Assets::destroy() {

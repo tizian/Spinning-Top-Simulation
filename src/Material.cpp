@@ -13,10 +13,7 @@ Material::Material(const glm::vec3 & specularFactor, const glm::vec3 & diffuseFa
 }
 
 Material::Material(const glm::vec3 & color) {
-    m_Ks = glm::vec3(1, 1, 1);
-    m_Kd = color;
-    m_Ka = glm::vec3(0.6 * color.x, 0.6 * color.y, 0.6 * color.z);
-    m_shininess = 100;
+    setColor(color);
 }
 
 Material::Material() {
@@ -24,6 +21,13 @@ Material::Material() {
 	m_Kd = glm::vec3(1, 1, 1);
 	m_Ka = glm::vec3(1, 1, 1);
 	m_shininess = 100;
+}
+
+void Material::setColor(const glm::vec3 & color) {
+    m_Ks = glm::vec3(1, 1, 1);
+    m_Kd = color;
+    m_Ka = glm::vec3(0.6 * color.x, 0.6 * color.y, 0.6 * color.z);
+    m_shininess = 100;
 }
 
 void Material::setSpecularFactor(const glm::vec3 & specularFactor) {

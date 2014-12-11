@@ -6,22 +6,22 @@
 
 class RigidBody : public Body {
 public:
-    RigidBody(const vec3 & position, const quat & orientation, const vec3 & scale);
-    RigidBody(const vec3 & position);
+    RigidBody(const glm::vec3 & position, const glm::quat & orientation, const glm::vec3 & scale);
+    RigidBody(const glm::vec3 & position);
     RigidBody();
     
     virtual void update(float dt);
     
     virtual void setMesh(Mesh *mesh);
-    void setBodyInertiaTensorInv(const mat3 bodyInertiaTensorInv);
+    void setBodyInertiaTensorInv(const glm::mat3 bodyInertiaTensorInv);
     
     OOBB getBoundingBox();
     
-    void addForce(const vec3 force);
-    void addForce(const vec3 force, const vec3 position);
+    void addForce(const glm::vec3 force);
+    void addForce(const glm::vec3 force, const glm::vec3 position);
     
-    void addImpulse(const vec3 impulse);
-    void addImpulse(const vec3 impulse, const vec3 position);
+    void addImpulse(const glm::vec3 impulse);
+    void addImpulse(const glm::vec3 impulse, const glm::vec3 position);
     
     int type; // sphere, cube, sp1, etc...
     
@@ -39,24 +39,24 @@ private:
     // constant values
     //virtual mat3 getBodyInertiaTensorInv() const;  // Override for all rigid bodies: depends on shape
     float m_mass;  // mass
-    mat3 m_bodyInertiaTensorInv;
+    glm::mat3 m_bodyInertiaTensorInv;
     
     // state
-    vec3 m_linearMomentum;      // P(t) = M * v(t)
-    vec3 m_angularMomentum;     // L(t) = I(t) * omega(t)
+    glm::vec3 m_linearMomentum;      // P(t) = M * v(t)
+    glm::vec3 m_angularMomentum;     // L(t) = I(t) * omega(t)
     
     // derived quantities
 //    vec3 m_linearVelocity;      // v(t)
-    vec3 m_angularVelocity;     // omega(t)
-    mat3 m_inertiaTensorInv;    // I(t)^-1
-    mat3 m_rotationMatrix;      // R(t)
+    glm::vec3 m_angularVelocity;     // omega(t)
+    glm::mat3 m_inertiaTensorInv;    // I(t)^-1
+    glm::mat3 m_rotationMatrix;      // R(t)
     
     // computed quantities
-    vec3 m_force;               // F(t)
-    vec3 m_torque;              // tau(t)
+    glm::vec3 m_force;               // F(t)
+    glm::vec3 m_torque;              // tau(t)
     
     std::vector<float> m_lastVelocities;
     
     float distanceToGround();
-    std::vector<vec3> intersectWithGround();
+    std::vector<glm::vec3> intersectWithGround();
 };

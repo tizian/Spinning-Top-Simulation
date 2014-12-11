@@ -13,6 +13,8 @@ public:
     Material(const glm::vec3 & color);
 	Material();
 
+    void setColor(const glm::vec3 & color);
+    
 	void setSpecularFactor(const glm::vec3 & specularFactor);
 	void setDiffuseFactor(const glm::vec3 & diffuseFactor);
 	void setAmbientFactor(const glm::vec3 & ambientFactor);

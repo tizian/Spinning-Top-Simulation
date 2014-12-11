@@ -1,5 +1,9 @@
 #define GLM_FORCE_RADIANS
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -22,6 +26,7 @@
 #include "Camera.h"
 
 using namespace std;
+using namespace glm;
 
 // glfwGetKeyOnce(...)
 // http://sourceforge.net/p/glfw/discussion/247562/thread/8f3df980/
@@ -62,6 +67,9 @@ Body skybox;
 
 Body plane;
 Body table;
+
+Material debugMaterial;
+Body debugPoint;
 
 Simulation simulation;
 
@@ -156,6 +164,13 @@ int main()
     table.setMesh(&Assets::cube);
     table.setMaterial(&Assets::whiteMaterial);
     table.setTexture(&Assets::darkWood);
+    
+    debugMaterial = Material();
+    
+    debugPoint = Body(glm::vec3(0.0));
+    debugPoint.setScale(glm::vec3(0.1));
+    debugPoint.setMesh(&Assets::sphere);
+    debugPoint.setMaterial(&debugMaterial);
     
     simulation = Simulation();
 
@@ -311,9 +326,12 @@ void render(vector<RigidBody> * state) {
     if (debug) {
         glDisable(GL_DEPTH_TEST);
         
-        for (int i = 0; i < state->size(); ++i)
-        {
-            state->at(i).debugRender();
+        vector<DebugPoint> debugPoints = simulation.getDebugPoints();
+        for (int i = 0; i < debugPoints.size(); i++) {
+            debugMaterial.setColor(debugPoints[i].color);
+            debugPoint.setPosition(debugPoints[i].position);
+            
+            debugPoint.render();
         }
         
         glEnable(GL_DEPTH_TEST);

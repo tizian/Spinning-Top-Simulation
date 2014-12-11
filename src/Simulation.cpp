@@ -34,6 +34,8 @@ size_t Simulation::getNumberOfStates() {
 }
 
 void Simulation::forwardStep(float dt) {
+    m_debugPoints.clear();
+    
     vector<RigidBody> newState = vector<RigidBody>();
     
     vector<RigidBody> * state = &m_simulationStates.back();
@@ -52,8 +54,8 @@ void Simulation::forwardStep(float dt) {
                 //newState[i].setDebugPoint(intersections[0]);
                 //newState[j].setDebugPoint(intersections[0]);
                 
-                vec3 direction = (newState[i].getPosition() - newState[j].getPosition());
-                direction *= (1.f/length(direction));
+                glm::vec3 direction = (newState[i].getPosition() - newState[j].getPosition());
+                direction *= (1.f/glm::length(direction));
                 newState[i].addImpulse(1.f * direction); // hardcoded hack
                 newState[j].addImpulse(-1.5f * direction); // hardcoded hack
             }
@@ -63,6 +65,8 @@ void Simulation::forwardStep(float dt) {
     // update rigidbodies
     for (int i = 0; i < newState.size(); i++) {
         newState[i].update(dt);
+
+        showDebugPoint(newState[i].getPosition());
     }
     
     m_simulationStates.push_back(newState);
@@ -73,6 +77,8 @@ void Simulation::forwardStep(float dt) {
 }
 
 void Simulation::backwardStep() {
+    m_debugPoints.clear();
+    
     if (m_simulationStates.size() > 1) {
         m_simulationStates.pop_back();
     }
@@ -158,4 +164,26 @@ void Simulation::addRigidBody(int type) {
         getActiveRigidBody()->isCurrentlyActive = true;
         getActiveRigidBody()->setMaterial(&Assets::slightlyGreenMaterial);
     }
+}
+
+std::vector<DebugPoint> Simulation::getDebugPoints() {
+    return m_debugPoints;
+}
+
+void Simulation::showDebugPoint(DebugPoint p) {
+    m_debugPoints.push_back(p);
+}
+
+void Simulation::showDebugPoint(glm::vec3 position) {
+    DebugPoint p;
+    p.color = glm::vec3(0.8, 0.0, 0.0);
+    p.position = position;
+    showDebugPoint(p);
+}
+
+void Simulation::showDebugPoint(glm::vec3 position, glm::vec3 color) {
+    DebugPoint p;
+    p.color = color;
+    p.position = position;
+    showDebugPoint(p);
 }

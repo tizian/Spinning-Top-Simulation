@@ -1,5 +1,9 @@
 #include "RigidBody.h"
 
+#ifndef MAXFLOAT
+    #define MAXFLOAT      3.40282347e+37F
+#endif
+
 #include <GLFW/glfw3.h>
 
 #include <glm/gtc/matrix_access.hpp>
@@ -8,6 +12,8 @@
 #include <algorithm>
 #include <numeric>
 #include <queue>
+
+using namespace glm;
 
 vec3 maxAngularVelocity = vec3(1,1,1) * 100000000.f; // 100 000 000 is an arbitrary but resonable limit to avoid nan
 

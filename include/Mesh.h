@@ -10,6 +10,7 @@ class Mesh
 {
 public:
 	Mesh(const std::string & filename);
+    Mesh(GLfloat * vertices, int numVertices);
 	Mesh() {};
 
 	void setGeometry(GLfloat * vertices, int numVertices);
