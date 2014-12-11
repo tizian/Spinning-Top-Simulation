@@ -126,7 +126,6 @@ int main()
     time_t begin = time(0);
     
 	setupContext();
-	Assets::init();
     
     if (timeStepMethod == 2) { // turn off vsync or so..
         glfwSwapInterval(0);
@@ -150,26 +149,26 @@ int main()
     
     skybox = Body(glm::vec3(0.0));
     skybox.setScale(glm::vec3(250.0));
-    skybox.setMesh(&Assets::skyboxBox);
-    skybox.setTexture(&Assets::skybox);
+    skybox.setMesh(Assets::getSkybox());
+    skybox.setTexture(Assets::getSkyboxTexture());
     skybox.setPosition(vec3(0, 0, 0));
     
     plane = Body(glm::vec3(0, 0, 0));
     plane.setScale(glm::vec3(10, 1, 10));
-    plane.setMesh(&Assets::plane);
-    plane.setMaterial(&Assets::planeMaterial);
+    plane.setMesh(Assets::getPlane());
+    plane.setMaterial(Assets::getPlaneMaterial());
     
     table = Body(glm::vec3(0, -1, 0));
     table.setScale(glm::vec3(15, 1, 15));
-    table.setMesh(&Assets::cube);
-    table.setMaterial(&Assets::whiteMaterial);
-    table.setTexture(&Assets::darkWood);
+    table.setMesh(Assets::getCube());
+    table.setMaterial(Assets::getWhiteMaterial());
+    table.setTexture(Assets::getDarkWood());
     
     debugMaterial = Material();
     
     debugPoint = Body(glm::vec3(0.0));
     debugPoint.setScale(glm::vec3(0.1));
-    debugPoint.setMesh(&Assets::sphere);
+    debugPoint.setMesh(Assets::getSphere());
     debugPoint.setMaterial(&debugMaterial);
     
     simulation = Simulation();
@@ -281,7 +280,6 @@ int main()
 		glfwPollEvents();
 	}
 
-	Assets::destroy();
 	destroyContext();
     time_t endtime = time(0);
     
@@ -300,13 +298,13 @@ void render(vector<RigidBody> * state) {
     
     glViewport(0, 0, width, height);
     
-    Assets::skyboxShader.use();
+    Assets::getSkyboxShader()->use();
     
     camera.setUniforms();
     
     skybox.render();
     
-    Assets::textureShader.use();
+    Assets::getTextureShader()->use();
     
     light.setUniforms();
     camera.setUniforms();
@@ -318,7 +316,7 @@ void render(vector<RigidBody> * state) {
     
     table.render();
     
-    Assets::phongShader.use();
+    Assets::getPhongShader()->use();
     
     light.setUniforms();
     camera.setUniforms();
@@ -339,7 +337,7 @@ void render(vector<RigidBody> * state) {
 //        plane.render();
     }
     
-    Assets::shadowShader.use();
+    Assets::getShadowShader()->use();
     
     glStencilFunc(GL_EQUAL, 0, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
