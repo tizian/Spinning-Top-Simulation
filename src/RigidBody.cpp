@@ -1,3 +1,4 @@
+#include "Collision.h"
 #include "RigidBody.h"
 
 #ifndef MAXFLOAT
@@ -111,6 +112,10 @@ void RigidBody::addImpulse(const vec3 impulse, const vec3 position) {
     
 //    printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
 //    printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
+}
+
+void RigidBody::addTorque(const glm::vec3 torque) {
+    m_torque += torque;
 }
 
 std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, mat4 & modelTwo)
@@ -251,7 +256,7 @@ float RigidBody::distanceToGround()
 // assume ground at (x, 0, z)
 // returns the colliding vertices with their world coordinates
 // The first entry is the one for collision response. The others are for the friction
-std::vector<vec3> RigidBody::intersectWithGround()
+std::vector<Contact> RigidBody::intersectWithGround()
 {
 //    vec3 normal = vec3(0,1,0);
     std::vector<vec3> points = std::vector<vec3>();
@@ -317,7 +322,16 @@ std::vector<vec3> RigidBody::intersectWithGround()
         points.insert(points.begin(), point);
     }
     
-    return points;
+    std::vector<Contact> contacts = std::vector<Contact>();
+    for (int i = 0; i < points.size(); i++) {
+        Contact c;
+        c.p = points[i];
+        c.n = vec3(0, 1, 0);
+        
+        contacts.push_back(c);
+    }
+    
+    return contacts;
 }
 
 void RigidBody::update(float dt) {
@@ -342,10 +356,8 @@ void RigidBody::update(float dt) {
     m_angularMomentum = m_angularMomentum + dt * m_torque;                                                                  // L(t) = L(t) + dt * tau(t)
     m_inertiaTensorInv = m_rotationMatrix * m_bodyInertiaTensorInv * transpose(m_rotationMatrix);                           // I(t)^-1 = R(t) * I_body^-1 * R(t)'
     m_angularVelocity = min(max(m_inertiaTensorInv * m_angularMomentum, -1.f * maxAngularVelocity), maxAngularVelocity);    // omega(t) = I(t)^-1 * L(t)
-//    m_linearVelocity = m_linearMomentum / m_mass;
     
     float distanceGround = distanceToGround();
-    vec3 normal = vec3(0, 1, 0);
     
 //    printf("m_torque: %f %f %f\n", m_torque.x, m_torque.y, m_torque.z);
 //    printf("m_angularVelocity.y: %f\n",m_angularVelocity.y);
@@ -357,172 +369,17 @@ void RigidBody::update(float dt) {
     // check for ground collision and do collision response
     if (distanceGround < 0)
     {
-        if (firstTime) {
-            printf("First contact with ground:\n\tdistance: %f\n", distanceGround);
-        }
+//        double tBeforIntersection = glfwGetTime();
         
-        double tBeforIntersection = glfwGetTime();
-        std::vector<vec3> collisionPoints = intersectWithGround();
-        double tAfterIntersection = glfwGetTime();
+        std::vector<Contact> contacts = intersectWithGround();
+        
+//        double tAfterIntersection = glfwGetTime();
+        
 //        printf("collisionPoints.size: %lu time used: %f\n", collisionPoints.size(), tAfterIntersection - tBeforIntersection);
         
-        vec3 org_linearMomentum = m_linearMomentum;
+        Collision::collisionResponseWithGround(*this, contacts);
         
-        // Impulse-Based Collision Response
-        
-//        printf("THE collision point: %f %f %f\n", collisionPoints[0].x, collisionPoints[0].y, collisionPoints[0].z);
-        vec3 r = collisionPoints[0] - m_position;   // r_a = p - x(t)
-        vec3 v = m_linearMomentum / m_mass + cross(m_angularVelocity, r);
-        
-        vec3 vrel = v - vec3(0, 0, 0);    // v_r = v_p2 - v_p1
-        
-        if (firstTime) {
-            printf("\tvrel: %f %f %f\n", vrel.x, vrel.y, vrel.z);
-        }
-        
-        // Colliding contact
-        
-        float e = 0.3f;  // Coefficient of restitution
-        float j = -(1.f+e)*dot(vrel, normal)/(1.f/m_mass + dot(normal, cross(m_inertiaTensorInv * cross(r, normal), r)));
-        j = max(0.0f, j);   // not sure... part of 'Realtime Rigid Body Simulation Using Impulses' paper
-//      printf("j: %f\n", j);
-        
-        vec3 impulse = j * normal;
-        
-        addImpulse(impulse, collisionPoints[0]);
-        
-        for (int i = collisionPoints.size() == 1 ? 0 : 1; i < collisionPoints.size(); i++)
-        {
-            if (frictionMethod == 0) // forced based friction model
-            {
-                r = collisionPoints[i] - m_position;
-                vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r); // http://en.wikipedia.org/wiki/Angular_velocity
-
-                //printf("bla: %f\n", abs(mat3(model()) * m_angularVelocity).y);
-                //if (abs(mat3(model()) * m_angularVelocity).y < 10)
-                //{
-                    addForce(vrel * 1.f /* (dot(m_angularMomentum, r) / length(part))*/, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
-                //m_angularMomentum *= 0.999f;
-                //} else {
-                //    addForce(vrel * -1.f, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
-                //}
-            }
-            if (frictionMethod == 1)    // Impulse-Based Friction Model (Coulomb friction model)
-            {
-                r = collisionPoints[i] - m_position;
-                vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r);
-                
-                float mu = 0.8; // wild guess
-                vec3 tangent = cross(cross(normal, vrel), normal)/length(vrel);
-                
-                float jt = -(1.f+e)*dot(vrel, tangent)/(1.f/m_mass + dot(tangent, cross(m_inertiaTensorInv * cross(r, tangent), r)));
-                
-                jt = clamp(jt, -mu*j, mu*j);
-                
-                vec3 frictionImpulse = jt * tangent;
-                frictionImpulse = frictionImpulse * (1.f/collisionPoints.size());  // In theory: only one collision point...
-                
-                addImpulse(frictionImpulse, collisionPoints[i]);
-            
-            }
-            else if (frictionMethod == 3) // MatLab friction
-            {
-                int collisionPointsSize = collisionPoints.size() == 1 ? 1 : (int)collisionPoints.size() - 1;
-                r = collisionPoints[i] - m_position;
-                vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r);
-                
-                // Torque Friction from http://ch.mathworks.com/help/physmod/simscape/ref/rotationalfriction.html
-                
-                float frictionTorque; // T
-                float coulombFrictionTorque = 20; // T_C; [N*m]
-                float breakawayFrictionTorque = 25; // T_brk; [N*m];
-                float omega = m_angularVelocity.x; // w
-                float velocityThreshold = 0.001; // omega_th; should be between 10^-3 and 10^-5
-                float viscousFrictionCoefficient = 0.001; // f; [N*m/(rad/s)];
-                float coefficient = 10; // c_v; [rad/s]
-                
-                if (abs(omega) >= velocityThreshold)
-                {
-                    frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
-                } else {
-                    frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
-                }
-                m_torque += 0.1f * vec3(-frictionTorque / collisionPointsSize,0,0);
-                
-                omega = m_angularVelocity.y;
-                
-                if (abs(omega) >= velocityThreshold)
-                {
-                    frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
-                } else {
-                    frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
-                }
-                m_torque += 0.1f * vec3(0,-frictionTorque / collisionPointsSize,0);
-                
-                omega = m_angularVelocity.z;
-                
-                if (abs(omega) >= velocityThreshold)
-                {
-                    frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
-                } else {
-                    frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
-                }
-                m_torque += 0.1f * vec3(0,0,-frictionTorque / collisionPointsSize);
-                
-                // Linear Friction from http://ch.mathworks.com/help/physmod/simscape/ref/translationalfriction.html
-                // x component
-                float frictionForce; // F
-                float coulombFrictionForce = 20; // F_C; [N]
-                float breakawayFrictionForce = 25; // F_brk; [N];
-                float v = vrel.x;//m_linearMomentum.x / m_mass; // v
-                velocityThreshold = 0.0001; // omega_th; should be between 10^-4 and 10^-6
-                viscousFrictionCoefficient = 10; // f; [N/(m//s)]; default = 100;
-                coefficient = 10; // c_v; [s/m]
-                
-                if (abs(v) >= velocityThreshold)
-                {
-                    frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
-                } else {
-                    frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
-                }
-                
-                addForce(0.1f * vec3(-frictionForce / collisionPointsSize,0,0), collisionPoints[i] - vec3(0, distanceGround, 0));
-                
-                // y component
-                v = vrel.y;//m_linearMomentum.z / m_mass; // v
-                if (abs(v) >= velocityThreshold)
-                {
-                    frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
-                } else {
-                    frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
-                }
-                
-                addForce(0.1f * vec3(0,-frictionForce / collisionPointsSize, 0), collisionPoints[i] - vec3(0, distanceGround, 0));
-                
-                // z component
-                v = vrel.z;//m_linearMomentum.z / m_mass; // v
-                if (abs(v) >= velocityThreshold)
-                {
-                    frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
-                } else {
-                    frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
-                }
-                
-                addForce(0.1f * vec3(0,0,-frictionForce / collisionPointsSize), collisionPoints[i] - vec3(0, distanceGround, 0));
-                
-            }
-        }
-        
-        // avoid overshooting and undershooting
         m_position.y -= distanceGround;
-        
-        if (firstTime) {
-            printf("\tcollision points: %lu\n", collisionPoints.size());
-            vec3 linearImpulse = m_linearMomentum - org_linearMomentum;
-            printf("\tlinear impulse: %f %f %f\n", linearImpulse.x, linearImpulse.y, linearImpulse.z);
-            printf("\tm_linearMomentum: %f %f %f\n", m_linearMomentum.x, m_linearMomentum.y, m_linearMomentum.z);
-            firstTime = false;
-        }
         
         float vel = length(m_linearMomentum/m_mass + m_angularVelocity);
         m_lastVelocities.push_back(vel);
@@ -534,18 +391,10 @@ void RigidBody::update(float dt) {
         }
         float average = std::accumulate(m_lastVelocities.begin(), m_lastVelocities.end(), 0.0);
         average /= m_lastVelocities.size();
-//        printf("vel: %f\n", average);
         
-        if (average < 0.6) m_active = false;
-        
-//        if (length(m_linearMomentum) < 0.15 && length(m_angularMomentum) < 0.15) m_active = false;
-    }
-    
-    // Fake slowing down
-//    m_angularMomentum *= 0.999f;
-//    m_linearMomentum *= 0.999f;
+        if (average < 0.8) m_active = false;
+     }
     
 //    printState();
-    
-    
+   
 }
