@@ -574,7 +574,7 @@ void RigidBody::renderOctree()
                 
                 Body point = Body((vertex1 + vertex2) * 0.5f);
                 point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.01f));
-                point.setMesh(&Assets::cube);
+                point.setMesh(Assets::getCube());
                 point.setMaterial(pointMaterial);
                 
                 point.setOrientation(getOrientation());
@@ -590,7 +590,7 @@ void RigidBody::renderOctree()
                 
                 Body point = Body((vertex1 + vertex2) * 0.5f);
                 point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.01f));
-                point.setMesh(&Assets::cube);
+                point.setMesh(Assets::getCube());
                 point.setMaterial(pointMaterial);
                 
                 point.setOrientation(getOrientation());

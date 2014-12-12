@@ -44,7 +44,7 @@ void Simulation::forwardStep(float dt) {
             std::vector<Contact> intersections = newState[i].intersectWith(newState[j]);
             if (intersections.size() > 0)
             {
-                printf("collision with: %lu points\n", intersections.size());
+//                printf("collision with: %lu points\n", intersections.size());
                 //newState[i].setDebugPoint(intersections[0]);
                 //newState[j].setDebugPoint(intersections[0]);
                 
