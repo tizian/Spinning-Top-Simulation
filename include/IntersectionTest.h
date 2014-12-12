@@ -346,8 +346,8 @@ namespace IntersectionTest {
         // line triangle intersection
         float t;
         
-        glm::vec3 normal1 = glm::cross(point12 - point11, point13 - point11);
-        glm::vec3 normal2 = glm::cross(point22 - point21, point23 - point21);
+        glm::vec3 normal1 = glm::normalize(glm::cross(point12 - point11, point13 - point11));
+        glm::vec3 normal2 = glm::normalize(glm::cross(point22 - point21, point23 - point21));
         
         // line from 1 intersects 2
         glm::vec3 direction = point12 - point11;

@@ -4,6 +4,7 @@
 
 int maxNumberOfTriangles = 20;
 int maxDepth = 10;
+float minRadii = 0.000001;
 
 OOBB::OOBB()
 {
@@ -53,7 +54,7 @@ OOBB::OOBB(Mesh * mesh) {
     {
         split(0);
         setDepths(0);
-        print(false);
+//        print(false);
     } else {
         printf("ERROR: Could not create Octree, because there are equal vertices in the same triangles.\n");
     }
@@ -91,7 +92,7 @@ std::vector<OOBB> * OOBB::getChildren()
 }
 
 void OOBB::split(int depth) {
-    if (m_children.size() == 0 && m_includedTriangles.size()/3 > maxNumberOfTriangles && depth < maxDepth) {
+     if (m_children.size() == 0 && m_includedTriangles.size()/3 > maxNumberOfTriangles && depth < maxDepth && m_radii.x > 2.f * minRadii && m_radii.y > 2.f * minRadii && m_radii.z > 2.f * minRadii) {
         glm::vec3 childRadii = m_radii * 0.5f;
         
         glm::vec3 child1Origin = m_origin;

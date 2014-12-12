@@ -165,10 +165,13 @@ namespace Collision {
         vec3 org_linearMomentumA = a.getLinearMomentum();
         vec3 org_linearMomentumB = b.getLinearMomentum();
         
-//        int numberContacts = contacts.size();
-        for (int i = 0; i < contacts.size(); i++) {
-            vec3 point = contacts[0].p;
-            vec3 normal = contacts[0].n;
+//        printf("linearMomentumA: %f %f %f\n", org_linearMomentumA.x, org_linearMomentumA.y, org_linearMomentumA.z);
+//        printf("linearMomentumB: %f %f %f\n", org_linearMomentumB.x, org_linearMomentumB.y, org_linearMomentumB.z);
+        
+        int numberContacts = contacts.size();
+        for (int i = 0; i < numberContacts; i++) {
+            vec3 point = contacts[i].p;
+            vec3 normal = contacts[i].n;
             
             vec3 ra = point - a.getPosition();
             vec3 rb = point - b.getPosition();
@@ -179,7 +182,7 @@ namespace Collision {
             vec3 vrel = va - vb;
             
             float vrelMagnitude = dot(normal, vrel);
-//            printf("vrel: %f\n", vrelMagnitude);
+            printf("vrel: %f\n", vrelMagnitude);
         
             if (vrelMagnitude > 0.8) return;
         
@@ -192,13 +195,14 @@ namespace Collision {
             
             float j = nom / (denom1 + denom2 + denom3);
 //            printf("j: %f\n", j);
-//            j = j / numberContacts;
+//            j = j / (float)numberContacts;
             j = max(0.0f, j);
         
             vec3 collisionImpulse = j * normal;
             
 //            printf("impulse: %f %f %f\n", collisionImpulse.x, collisionImpulse.y, collisionImpulse.z);
-        
+//            printf("normal: %f %f %f\n", normal.x, normal.y, normal.z);
+            
             a.addImpulse(collisionImpulse, point);
             b.addImpulse(-collisionImpulse, point);
         }
