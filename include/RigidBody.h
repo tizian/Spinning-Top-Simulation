@@ -24,13 +24,18 @@ public:
     void addImpulse(const glm::vec3 impulse);
     void addImpulse(const glm::vec3 impulse, const glm::vec3 position);
     
+    void addTorque(const glm::vec3 torque);
+    
     int type; // sphere, cube, sp1, etc...
     
     bool isCurrentlyActive;
     
     std::vector<Contact> intersectWith(RigidBody & body);
     
-    void renderOctree();
+    glm::mat3 getInertiaTensorInv() { return m_inertiaTensorInv; }
+    glm::vec3 getLinearMomentum() { return m_linearMomentum; }
+    glm::vec3 getAngularVelocity() { return m_angularVelocity; }
+    float getMass() { return m_mass; }
     
 private:
     bool m_active;
@@ -40,7 +45,7 @@ private:
     void printState();
     
     float distanceToGround();
-    std::vector<glm::vec3> intersectWithGround();
+    std::vector<Contact> intersectWithGround();
     
     // constant values
     //virtual mat3 getBodyInertiaTensorInv() const;  // Override for all rigid bodies: depends on shape

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 // Baraff and Witkin approach
 class RigidBody;
 
