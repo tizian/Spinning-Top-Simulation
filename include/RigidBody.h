@@ -32,6 +32,8 @@ public:
     
     std::vector<Contact> intersectWith(RigidBody & body);
     
+    void renderOctree();
+    
     glm::mat3 getInertiaTensorInv() { return m_inertiaTensorInv; }
     glm::vec3 getLinearMomentum() { return m_linearMomentum; }
     glm::vec3 getAngularVelocity() { return m_angularVelocity; }
