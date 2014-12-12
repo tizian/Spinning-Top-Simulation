@@ -1,7 +1,5 @@
 #include "Simulation.h"
 
-#include "Collision.h"
-
 using namespace std;
 
 const int MAX_SIMULATION_SAVE_STATES = 1000;
@@ -46,7 +44,7 @@ void Simulation::forwardStep(float dt) {
             std::vector<Contact> intersections = newState[i].intersectWith(newState[j]);
             if (intersections.size() > 0)
             {
-//                printf("collision with: %lu points\n", intersections.size());
+                printf("collision with: %lu points\n", intersections.size());
                 //newState[i].setDebugPoint(intersections[0]);
                 //newState[j].setDebugPoint(intersections[0]);
                 
@@ -61,18 +59,8 @@ void Simulation::forwardStep(float dt) {
     // update rigidbodies
     for (int i = 0; i < newState.size(); i++) {
         newState[i].update(dt);
-        
+
         showDebugPoint(newState[i].getPosition());
-    }
-    
-    // collision detection and response
-    for (int i = 0; i < newState.size(); ++i) {
-        for (int j = i+1; j < newState.size(); ++j) {
-            
-            std::vector<Contact> contacts = newState[i].intersectWith(newState[j]);
-            
-            Collision::collisionResponseBetween(newState[j], newState[i], contacts);
-        }
     }
     
     m_simulationStates.push_back(newState);
