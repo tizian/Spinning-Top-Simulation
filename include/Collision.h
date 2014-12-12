@@ -182,7 +182,7 @@ namespace Collision {
             vec3 vrel = va - vb;
             
             float vrelMagnitude = dot(normal, vrel);
-            printf("vrel: %f\n", vrelMagnitude);
+//            printf("vrel: %f\n", vrelMagnitude);
         
             if (vrelMagnitude > 0.8) return;
         

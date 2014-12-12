@@ -132,21 +132,24 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
         
         if (childrenOne->size() > 0 && childrenTwo->size() > 0)
         {
-            for (int i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
+            for (int i = 0; i < childrenOne->size() /*&& intersectionPoints.size() == 0*/; ++i) {
                 for (int j = 0; j < childrenTwo->size() && intersectionPoints.size() == 0; ++j) {
-                    intersectionPoints = intersectOctrees(&childrenOne->at(i), modelOne, &childrenTwo->at(j), modelTwo);
+                    std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, &childrenTwo->at(j), modelTwo);
+                    intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
                 }
             }
         } else if (childrenOne->size() > 0) {
             
-            for (int i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
-                intersectionPoints = intersectOctrees(&childrenOne->at(i), modelOne, two, modelTwo);
+            for (int i = 0; i < childrenOne->size() /*&& intersectionPoints.size() == 0*/; ++i) {
+                std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, two, modelTwo);
+                intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
             }
             
         } else if (childrenTwo->size() > 0) {
         
-            for (int i = 0; i < childrenTwo->size() && intersectionPoints.size() == 0; ++i) {
-                intersectionPoints = intersectOctrees(one, modelOne, &childrenTwo->at(i), modelTwo);
+            for (int i = 0; i < childrenTwo->size() /*&& intersectionPoints.size() == 0*/; ++i) {
+                std::vector<Contact> newPoints = intersectOctrees(one, modelOne, &childrenTwo->at(i), modelTwo);
+                intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
             }
             
         } else {
@@ -454,11 +457,12 @@ void RigidBody::renderOctree()
         }
         
     } else {
-        
+        mat4 myModel = model();
+        quat myOrientation = getOrientation();
         for (int i = 0; i < octreeMeshes->size(); ++i) {
             glm::vec3 tmp = octreeMeshes->at(i).getPosition();
-            octreeMeshes->at(i).setPosition(tmp + m_position);
-            octreeMeshes->at(i).setOrientation(getOrientation());
+            octreeMeshes->at(i).setOrientation(myOrientation);
+            octreeMeshes->at(i).setPosition(vec3(myModel * vec4(tmp.x, tmp.y, tmp.z, 1.f)));
             octreeMeshes->at(i).render();
             octreeMeshes->at(i).setPosition(tmp);
         }

@@ -52,8 +52,11 @@ void Simulation::forwardStep(float dt) {
         for (int j = i+1; j < newState.size(); ++j) {
             
             std::vector<Contact> contacts = newState[i].intersectWith(newState[j]);
-            
-            Collision::collisionResponseBetween(newState[j], newState[i], contacts);
+            if (contacts.size() > 0)
+            {
+                printf("collisionPoints: %lu\n", contacts.size());
+                Collision::collisionResponseBetween(newState[j], newState[i], contacts);
+            }
         }
     }
     
