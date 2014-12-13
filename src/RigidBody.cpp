@@ -133,7 +133,7 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
         if (childrenOne->size() > 0 && childrenTwo->size() > 0)
         {
             for (int i = 0; i < childrenOne->size() /*&& intersectionPoints.size() == 0*/; ++i) {
-                for (int j = 0; j < childrenTwo->size() && intersectionPoints.size() == 0; ++j) {
+                for (int j = 0; j < childrenTwo->size() /*&& intersectionPoints.size() == 0*/; ++j) {
                     std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, &childrenTwo->at(j), modelTwo);
                     intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
                 }
@@ -153,43 +153,33 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
             }
             
         } else {
-            std::vector<glm::vec3> trianglesOne =  one->getIncludedTriangles();
-            std::vector<glm::vec3> trianglesTwo =  two->getIncludedTriangles();
+            std::vector<Triangle> trianglesOne =  one->getIncludedTriangles();
+            std::vector<Triangle> trianglesTwo =  two->getIncludedTriangles();
             
-            Triangle triangle1;
-            Triangle triangle2;
+            std::vector<Triangle> trianglesOneWorld = std::vector<Triangle>();
+            std::vector<Triangle> trianglesTwoWorld = std::vector<Triangle>();
             
-            for (int i = 0; i < trianglesOne.size(); i += 3) {
-                for (int j = 0; j < trianglesTwo.size(); j += 3) {
-                    
-                    triangle1.vertex1 = trianglesOne[i];
-                    triangle1.vertex1 = vec3(modelOne * vec4(triangle1.vertex1.x, triangle1.vertex1.y, triangle1.vertex1.z, 1.f));
-                    triangle1.vertex2 = trianglesOne[i+1];
-                    triangle1.vertex2 = vec3(modelOne * vec4(triangle1.vertex2.x, triangle1.vertex2.y, triangle1.vertex2.z, 1.f));
-                    triangle1.vertex3 = trianglesOne[i+2];
-                    triangle1.vertex3 = vec3(modelOne * vec4(triangle1.vertex3.x, triangle1.vertex3.y, triangle1.vertex3.z, 1.f));
-                    
-                    triangle1.normal = vec3(0,1,0); // dummy
-                    
-                    triangle2.vertex1 = trianglesTwo[j];
-                    triangle2.vertex1 = vec3(modelTwo * vec4(triangle2.vertex1.x, triangle2.vertex1.y, triangle2.vertex1.z, 1.f));
-                    triangle2.vertex2 = trianglesTwo[j+1];
-                    triangle2.vertex2 = vec3(modelTwo * vec4(triangle2.vertex2.x, triangle2.vertex2.y, triangle2.vertex2.z, 1.f));
-                    triangle2.vertex3 = trianglesTwo[j+2];
-                    triangle2.vertex3 = vec3(modelTwo * vec4(triangle2.vertex3.x, triangle2.vertex3.y, triangle2.vertex3.z, 1.f));
-                    
-                    triangle2.normal = vec3(1,0,0); //dummy
-                    
+            for (int i = 0; i < trianglesOne.size(); ++i) {
+                trianglesOneWorld.push_back(trianglesOne[i].transformWith(modelOne));
+            }
+            
+            for (int i = 0; i < trianglesTwo.size(); ++i) {
+                trianglesTwoWorld.push_back(trianglesTwo[i].transformWith(modelTwo));
+            }
+            
+            for (int i = 0; i < trianglesOneWorld.size(); ++i) {
+                for (int j = 0; j < trianglesTwoWorld.size(); ++j) {
+
                     glm::vec3 intersectionPoint;
                     glm::vec3 intersectionNormal;
                     
-                    if (IntersectionTest::intersectionTriangleTriangle(triangle1, triangle2, intersectionPoint, intersectionNormal))
+                    if (IntersectionTest::intersectionTriangleTriangle(trianglesOneWorld[i], trianglesTwoWorld[j], intersectionPoint, intersectionNormal))
                     {
                         Contact contact;
                         contact.p = intersectionPoint;
                         contact.n = intersectionNormal;
                         
-                        if (intersectionNormal == triangle2.normal)
+                        if (intersectionNormal == trianglesTwoWorld[j].normal)
                         {
                             contact.n *= -1.f;
                         }
@@ -421,7 +411,7 @@ void RigidBody::renderOctree()
                 glm::vec3 vertex2 = vec3(box->getVertices()[(i+3)%size], box->getVertices()[(i+4)%size], box->getVertices()[(i+5)%size]);
                 
                 Body point = Body((vertex1 + vertex2) * 0.5f);
-                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.01f));
+                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.005f));
                 point.setMesh(Assets::getCube());
                 point.setMaterial(pointMaterial);
                 
@@ -437,7 +427,7 @@ void RigidBody::renderOctree()
                 glm::vec3 vertex2 = vec3(box->getVertices()[(3*tmp[i/3])%size], box->getVertices()[(3*tmp[i/3]+1)%size], box->getVertices()[(3*tmp[i/3]+2)%size]);
                 
                 Body point = Body((vertex1 + vertex2) * 0.5f);
-                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.01f));
+                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.005f));
                 point.setMesh(Assets::getCube());
                 point.setMaterial(pointMaterial);
                 

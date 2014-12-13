@@ -495,15 +495,21 @@ void input(float dt) {
     if (glfwGetKeyOnce(window, GLFW_KEY_X)) {
         slowMotion = !slowMotion;
         if (slowMotion) {
-            printf("Slow motion turned on.\n");
+            printf("Info: Slow motion turned on.\n");
         } else {
-            printf("Slow motion turned off.\n");
+            printf("Info: Slow motion turned off.\n");
         }
     }
     
     if (glfwGetKeyOnce(window, GLFW_KEY_P))
     {
         pause = !pause;
+        if (pause)
+        {
+            printf("Info: Simulation paused.\n");
+        } else {
+            printf("Info: Simulation continues.\n");
+        }
     }
     
     if (pause) {

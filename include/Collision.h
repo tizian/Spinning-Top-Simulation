@@ -169,26 +169,23 @@ namespace Collision {
         for (int i = 0; i < numberContacts; ++i) {
             theCollisionPoint += contacts[i].p;
             theCollisionNormal += contacts[i].n;
-            printf("a normal: %f %f %f\n", contacts[i].n.x, contacts[i].n.y, contacts[i].n.z);
+//            printf("a normal: %f %f %f\n", contacts[i].n.x, contacts[i].n.y, contacts[i].n.z);
         }
+        
         theCollisionPoint *= 1.f/(float)numberContacts;
         if (length(theCollisionNormal) != 0)
         {
             theCollisionNormal = normalize(theCollisionNormal);
         } else {
             theCollisionNormal = contacts[0].n;
-            printf("No real normal\n");
+            printf("unable to get average normal\n");
         }
-//        theCollisionNormal = vec3(0,1,0);
-        printf("theCollisionPont: %f %f %f\n", theCollisionPoint.x, theCollisionPoint.y, theCollisionPoint.z);
-        printf("theCollisionNormal: %f %f %f\n", theCollisionNormal.x, theCollisionNormal.y, theCollisionNormal.z);
+//        theCollisionNormal = vec3(0,1,0); // this is how it should be (for the start case) our solution gives: 0.16, 0.98, -0.05 which is too imprecise :-(
+//        printf("theCollisionPont: %f %f %f\n", theCollisionPoint.x, theCollisionPoint.y, theCollisionPoint.z);
+//        printf("theCollisionNormal: %f %f %f\n", theCollisionNormal.x, theCollisionNormal.y, theCollisionNormal.z);
         
         vec3 org_linearMomentumA = a.getLinearMomentum();
         vec3 org_linearMomentumB = b.getLinearMomentum();
-        
-//        printf("linearMomentumA: %f %f %f\n", org_linearMomentumA.x, org_linearMomentumA.y, org_linearMomentumA.z);
-//        printf("linearMomentumB: %f %f %f\n", org_linearMomentumB.x, org_linearMomentumB.y, org_linearMomentumB.z);
-        
         
 //        for (int i = 0; i < numberContacts; i++) {
 //            vec3 point = contacts[i].p;
@@ -207,7 +204,11 @@ namespace Collision {
             float vrelMagnitude = dot(normal, vrel);
 //            printf("vrel: %f\n", vrelMagnitude);
         
-            if (vrelMagnitude > 0.8) return;
+            if (vrelMagnitude > 0.8)
+            {
+//                printf("no impuls added\n");
+                return;
+            }
         
             // Colliding contact
             
@@ -221,7 +222,7 @@ namespace Collision {
 //            j = j / (float)numberContacts;
             j = max(0.0f, j);
         
-            vec3 collisionImpulse = j * normal;
+            vec3 collisionImpulse = 2*j * normal;
             
 //            printf("impulse: %f %f %f\n", collisionImpulse.x, collisionImpulse.y, collisionImpulse.z);
 //            printf("normal: %f %f %f\n", normal.x, normal.y, normal.z);
