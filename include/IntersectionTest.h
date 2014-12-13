@@ -4,6 +4,8 @@
 
 #include <algorithm>
 
+#include "Triangle.h"
+
 namespace IntersectionTest {
 
     // http://en.wikipedia.org/wiki/Möller–Trumbore_intersection_algorithm
@@ -341,79 +343,76 @@ namespace IntersectionTest {
     }
   
     // output: collision point
-    static bool intersectionTriangleTriangle(glm::vec3 point11, glm::vec3 point12, glm::vec3 point13, glm::vec3 point21, glm::vec3 point22, glm::vec3 point23, glm::vec3 & outputPoint, glm::vec3 & ouputNormal)
+    static bool intersectionTriangleTriangle(Triangle one, Triangle two, glm::vec3 & outputPoint, glm::vec3 & ouputNormal)
     {
         // line triangle intersection
         float t;
         
-        glm::vec3 normal1 = glm::normalize(glm::cross(point12 - point11, point13 - point11));
-        glm::vec3 normal2 = glm::normalize(glm::cross(point22 - point21, point23 - point21));
-        
         // line from 1 intersects 2
-        glm::vec3 direction = point12 - point11;
-        if (IntersectionTest::intersectionRayTriangle(point21, point22, point23, point11, direction, t))
+        glm::vec3 direction = one.vertex2 - one.vertex1;
+        if (IntersectionTest::intersectionRayTriangle(two.vertex1, two.vertex2, two.vertex3, one.vertex1, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
             {
-                outputPoint = point11 + t * direction;
-                ouputNormal = normal2;
+                outputPoint = one.vertex1 + t * direction;
+                ouputNormal = two.normal;
                 return true;
             }
         }
         
-        direction = point13 - point11;
-        if (IntersectionTest::intersectionRayTriangle(point21, point22, point23, point11, direction, t))
+        direction = one.vertex3 - one.vertex1;
+        if (IntersectionTest::intersectionRayTriangle(two.vertex1, two.vertex2, two.vertex3, one.vertex1, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
             {
-                outputPoint = point11 + t * direction;
-                ouputNormal = normal2;
+                outputPoint = one.vertex1 + t * direction;
+                ouputNormal = two.normal;
                 return true;
             }
         }
         
-        direction = point13 - point12;
-        if (IntersectionTest::intersectionRayTriangle(point21, point22, point23, point12, direction, t))
+        direction = one.vertex3 - one.vertex2;
+        if (IntersectionTest::intersectionRayTriangle(two.vertex1, two.vertex2, two.vertex3, one.vertex2, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
             {
-                outputPoint = point12 + t * direction;
-                ouputNormal = normal2;
+                outputPoint = one.vertex2 + t * direction;
+                ouputNormal = two.normal;
                 return true;
             }
         }
         
         // line from 2 intersects 1
         
-        direction = point22 - point21;
-        if (IntersectionTest::intersectionRayTriangle(point11, point12, point13, point21, direction, t))
+        direction = two.vertex2 - two.vertex1;
+        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex1, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
             {
-                outputPoint = point21 + t * direction;
-                ouputNormal = normal1;
+                outputPoint = two.vertex1 + t * direction;
+                ouputNormal = one.normal;
                 return true;
             }
         }
         
-        direction = point23 - point21;
-        if (IntersectionTest::intersectionRayTriangle(point11, point12, point13, point21, direction, t))
+        direction = two.vertex3 - two.vertex1;
+        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex1, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
             {
-                outputPoint = point21 + t * direction;
-                ouputNormal = normal1;
+                outputPoint = two.vertex1 + t * direction;
+                ouputNormal = one.normal;
                 return true;
             }
         }
         
-        direction = point23 - point22;
-        if (IntersectionTest::intersectionRayTriangle(point11, point12, point13, point22, direction, t))
+        direction = two.vertex3 - two.vertex2;
+        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex2, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
             {
-                outputPoint = point22 + t * direction;
-                ouputNormal = normal1;
+                outputPoint = two.vertex2 + t * direction;
+                ouputNormal = one.normal;
                 return true;
             }
         }

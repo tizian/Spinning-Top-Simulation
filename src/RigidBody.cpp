@@ -156,47 +156,43 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
             std::vector<glm::vec3> trianglesOne =  one->getIncludedTriangles();
             std::vector<glm::vec3> trianglesTwo =  two->getIncludedTriangles();
             
-            glm::vec3 point11;
-            glm::vec3 point12;
-            glm::vec3 point13;
-            
-            glm::vec3 point21;
-            glm::vec3 point22;
-            glm::vec3 point23;
+            Triangle triangle1;
+            Triangle triangle2;
             
             for (int i = 0; i < trianglesOne.size(); i += 3) {
                 for (int j = 0; j < trianglesTwo.size(); j += 3) {
                     
-                    point11 = trianglesOne[i];
-                    point11 = vec3(modelOne * vec4(point11.x, point11.y, point11.z, 1.f));
-                    point12 = trianglesOne[i+1];
-                    point12 = vec3(modelOne * vec4(point12.x, point12.y, point12.z, 1.f));
-                    point13 = trianglesOne[i+2];
-                    point13 = vec3(modelOne * vec4(point13.x, point13.y, point13.z, 1.f));
+                    triangle1.vertex1 = trianglesOne[i];
+                    triangle1.vertex1 = vec3(modelOne * vec4(triangle1.vertex1.x, triangle1.vertex1.y, triangle1.vertex1.z, 1.f));
+                    triangle1.vertex2 = trianglesOne[i+1];
+                    triangle1.vertex2 = vec3(modelOne * vec4(triangle1.vertex2.x, triangle1.vertex2.y, triangle1.vertex2.z, 1.f));
+                    triangle1.vertex3 = trianglesOne[i+2];
+                    triangle1.vertex3 = vec3(modelOne * vec4(triangle1.vertex3.x, triangle1.vertex3.y, triangle1.vertex3.z, 1.f));
                     
+                    triangle1.normal = vec3(0,1,0); // dummy
                     
-                    point21 = trianglesTwo[j];
-                    point21 = vec3(modelTwo * vec4(point21.x, point21.y, point21.z, 1.f));
-                    point22 = trianglesTwo[j+1];
-                    point22 = vec3(modelTwo * vec4(point22.x, point22.y, point22.z, 1.f));
-                    point23 = trianglesTwo[j+2];
-                    point23 = vec3(modelTwo * vec4(point23.x, point23.y, point23.z, 1.f));
+                    triangle2.vertex1 = trianglesTwo[j];
+                    triangle2.vertex1 = vec3(modelTwo * vec4(triangle2.vertex1.x, triangle2.vertex1.y, triangle2.vertex1.z, 1.f));
+                    triangle2.vertex2 = trianglesTwo[j+1];
+                    triangle2.vertex2 = vec3(modelTwo * vec4(triangle2.vertex2.x, triangle2.vertex2.y, triangle2.vertex2.z, 1.f));
+                    triangle2.vertex3 = trianglesTwo[j+2];
+                    triangle2.vertex3 = vec3(modelTwo * vec4(triangle2.vertex3.x, triangle2.vertex3.y, triangle2.vertex3.z, 1.f));
+                    
+                    triangle2.normal = vec3(1,0,0); //dummy
                     
                     glm::vec3 intersectionPoint;
                     glm::vec3 intersectionNormal;
                     
-                    if (IntersectionTest::intersectionTriangleTriangle(point11, point12, point13, point21, point22, point23, intersectionPoint, intersectionNormal))
+                    if (IntersectionTest::intersectionTriangleTriangle(triangle1, triangle2, intersectionPoint, intersectionNormal))
                     {
                         Contact contact;
                         contact.p = intersectionPoint;
-                        contact.n = -1.f * intersectionNormal;
+                        contact.n = intersectionNormal;
                         
-                        /*glm::vec3 tmp1 = intersectionNormal * (1.f/length(intersectionNormal));
-                        glm::vec3 tmp2 = vec3(modelTwo * vec4(0,0,0,1)) - vec3(modelOne * vec4(0,0,0,1));
-                        tmp2 *= -1.f/length(tmp2);
-                        
-                        printf("cross length: %f\n", length(cross(tmp1, tmp2)));
-                        printf("dot: %f\n", dot(tmp1, tmp2));*/
+                        if (intersectionNormal == triangle2.normal)
+                        {
+                            contact.n *= -1.f;
+                        }
                         
                         intersectionPoints.push_back(contact);
                     }

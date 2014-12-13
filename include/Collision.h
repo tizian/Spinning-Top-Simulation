@@ -160,7 +160,28 @@ namespace Collision {
     }
     
     static void collisionResponseBetween(RigidBody & a, RigidBody & b, std::vector<Contact> & contacts) {
-        if (contacts.size() == 0) return;
+        
+        int numberContacts = (int)contacts.size();
+        if (numberContacts == 0) return;
+        
+        vec3 theCollisionPoint = vec3(0,0,0);
+        vec3 theCollisionNormal = vec3(0,0,0);
+        for (int i = 0; i < numberContacts; ++i) {
+            theCollisionPoint += contacts[i].p;
+            theCollisionNormal += contacts[i].n;
+            printf("a normal: %f %f %f\n", contacts[i].n.x, contacts[i].n.y, contacts[i].n.z);
+        }
+        theCollisionPoint *= 1.f/(float)numberContacts;
+        if (length(theCollisionNormal) != 0)
+        {
+            theCollisionNormal = normalize(theCollisionNormal);
+        } else {
+            theCollisionNormal = contacts[0].n;
+            printf("No real normal\n");
+        }
+//        theCollisionNormal = vec3(0,1,0);
+        printf("theCollisionPont: %f %f %f\n", theCollisionPoint.x, theCollisionPoint.y, theCollisionPoint.z);
+        printf("theCollisionNormal: %f %f %f\n", theCollisionNormal.x, theCollisionNormal.y, theCollisionNormal.z);
         
         vec3 org_linearMomentumA = a.getLinearMomentum();
         vec3 org_linearMomentumB = b.getLinearMomentum();
@@ -168,11 +189,13 @@ namespace Collision {
 //        printf("linearMomentumA: %f %f %f\n", org_linearMomentumA.x, org_linearMomentumA.y, org_linearMomentumA.z);
 //        printf("linearMomentumB: %f %f %f\n", org_linearMomentumB.x, org_linearMomentumB.y, org_linearMomentumB.z);
         
-        int numberContacts = contacts.size();
-        for (int i = 0; i < numberContacts; i++) {
-            vec3 point = contacts[i].p;
-            vec3 normal = contacts[i].n;
-            
+        
+//        for (int i = 0; i < numberContacts; i++) {
+//            vec3 point = contacts[i].p;
+//            vec3 normal = contacts[i].n;
+        vec3 point = theCollisionPoint;
+        vec3 normal = theCollisionNormal;
+        
             vec3 ra = point - a.getPosition();
             vec3 rb = point - b.getPosition();
             
@@ -205,6 +228,6 @@ namespace Collision {
             
             a.addImpulse(collisionImpulse, point);
             b.addImpulse(-collisionImpulse, point);
-        }
+//        }
     }
 }
