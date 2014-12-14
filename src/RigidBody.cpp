@@ -181,7 +181,10 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
                         
                         if (intersectionNormal == trianglesTwoWorld[j].normal)
                         {
+//                            printf("changed normal: %f %f %f\n", contact.n.x, contact.n.y, contact.n.z);
                             contact.n *= -1.f;
+                        } else {
+//                            printf("non changed normal: %f %f %f\n", contact.n.x, contact.n.y, contact.n.z);
                         }
                         
                         intersectionPoints.push_back(contact);
@@ -328,7 +331,12 @@ std::vector<Contact> RigidBody::intersectWithGround()
 
 void RigidBody::update(float dt) {
     
-    if (!m_active) return;      // Hacked "resting contacts"
+    if (!m_active)
+    {
+//        return;      // Hacked "resting contacts"
+        m_angularMomentum *= 0.7f; // new attempt for resting contacts
+        m_linearMomentum *= 0.7f;
+    }
     
     // Gravity
     addForce(vec3(0, -9.81 * m_mass, 0));  // hardcoded hack
@@ -411,7 +419,7 @@ void RigidBody::renderOctree()
                 glm::vec3 vertex2 = vec3(box->getVertices()[(i+3)%size], box->getVertices()[(i+4)%size], box->getVertices()[(i+5)%size]);
                 
                 Body point = Body((vertex1 + vertex2) * 0.5f);
-                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.005f));
+                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.007f));
                 point.setMesh(Assets::getCube());
                 point.setMaterial(pointMaterial);
                 
@@ -427,7 +435,7 @@ void RigidBody::renderOctree()
                 glm::vec3 vertex2 = vec3(box->getVertices()[(3*tmp[i/3])%size], box->getVertices()[(3*tmp[i/3]+1)%size], box->getVertices()[(3*tmp[i/3]+2)%size]);
                 
                 Body point = Body((vertex1 + vertex2) * 0.5f);
-                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.005f));
+                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.007f));
                 point.setMesh(Assets::getCube());
                 point.setMaterial(pointMaterial);
                 

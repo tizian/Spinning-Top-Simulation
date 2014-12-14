@@ -377,30 +377,48 @@ void input(float dt) {
     }
     
     if (!pause) {
-        
+        int type = -1;
         if (glfwGetKeyOnce(window, GLFW_KEY_1)) {
-            simulation.addRigidBody(1);
+            type = 1;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_2)) {
-            simulation.addRigidBody(2);
+            type = 2;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_3)) {
-            simulation.addRigidBody(3);
+            type = 3;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_4)) {
-            simulation.addRigidBody(4);
+            type = 4;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_5)) {
-            simulation.addRigidBody(5);
+            type = 5;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_6)) {
-            simulation.addRigidBody(6);
+            type = 6;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_9)) {
-            simulation.addRigidBody(9);
+            type = 9;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_0)) {
-            simulation.addRigidBody(0);
+            type = 0;
+        }
+        
+        bool upsidedown = false;
+        bool rotating = false;
+        
+        if (glfwGetKey(window, GLFW_KEY_E))
+        {
+            rotating = true;
+        }
+        
+        if (glfwGetKey(window, GLFW_KEY_G))
+        {
+            upsidedown = true;
+        }
+        
+        if (type != -1)
+        {
+            simulation.addRigidBody(type, rotating, upsidedown);
         }
         
         if (glfwGetKeyOnce(window, GLFW_KEY_BACKSPACE)) {

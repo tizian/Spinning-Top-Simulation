@@ -348,8 +348,43 @@ namespace IntersectionTest {
         // line triangle intersection
         float t;
         
+        // line from 2 intersects 1
+        
+        glm::vec3 direction = two.vertex2 - two.vertex1;
+        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex1, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                outputPoint = two.vertex1 + t * direction;
+                ouputNormal = one.normal;
+                return true;
+            }
+        }
+        
+        direction = two.vertex3 - two.vertex1;
+        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex1, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                outputPoint = two.vertex1 + t * direction;
+                ouputNormal = one.normal;
+                return true;
+            }
+        }
+        
+        direction = two.vertex3 - two.vertex2;
+        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex2, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                outputPoint = two.vertex2 + t * direction;
+                ouputNormal = one.normal;
+                return true;
+            }
+        }
+        
         // line from 1 intersects 2
-        glm::vec3 direction = one.vertex2 - one.vertex1;
+        direction = one.vertex2 - one.vertex1;
         if (IntersectionTest::intersectionRayTriangle(two.vertex1, two.vertex2, two.vertex3, one.vertex1, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
@@ -382,40 +417,6 @@ namespace IntersectionTest {
             }
         }
         
-        // line from 2 intersects 1
-        
-        direction = two.vertex2 - two.vertex1;
-        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex1, direction, t))
-        {
-            if (t >= 0.f && t <= 1.f)
-            {
-                outputPoint = two.vertex1 + t * direction;
-                ouputNormal = one.normal;
-                return true;
-            }
-        }
-        
-        direction = two.vertex3 - two.vertex1;
-        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex1, direction, t))
-        {
-            if (t >= 0.f && t <= 1.f)
-            {
-                outputPoint = two.vertex1 + t * direction;
-                ouputNormal = one.normal;
-                return true;
-            }
-        }
-        
-        direction = two.vertex3 - two.vertex2;
-        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex2, direction, t))
-        {
-            if (t >= 0.f && t <= 1.f)
-            {
-                outputPoint = two.vertex2 + t * direction;
-                ouputNormal = one.normal;
-                return true;
-            }
-        }
         
         // triangle included in the other one
         // this does not happen (hopefully)

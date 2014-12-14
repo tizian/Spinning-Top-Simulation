@@ -168,6 +168,7 @@ namespace Collision {
         vec3 theCollisionNormal = vec3(0,0,0);
         for (int i = 0; i < numberContacts; ++i) {
             theCollisionPoint += contacts[i].p;
+//            printf("a point: %f %f %f\n", contacts[i].p.x, contacts[i].p.y, contacts[i].p.z);
             theCollisionNormal += contacts[i].n;
 //            printf("a normal: %f %f %f\n", contacts[i].n.x, contacts[i].n.y, contacts[i].n.z);
         }
@@ -222,7 +223,7 @@ namespace Collision {
 //            j = j / (float)numberContacts;
             j = max(0.0f, j);
         
-            vec3 collisionImpulse = 2*j * normal;
+            vec3 collisionImpulse = j * normal;
             
 //            printf("impulse: %f %f %f\n", collisionImpulse.x, collisionImpulse.y, collisionImpulse.z);
 //            printf("normal: %f %f %f\n", normal.x, normal.y, normal.z);
