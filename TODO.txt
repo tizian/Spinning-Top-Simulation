@@ -8,7 +8,6 @@ Functionality
 - high CPU usage when simulation is paused ('P') -> fix
 - Nutation!
 - tweak Ground friction / rotational friction
-- Arbitrary collisions
 - NxN collision checks between objects with triangle-triangle intersection tests -> this should return collision point / line / area somehow
 - Maybe: Resting contacts if too much time.
 - Change mass and see if the spinnning top spins differently (less mass -> better spin) (SpinIt)
@@ -60,6 +59,8 @@ Yes, it spins differently, but it is unclear if correctly.
 - Maybe: Octree if performance not good enough.
     Done, but needs to be improved
 - visualize an arbitrary point in world coordinates
+- Arbitrary collisions
+    Still too slow
 
 Links
 =====
