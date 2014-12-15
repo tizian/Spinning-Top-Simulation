@@ -2,7 +2,7 @@
 
 #include<queue>
 
-int maxNumberOfTriangles = 5;
+int maxNumberOfTriangles = 4;
 int maxDepth = 30;
 float minRadii = 0.000001;
 

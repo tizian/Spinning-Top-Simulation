@@ -8,6 +8,48 @@
 
 namespace IntersectionTest {
 
+    // the point should be in world space
+    static bool intersectionPointBox(glm::vec3 pointWorld, glm::vec3 boxOrigin, glm::vec3 boxRadii, glm::mat4 inverseboxModel)
+    {
+        glm::vec3 pointObject = glm::vec3(inverseboxModel * glm::vec4(pointWorld.x, pointWorld.y, pointWorld.z, 1.f)) ;
+        
+        // below the box
+        if (pointObject.x < boxOrigin.x)
+        {
+            return false;
+        }
+        
+        if (pointObject.y < boxOrigin.y)
+        {
+            return false;
+        }
+        
+        if (pointObject.z < boxOrigin.z)
+        {
+            return false;
+        }
+        
+        // above the box
+        if (pointObject.x > boxOrigin.x)
+        {
+            return false;
+        }
+        
+        if (pointObject.y > boxOrigin.y)
+        {
+            return false;
+        }
+        
+        if (pointObject.z > boxOrigin.z)
+        {
+            return false;
+        }
+        
+        // inside
+        
+        return true;
+    }
+    
     // http://en.wikipedia.org/wiki/Möller–Trumbore_intersection_algorithm
     static bool intersectionRayTriangle(const glm::vec3 point1, const glm::vec3 point2, const glm::vec3 point3, const glm::vec3 rayOrigin, const glm::vec3 rayDirection, float & output)
     {
@@ -261,10 +303,8 @@ namespace IntersectionTest {
     
     // Intersection of two OOBBs
     // idea: triangulate one box and transform it into the world of the other one, so we have a AABB - traingle intersection
-    static bool intersectionBoxBox(glm::vec3 box1Origin, glm::vec3 box1Radii, glm::mat4 box1ModelMat, glm::vec3 box2Origin, glm::vec3 box2Radii, glm::mat4 box2ModelMat)
+    static bool intersectionBoxBox(glm::vec3 box1Origin, glm::vec3 box1Radii, glm::vec3 box2Origin, glm::vec3 box2Radii, glm::mat4 invBox2MoldeMatTimesBox1ModelMat)
     {
-        glm::mat4 invBox2MoldeMatTimesBox1ModelMat = glm::inverse(box2ModelMat) * box1ModelMat;
-        
         glm::vec3 realBox1Origin = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z, 1.f));
         
         glm::vec3 realBox1CornerX = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z, 1.f));
@@ -341,7 +381,7 @@ namespace IntersectionTest {
         
         return false;
     }
-  
+    
     // output: collision point
     static bool intersectionTriangleTriangle(Triangle one, Triangle two, glm::vec3 & outputPoint, glm::vec3 & ouputNormal)
     {
