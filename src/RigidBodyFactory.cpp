@@ -145,8 +145,8 @@ void RigidBodyFactory::resetSpinningTop(RigidBody &rb, int type, bool rotating, 
     
     if (rotating)
     {
-        rb.addForce(glm::vec3(0,0,600), rb.getPosition() + glm::vec3(1,0,0));
-        rb.addForce(glm::vec3(0,0,-600), rb.getPosition() + glm::vec3(-1,0,0));
+        rb.addForce(glm::vec3(0,0,500), rb.getPosition() + glm::vec3(1,0,0));
+        rb.addForce(glm::vec3(0,0,-500), rb.getPosition() + glm::vec3(-1,0,0));
     }
     
     rb.setPosition(rb.getPosition() + glm::vec3(xOffset, 0.f, yOffset));
