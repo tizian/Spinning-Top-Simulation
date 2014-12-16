@@ -60,6 +60,9 @@ bool debug;
 // render the octrees of the spinning tops
 bool showOctree;
 
+// render spinning tops as wireframe
+bool wireframe;
+
 GLFWwindow *window;
 
 Camera camera;
@@ -311,9 +314,17 @@ void render(vector<RigidBody> * state) {
     light.setUniforms();
     camera.setUniforms();
     
+    if (wireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    
     for (int i = 0; i < state->size(); ++i)
     {
         state->at(i).render();
+    }
+    
+    if (wireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
     
     table.render();
@@ -376,6 +387,10 @@ void input(float dt) {
         simulation.toggleActiveRigidBody();
     }
     
+    if (glfwGetKeyOnce(window, GLFW_KEY_F)) {
+        wireframe = !wireframe;
+    }
+    
     if (!pause) {
         int type = -1;
         if (glfwGetKeyOnce(window, GLFW_KEY_1)) {
@@ -405,6 +420,7 @@ void input(float dt) {
         
         bool upsidedown = false;
         bool rotating = false;
+        bool createTwo = false;
         
         if (glfwGetKey(window, GLFW_KEY_E))
         {
@@ -416,9 +432,22 @@ void input(float dt) {
             upsidedown = true;
         }
         
+        if (glfwGetKey(window, GLFW_KEY_V)) {
+            createTwo = true;
+        }
+        
         if (type != -1)
         {
-            simulation.addRigidBody(type, rotating, upsidedown);
+            if (createTwo) {
+                simulation.addRigidBody(type, rotating, upsidedown, -2, 0);
+                simulation.addRigidBody(type, rotating, upsidedown, +2, 0);
+//                simulation.addRigidBody(type, rotating, upsidedown, 0, -2);
+//                simulation.addRigidBody(type, rotating, upsidedown, 0, +2);
+            }
+            else {
+                simulation.addRigidBody(type, rotating, upsidedown, 0, 0);
+            }
+            
         }
         
         if (glfwGetKeyOnce(window, GLFW_KEY_BACKSPACE)) {

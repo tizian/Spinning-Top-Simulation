@@ -143,9 +143,9 @@ void Simulation::toggleActiveRigidBody() {
     }
 }
 
-void Simulation::addRigidBody(int type, bool rotating, bool upsidedown) {
+void Simulation::addRigidBody(int type, bool rotating, bool upsidedown, float xOffset, float yOffset) {
     RigidBody rb;
-    RigidBodyFactory::resetSpinningTop(rb, type, rotating, upsidedown);
+    RigidBodyFactory::resetSpinningTop(rb, type, rotating, upsidedown, xOffset, yOffset);
     
     vector<RigidBody> * state = &m_simulationStates.back();
     state->push_back(rb);

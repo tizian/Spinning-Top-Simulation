@@ -21,7 +21,7 @@ public:
     RigidBody * getActiveRigidBody();
     void removeActiveRigidBody();
     void toggleActiveRigidBody();
-    void addRigidBody(int type, bool rotating, bool upsidedown);
+    void addRigidBody(int type, bool rotating, bool upsidedown, float xOffset, float yOffset);
     void removeAllRigidBodies();
     
     std::vector<DebugPoint> getDebugPoints();

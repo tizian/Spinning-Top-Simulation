@@ -6,5 +6,5 @@
 
 namespace RigidBodyFactory {
     
-    extern void resetSpinningTop(RigidBody &rb, int type,  bool rotating, bool upsidedown);
+    extern void resetSpinningTop(RigidBody &rb, int type,  bool rotating, bool upsidedown, float xOffset, float yOffset);
 };

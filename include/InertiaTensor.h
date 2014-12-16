@@ -7,7 +7,7 @@ namespace InertiaTensor {
     const int NUMBER_SAMPLES = 1000000;
     
     // using the raytracing approach
-    mat3 calculateInertiaTensor(Body * body)
+    mat3 calculateInertiaTensor(RigidBody * body)
     {
         srand(0);
         
@@ -20,8 +20,8 @@ namespace InertiaTensor {
         
         if (mesh != nullptr)
         {
-            vec3 origin = body->getBoundingBox().getOrigin();
-            vec3 radii = body->getBoundingBox().getRadii();
+            vec3 origin = body->getBoundingBox()->getOrigin();
+            vec3 radii = body->getBoundingBox()->getRadii();
             
             int numVertices = mesh->getNumVertices();
             GLfloat * vertices = mesh->getVertices();
@@ -53,7 +53,7 @@ namespace InertiaTensor {
                     
                     float t = 0;
                     
-                    if (IntersectionTest::intersectionRayTriangle(vertex1, vertex2, vertex3, rayOrigin, rayDirection, &t))
+                    if (IntersectionTest::intersectionRayTriangle(vertex1, vertex2, vertex3, rayOrigin, rayDirection, t))
                     {
                         ts.push_back(t);
                     }

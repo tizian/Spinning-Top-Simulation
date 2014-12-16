@@ -15,6 +15,7 @@
 #include <queue>
 
 #include "Assets.h"
+#include "InertiaTensor.h"
 
 using namespace glm;
 
