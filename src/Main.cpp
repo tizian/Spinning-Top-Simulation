@@ -183,7 +183,7 @@ int main()
     
     resetCamera();
 
-    light = PointLight(glm::vec3(0, 10, 0));
+    light = PointLight(glm::vec3(0, 100, 0));
     
     pause = false;
     
@@ -439,10 +439,11 @@ void input(float dt) {
         if (type != -1)
         {
             if (createTwo) {
-                simulation.addRigidBody(type, rotating, upsidedown, -2, 0);
-                simulation.addRigidBody(type, rotating, upsidedown, +2, 0);
-//                simulation.addRigidBody(type, rotating, upsidedown, 0, -2);
-//                simulation.addRigidBody(type, rotating, upsidedown, 0, +2);
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        simulation.addRigidBody(type, rotating, upsidedown, 3 * i, 3 * j);
+                    }
+                }
             }
             else {
                 simulation.addRigidBody(type, rotating, upsidedown, 0, 0);

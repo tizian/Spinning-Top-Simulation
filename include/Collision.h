@@ -114,7 +114,7 @@ namespace Collision {
             float coulombFrictionForce = 20;    // F_C; [N]
             float breakawayFrictionForce = 25;  // F_brk; [N];
             velocityThreshold = 0.0001;         // omega_th; should be between 10^-4 and 10^-6
-            viscousFrictionCoefficient = 10;    // f; [N/(m//s)]; default = 100;
+            viscousFrictionCoefficient = 20;    // f; [N/(m//s)]; default = 100;
             coefficient = 10;                   // c_v; [s/m]
             
             // x
