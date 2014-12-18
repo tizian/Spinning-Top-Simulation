@@ -63,6 +63,9 @@ bool showOctree;
 // render spinning tops as wireframe
 bool wireframe;
 
+// For reducing CPU usage when idle
+time_t lastMovement;
+
 GLFWwindow *window;
 
 Camera camera;
@@ -129,6 +132,7 @@ void interpolateStates(vector<RigidBody> * fromState, vector<RigidBody> * toStat
 int main()
 {
     time_t begin = time(0);
+    lastMovement = time(0);
     
 	setupContext();
     
@@ -190,8 +194,7 @@ int main()
     debug = false;
     
     double accumulator = 0.0;
-    //forwardStep(timeStep);
-    
+
 	while (!glfwWindowShouldClose(window)) {
         
 		// Timer
@@ -260,13 +263,15 @@ int main()
                     deltaTime -= actualDeltaTime;
                 }
             }
+            
+            lastMovement = time(0);
         }
         
         if (slowMotion) {
             deltaTime = deltaTime * 8;
         }
         
-        input(deltaTime);
+        input(std::min(deltaTime, 0.02f));
         
         double tAfterUpdate = glfwGetTime();
         
@@ -280,6 +285,11 @@ int main()
         double renderTime = tAfterRender - tBeforeRender;
         
 //        printf("time\tupdate: %f\trender: %f\n", updateTime, renderTime);
+        
+        if ((int)difftime(time(0), lastMovement) > 3) {
+            glfwWaitEvents();
+            lastMovement = time(0);
+        }
         
 		glfwSwapBuffers(window);
 		glfwPollEvents();

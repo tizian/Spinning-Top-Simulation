@@ -396,7 +396,7 @@ void RigidBody::update(float dt) {
         
         m_position.y -= distanceGround;
         
-        float vel = length(m_linearMomentum/m_mass + m_angularVelocity);
+        float vel = length(m_linearMomentum/m_mass) + length(m_angularVelocity);
         m_lastVelocities.push_back(vel);
         if (m_lastVelocities.size() > 10) {
             auto start = m_lastVelocities.end() - 10;
