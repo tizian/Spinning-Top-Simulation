@@ -2,9 +2,15 @@
 
 Course project for 'Physically-Based Simulation in Computer Graphics' at ETH Zürich.
 
+<img src="screenshot.png" align="center" height="400" >
+
+##YouTube
+
+[https://www.youtube.com/watch?v=vEoIFi5xuzk](https://www.youtube.com/watch?v=vEoIFi5xuzk]
+
 ##Used Libraries
 
-* GLFW: Window and OpenGL context creation.
+* GLFW: Window and OpenGL context creation
 * GLEW: Extension loading
 * GLM: Math library
 * ASSIMP: 3D model loading
@@ -12,21 +18,27 @@ Course project for 'Physically-Based Simulation in Computer Graphics' at ETH Zü
 
 ##Installation
 
-Compile and run.  
+Compile and run (change include and library directories accordingly):
+```
+$ g++ src/*.cpp -I /usr/local/include -I include -L /usr/local/lib -lglfw3 -lGLEW -lSOIL -lassimp -framework OpenGL -std=c++11 -o SpinningTops
+$ ./SpinningTops
+```
+
 We are working on a more convenient solution.
 
 ##Usage
 
 The program is controlled by keyboard input.
-The currently active spinnig top is render with a green tint.
+The currently active spinning top is rendered with a green tint.
 
 ### Camera movement
+
 <kbd>Space</kbd> Move the camera up.  
 <kbd>⇧</kbd> Move the camera down.  
-<kbd>W</kbd>, <kbd>A</kbd>, <kbd>S</kbd>, <kbd>D</kbd> Move the camera forward, to the left, backward and to the right.  
-<kbd>&#x2191;</kbd>, <kbd>&#x2190;</kbd>, <kbd>&#x2193;</kbd>, <kbd>&#x2192;</kbd> Rotate the camera pitch up, yaw left, pitch down and yaw right.
+<kbd>W</kbd>, <kbd>A</kbd>, <kbd>S</kbd>, <kbd>D</kbd> Move the camera: Forward, to the left, backward and to the right.  
+<kbd>&#x2191;</kbd>, <kbd>&#x2190;</kbd>, <kbd>&#x2193;</kbd>, <kbd>&#x2192;</kbd> Rotate the camera: Pitch up, yaw left, pitch down and yaw right.
 
-<kbd>C</kbd> Reset the camera position and orientation to its default.
+<kbd>C</kbd> Reset the camera position and orientation to the default setting.
 
 ### Spinning top control
 
@@ -52,7 +64,7 @@ The currently active spinnig top is render with a green tint.
 
 <kbd>F</kbd> Render the spinning tops as wireframes.  
 <kbd>O</kbd> Render the octrees of the spinning tops.  
-<kbd>.</kbd> Render the center of mass' of the spinning tops.
+<kbd>.</kbd> Render the center of mass of the spinning tops.
 
 ### Simulation control
 
