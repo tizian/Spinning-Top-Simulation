@@ -92,7 +92,7 @@ Texture * Assets::getLightWood() {
 }
 
 Texture * Assets::getDarkWood() {
-    static Texture darkWood = Texture("textures/darkWood.png");
+    static Texture darkWood = Texture("textures/wood4096.png");
     return &darkWood;
 }
 
@@ -108,7 +108,7 @@ Texture * Assets::getBrushedMetal() {
 
 // Skybox taken from: http://www.keithlantz.net/2011/10/rendering-a-skybox-using-a-cube-map-with-opengl-and-glsl/
 Texture * Assets::getSkyboxTexture() {
-    static std::string skbx = "skybox-sky";
+    static std::string skbx = "skybox-sea";
     static Texture skybox = Texture("textures/"+skbx+"/xpos.png", "textures/"+skbx+"/xneg.png", "textures/"+skbx+"/ypos.png", "textures/"+skbx+"/yneg.png", "textures/"+skbx+"/zpos.png", "textures/"+skbx+"/zneg.png");
     
     return &skybox;

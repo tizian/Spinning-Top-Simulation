@@ -3,16 +3,19 @@ Todo
 
 Functionality
 -------------
-- Nutation!
-- tweak Ground friction / rotational friction
-- Arbitrary collisions
-- NxN collision checks between objects with triangle-triangle intersection tests -> this should return collision point / line / area somehow
+- tweak parameter for octree (OOBB.cpp) measure time for octree - octree intersection
+- high CPU usage when simulation is paused ('P') -> fix
+- NGH Actual physically accurate precession, nutation!
 - Maybe: Resting contacts if too much time.
+
+Tweaking
+--------
+- put COM of sp4 higher so it hopefully tips over.
 - Change mass and see if the spinnning top spins differently (less mass -> better spin) (SpinIt)
 
 Cosmetic
 --------
-- nicer table textures
+- viualize contact points and forces (maybe only when paused) (press not 'V')
 - NGH Shadow mapping
 - NGH GUI with labels which buttons can be pressed and their impact
 - NGH Sound (collision, fritcion, fade out)
@@ -55,6 +58,13 @@ Yes, it spins differently, but it is unclear if correctly.
 - Maybe: Octree if performance not good enough.
     Done, but needs to be improved
 - visualize an arbitrary point in world coordinates
+- Arbitrary collisions
+    Still too slow
+- NxN collision checks between objects with triangle-triangle intersection tests -> this should return collision point / line / area somehow
+- nicer table textures
+- tweak Ground friction / rotational friction
+    Hard to make better. Not too bad right now.
+- wireframe modus (press 'F')
 
 Links
 =====

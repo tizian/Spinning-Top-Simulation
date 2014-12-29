@@ -1,5 +1,7 @@
 #include "Simulation.h"
 
+#include "Collision.h"
+
 using namespace std;
 
 const int MAX_SIMULATION_SAVE_STATES = 1000;
@@ -37,30 +39,25 @@ void Simulation::forwardStep(float dt) {
     m_debugPoints.clear();
     
     vector<RigidBody> newState = m_simulationStates.back();
-    
-    // collision detection and response
-    for (int i = 0; i < newState.size(); ++i) {
-        for (int j = i+1; j < newState.size(); ++j) {
-            std::vector<Contact> intersections = newState[i].intersectWith(newState[j]);
-            if (intersections.size() > 0)
-            {
-                printf("collision with: %lu points\n", intersections.size());
-                //newState[i].setDebugPoint(intersections[0]);
-                //newState[j].setDebugPoint(intersections[0]);
-                
-                glm::vec3 direction = (newState[i].getPosition() - newState[j].getPosition());
-                direction *= (1.f/glm::length(direction));
-                newState[i].addImpulse(1.f * direction); // hardcoded hack
-                newState[j].addImpulse(-1.5f * direction); // hardcoded hack
-            }
-        }
-    }
-    
+
     // update rigidbodies
     for (int i = 0; i < newState.size(); i++) {
         newState[i].update(dt);
 
         showDebugPoint(newState[i].getPosition());
+    }
+
+    // collision detection and response
+    for (int i = 0; i < newState.size(); ++i) {
+        for (int j = i+1; j < newState.size(); ++j) {
+            
+            std::vector<Contact> contacts = newState[i].intersectWith(newState[j]);
+            if (contacts.size() > 0)
+            {
+//                printf("collisionPoints: %lu\n", contacts.size());
+                Collision::collisionResponseBetween(newState[j], newState[i], contacts);
+            }
+        }
     }
     
     m_simulationStates.push_back(newState);
@@ -146,9 +143,9 @@ void Simulation::toggleActiveRigidBody() {
     }
 }
 
-void Simulation::addRigidBody(int type) {
+void Simulation::addRigidBody(int type, bool rotating, bool upsidedown, float xOffset, float yOffset) {
     RigidBody rb;
-    RigidBodyFactory::resetSpinningTop(rb, type);
+    RigidBodyFactory::resetSpinningTop(rb, type, rotating, upsidedown, xOffset, yOffset);
     
     vector<RigidBody> * state = &m_simulationStates.back();
     state->push_back(rb);

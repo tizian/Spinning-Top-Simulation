@@ -2,15 +2,16 @@
 
 #include<queue>
 
-int maxNumberOfTriangles = 20;
-int maxDepth = 10;
+int maxNumberOfTriangles = 4;
+int maxDepth = 30;
+float minRadii = 0.000001;
 
 OOBB::OOBB()
 {
     setDefaults();
 }
 
-OOBB::OOBB(std::vector<glm::vec3> includedTriangles, glm::vec3 origin, glm::vec3 radii)
+OOBB::OOBB(std::vector<Triangle> includedTriangles, glm::vec3 origin, glm::vec3 radii)
 {
     setDefaults();
     
@@ -25,22 +26,29 @@ OOBB::OOBB(std::vector<glm::vec3> includedTriangles, glm::vec3 origin, glm::vec3
 OOBB::OOBB(Mesh * mesh) {
     setDefaults();
     
-    std::vector<glm::vec3> includedTriangles = std::vector<glm::vec3>();
-    
-    for (int i = 0; i < mesh->getNumVertices(); i += 3)
-    {
-        glm::vec3 vertex = glm::vec3(mesh->getVertices()[i], mesh->getVertices()[i+1], mesh->getVertices()[i+2]);
-        includedTriangles.push_back(vertex);
-    }
+    std::vector<Triangle> includedTriangles = std::vector<Triangle>();
     
     bool equalVerticesInSameTriangle = false;
+    
     GLfloat * vertices = mesh->getVertices();
-    for (int i = 0; i < mesh->getNumVertices(); i += 9) {
-        glm::vec3 vertex1 = glm::vec3(vertices[i], vertices[i+1], vertices[i+2]);
-        glm::vec3 vertex2 = glm::vec3(vertices[i+3], vertices[i+4], vertices[i+5]);
-        glm::vec3 vertex3 = glm::vec3(vertices[i+6], vertices[i+7], vertices[i+8]);
+    GLfloat * normals = mesh->getNormals();
+    
+    for (int i = 0; i < mesh->getNumVertices(); i += 9)
+    {
+        Triangle triangle;
+        triangle.vertex1 = glm::vec3(vertices[i+0], vertices[i+1], vertices[i+2]);
+        triangle.vertex2 = glm::vec3(vertices[i+3], vertices[i+4], vertices[i+5]);
+        triangle.vertex3 = glm::vec3(vertices[i+6], vertices[i+7], vertices[i+8]);
         
-        if (vertex1 == vertex2 || vertex1 == vertex3 || vertex2 == vertex3)
+        glm::vec3 normal1 = glm::vec3(normals[i+0], normals[i+1], normals[i+2]);
+        glm::vec3 normal2 = glm::vec3(normals[i+3], normals[i+4], normals[i+5]);
+        glm::vec3 normal3 = glm::vec3(normals[i+6], normals[i+7], normals[i+8]);
+        
+        triangle.normal = glm::normalize(normal1 + normal2 + normal3);
+        
+        includedTriangles.push_back(triangle);
+        
+        if (triangle.vertex1 == triangle.vertex2 || triangle.vertex1 == triangle.vertex3 || triangle.vertex2 == triangle.vertex3)
         {
             equalVerticesInSameTriangle = true;
         }
@@ -53,7 +61,7 @@ OOBB::OOBB(Mesh * mesh) {
     {
         split(0);
         setDepths(0);
-        print(false);
+//        print(false);
     } else {
         printf("ERROR: Could not create Octree, because there are equal vertices in the same triangles.\n");
     }
@@ -81,7 +89,7 @@ int OOBB::getDepth()
     return m_depth;
 }
 
-std::vector<glm::vec3> OOBB::getIncludedTriangles() {
+std::vector<Triangle> OOBB::getIncludedTriangles() {
     return m_includedTriangles;
 }
 
@@ -91,7 +99,7 @@ std::vector<OOBB> * OOBB::getChildren()
 }
 
 void OOBB::split(int depth) {
-    if (m_children.size() == 0 && m_includedTriangles.size()/3 > maxNumberOfTriangles && depth < maxDepth) {
+    if (m_children.size() == 0 && m_includedTriangles.size()/3 > maxNumberOfTriangles && depth < maxDepth && m_radii.x > 2.f * minRadii && m_radii.y > 2.f * minRadii && m_radii.z > 2.f * minRadii) {
         glm::vec3 childRadii = m_radii * 0.5f;
         
         glm::vec3 child1Origin = m_origin;
@@ -113,16 +121,16 @@ void OOBB::split(int depth) {
         origins.push_back(child7Origin);
         origins.push_back(child8Origin);
         
-        std::vector<glm::vec3> child1Triangles = std::vector<glm::vec3>();
-        std::vector<glm::vec3> child2Triangles = std::vector<glm::vec3>();
-        std::vector<glm::vec3> child3Triangles = std::vector<glm::vec3>();
-        std::vector<glm::vec3> child4Triangles = std::vector<glm::vec3>();
-        std::vector<glm::vec3> child5Triangles = std::vector<glm::vec3>();
-        std::vector<glm::vec3> child6Triangles = std::vector<glm::vec3>();
-        std::vector<glm::vec3> child7Triangles = std::vector<glm::vec3>();
-        std::vector<glm::vec3> child8Triangles = std::vector<glm::vec3>();
+        std::vector<Triangle> child1Triangles = std::vector<Triangle>();
+        std::vector<Triangle> child2Triangles = std::vector<Triangle>();
+        std::vector<Triangle> child3Triangles = std::vector<Triangle>();
+        std::vector<Triangle> child4Triangles = std::vector<Triangle>();
+        std::vector<Triangle> child5Triangles = std::vector<Triangle>();
+        std::vector<Triangle> child6Triangles = std::vector<Triangle>();
+        std::vector<Triangle> child7Triangles = std::vector<Triangle>();
+        std::vector<Triangle> child8Triangles = std::vector<Triangle>();
         
-        std::vector<std::vector<glm::vec3> > triangles =std::vector<std::vector<glm::vec3> >();
+        std::vector<std::vector<Triangle> > triangles =std::vector<std::vector<Triangle> >();
         triangles.push_back(child1Triangles);
         triangles.push_back(child2Triangles);
         triangles.push_back(child3Triangles);
@@ -132,16 +140,14 @@ void OOBB::split(int depth) {
         triangles.push_back(child7Triangles);
         triangles.push_back(child8Triangles);
         
-        for (int i = 0; i < m_includedTriangles.size(); i += 3) {
-            glm::vec3 point1 = m_includedTriangles[i];
-            glm::vec3 point2 = m_includedTriangles[i+1];
-            glm::vec3 point3 = m_includedTriangles[i+2];
+        for (int i = 0; i < m_includedTriangles.size(); ++i) {
+            glm::vec3 point1 = m_includedTriangles[i].vertex1;
+            glm::vec3 point2 = m_includedTriangles[i].vertex2;
+            glm::vec3 point3 = m_includedTriangles[i].vertex3;
             
             for (int j = 0; j < origins.size(); ++j) {
                 if (IntersectionTest::intersectionTriangleBox(point1, point2, point3, origins[j], childRadii)) {
-                    triangles[j].push_back(point1);
-                    triangles[j].push_back(point2);
-                    triangles[j].push_back(point3);
+                    triangles[j].push_back(m_includedTriangles[i]);
                 }
             }
         }
@@ -229,7 +235,7 @@ void OOBB::setDefaults() {
 }
 
 void OOBB::calculateBoundingBox() {
-    std::vector<glm::vec3> includedTriangles = m_includedTriangles;
+    std::vector<Triangle> includedTriangles = m_includedTriangles;
     
     // calculate origin and radii
     m_origin = glm::vec3(0,0,0);
@@ -237,7 +243,17 @@ void OOBB::calculateBoundingBox() {
     
     for (int i = 0; i < includedTriangles.size(); i++)
     {
-        glm::vec3 vertex = includedTriangles[i];
+        glm::vec3 vertex = includedTriangles[i].vertex1;
+        
+        m_origin = glm::vec3(std::min(m_origin.x, vertex.x),std::min(m_origin.y, vertex.y),std::min(m_origin.z, vertex.z));
+        m_max = glm::vec3(std::max(m_max.x, vertex.x), std::max(m_max.y, vertex.y), std::max(m_max.z, vertex.z));
+        
+        vertex = includedTriangles[i].vertex2;
+        
+        m_origin = glm::vec3(std::min(m_origin.x, vertex.x),std::min(m_origin.y, vertex.y),std::min(m_origin.z, vertex.z));
+        m_max = glm::vec3(std::max(m_max.x, vertex.x), std::max(m_max.y, vertex.y), std::max(m_max.z, vertex.z));
+        
+        vertex = includedTriangles[i].vertex3;
         
         m_origin = glm::vec3(std::min(m_origin.x, vertex.x),std::min(m_origin.y, vertex.y),std::min(m_origin.z, vertex.z));
         m_max = glm::vec3(std::max(m_max.x, vertex.x), std::max(m_max.y, vertex.y), std::max(m_max.z, vertex.z));

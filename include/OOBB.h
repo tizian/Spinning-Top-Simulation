@@ -7,11 +7,12 @@
 
 #include "Mesh.h"
 #include "IntersectionTest.h"
+#include "Triangle.h"
 
 class OOBB {
 public:
     OOBB();
-    OOBB(std::vector<glm::vec3> includedTriangles, glm::vec3 origin, glm::vec3 radii);
+    OOBB(std::vector<Triangle> includedTriangles, glm::vec3 origin, glm::vec3 radii);
     OOBB(Mesh * mesh);
     
     glm::vec3 getOrigin();
@@ -22,7 +23,7 @@ public:
     
     int getDepth();
     
-    std::vector<glm::vec3> getIncludedTriangles();
+    std::vector<Triangle> getIncludedTriangles();
     std::vector<OOBB> * getChildren();
     
     void split(int depth);
@@ -46,7 +47,7 @@ private:
     
     GLfloat * m_vertices = nullptr;
     
-    std::vector<glm::vec3> m_includedTriangles; //Triangle: 1,2,3 and 4,5,6 and...
+    std::vector<Triangle> m_includedTriangles;
     
     std::vector<OOBB> m_children;
     

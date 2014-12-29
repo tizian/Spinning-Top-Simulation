@@ -4,8 +4,52 @@
 
 #include <algorithm>
 
+#include "Triangle.h"
+
 namespace IntersectionTest {
 
+    // the point should be in world space
+    static bool intersectionPointBox(glm::vec3 pointWorld, glm::vec3 boxOrigin, glm::vec3 boxRadii, glm::mat4 inverseboxModel)
+    {
+        glm::vec3 pointObject = glm::vec3(inverseboxModel * glm::vec4(pointWorld.x, pointWorld.y, pointWorld.z, 1.f)) ;
+        
+        // below the box
+        if (pointObject.x < boxOrigin.x)
+        {
+            return false;
+        }
+        
+        if (pointObject.y < boxOrigin.y)
+        {
+            return false;
+        }
+        
+        if (pointObject.z < boxOrigin.z)
+        {
+            return false;
+        }
+        
+        // above the box
+        if (pointObject.x > boxOrigin.x)
+        {
+            return false;
+        }
+        
+        if (pointObject.y > boxOrigin.y)
+        {
+            return false;
+        }
+        
+        if (pointObject.z > boxOrigin.z)
+        {
+            return false;
+        }
+        
+        // inside
+        
+        return true;
+    }
+    
     // http://en.wikipedia.org/wiki/Möller–Trumbore_intersection_algorithm
     static bool intersectionRayTriangle(const glm::vec3 point1, const glm::vec3 point2, const glm::vec3 point3, const glm::vec3 rayOrigin, const glm::vec3 rayDirection, float & output)
     {
@@ -259,10 +303,8 @@ namespace IntersectionTest {
     
     // Intersection of two OOBBs
     // idea: triangulate one box and transform it into the world of the other one, so we have a AABB - traingle intersection
-    static bool intersectionBoxBox(glm::vec3 box1Origin, glm::vec3 box1Radii, glm::mat4 box1ModelMat, glm::vec3 box2Origin, glm::vec3 box2Radii, glm::mat4 box2ModelMat)
+    static bool intersectionBoxBox(glm::vec3 box1Origin, glm::vec3 box1Radii, glm::vec3 box2Origin, glm::vec3 box2Radii, glm::mat4 invBox2MoldeMatTimesBox1ModelMat)
     {
-        glm::mat4 invBox2MoldeMatTimesBox1ModelMat = glm::inverse(box2ModelMat) * box1ModelMat;
-        
         glm::vec3 realBox1Origin = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z, 1.f));
         
         glm::vec3 realBox1CornerX = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z, 1.f));
@@ -339,84 +381,82 @@ namespace IntersectionTest {
         
         return false;
     }
-  
+    
     // output: collision point
-    static bool intersectionTriangleTriangle(glm::vec3 point11, glm::vec3 point12, glm::vec3 point13, glm::vec3 point21, glm::vec3 point22, glm::vec3 point23, glm::vec3 & outputPoint, glm::vec3 & ouputNormal)
+    static bool intersectionTriangleTriangle(Triangle one, Triangle two, glm::vec3 & outputPoint, glm::vec3 & ouputNormal)
     {
         // line triangle intersection
         float t;
         
-        glm::vec3 normal1 = glm::cross(point12 - point11, point13 - point11);
-        glm::vec3 normal2 = glm::cross(point22 - point21, point23 - point21);
-        
-        // line from 1 intersects 2
-        glm::vec3 direction = point12 - point11;
-        if (IntersectionTest::intersectionRayTriangle(point21, point22, point23, point11, direction, t))
-        {
-            if (t >= 0.f && t <= 1.f)
-            {
-                outputPoint = point11 + t * direction;
-                ouputNormal = normal2;
-                return true;
-            }
-        }
-        
-        direction = point13 - point11;
-        if (IntersectionTest::intersectionRayTriangle(point21, point22, point23, point11, direction, t))
-        {
-            if (t >= 0.f && t <= 1.f)
-            {
-                outputPoint = point11 + t * direction;
-                ouputNormal = normal2;
-                return true;
-            }
-        }
-        
-        direction = point13 - point12;
-        if (IntersectionTest::intersectionRayTriangle(point21, point22, point23, point12, direction, t))
-        {
-            if (t >= 0.f && t <= 1.f)
-            {
-                outputPoint = point12 + t * direction;
-                ouputNormal = normal2;
-                return true;
-            }
-        }
-        
         // line from 2 intersects 1
         
-        direction = point22 - point21;
-        if (IntersectionTest::intersectionRayTriangle(point11, point12, point13, point21, direction, t))
+        glm::vec3 direction = two.vertex2 - two.vertex1;
+        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex1, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
             {
-                outputPoint = point21 + t * direction;
-                ouputNormal = normal1;
+                outputPoint = two.vertex1 + t * direction;
+                ouputNormal = one.normal;
                 return true;
             }
         }
         
-        direction = point23 - point21;
-        if (IntersectionTest::intersectionRayTriangle(point11, point12, point13, point21, direction, t))
+        direction = two.vertex3 - two.vertex1;
+        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex1, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
             {
-                outputPoint = point21 + t * direction;
-                ouputNormal = normal1;
+                outputPoint = two.vertex1 + t * direction;
+                ouputNormal = one.normal;
                 return true;
             }
         }
         
-        direction = point23 - point22;
-        if (IntersectionTest::intersectionRayTriangle(point11, point12, point13, point22, direction, t))
+        direction = two.vertex3 - two.vertex2;
+        if (IntersectionTest::intersectionRayTriangle(one.vertex1, one.vertex2, one.vertex3, two.vertex2, direction, t))
         {
             if (t >= 0.f && t <= 1.f)
             {
-                outputPoint = point22 + t * direction;
-                ouputNormal = normal1;
+                outputPoint = two.vertex2 + t * direction;
+                ouputNormal = one.normal;
                 return true;
             }
         }
+        
+        // line from 1 intersects 2
+        direction = one.vertex2 - one.vertex1;
+        if (IntersectionTest::intersectionRayTriangle(two.vertex1, two.vertex2, two.vertex3, one.vertex1, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                outputPoint = one.vertex1 + t * direction;
+                ouputNormal = two.normal;
+                return true;
+            }
+        }
+        
+        direction = one.vertex3 - one.vertex1;
+        if (IntersectionTest::intersectionRayTriangle(two.vertex1, two.vertex2, two.vertex3, one.vertex1, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                outputPoint = one.vertex1 + t * direction;
+                ouputNormal = two.normal;
+                return true;
+            }
+        }
+        
+        direction = one.vertex3 - one.vertex2;
+        if (IntersectionTest::intersectionRayTriangle(two.vertex1, two.vertex2, two.vertex3, one.vertex2, direction, t))
+        {
+            if (t >= 0.f && t <= 1.f)
+            {
+                outputPoint = one.vertex2 + t * direction;
+                ouputNormal = two.normal;
+                return true;
+            }
+        }
+        
         
         // triangle included in the other one
         // this does not happen (hopefully)

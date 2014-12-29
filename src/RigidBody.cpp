@@ -14,6 +14,7 @@
 #include <queue>
 
 #include "Assets.h"
+#include "InertiaTensor.h"
 
 using namespace glm;
 
@@ -116,11 +117,15 @@ void RigidBody::addImpulse(const vec3 impulse, const vec3 position) {
 //    printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
 }
 
-std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, mat4 & modelTwo)
+void RigidBody::addTorque(const glm::vec3 torque) {
+    m_torque += torque;
+}
+
+std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, mat4 & modelTwo, mat4 & invBox2MoldeMatTimesBox1ModelMat)
 {
     std::vector<Contact> intersectionPoints = std::vector<Contact>();
-    
-    if (IntersectionTest::intersectionBoxBox(one->getOrigin(), one->getRadii(), modelOne, two->getOrigin(), two->getRadii(), modelTwo)) {
+//    countBoxBox++;
+    if (IntersectionTest::intersectionBoxBox(one->getOrigin(), one->getRadii(), two->getOrigin(), two->getRadii(), invBox2MoldeMatTimesBox1ModelMat)) {
         
         std::vector<OOBB> * childrenOne = one->getChildren();
         std::vector<OOBB> * childrenTwo = two->getChildren();
@@ -129,66 +134,59 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
         {
             for (int i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
                 for (int j = 0; j < childrenTwo->size() && intersectionPoints.size() == 0; ++j) {
-                    intersectionPoints = intersectOctrees(&childrenOne->at(i), modelOne, &childrenTwo->at(j), modelTwo);
+                    std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, &childrenTwo->at(j), modelTwo, invBox2MoldeMatTimesBox1ModelMat);
+                    intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
                 }
             }
         } else if (childrenOne->size() > 0) {
             
             for (int i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
-                intersectionPoints = intersectOctrees(&childrenOne->at(i), modelOne, two, modelTwo);
+                std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, two, modelTwo, invBox2MoldeMatTimesBox1ModelMat);
+                intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
             }
             
         } else if (childrenTwo->size() > 0) {
         
             for (int i = 0; i < childrenTwo->size() && intersectionPoints.size() == 0; ++i) {
-                intersectionPoints = intersectOctrees(one, modelOne, &childrenTwo->at(i), modelTwo);
+                std::vector<Contact> newPoints = intersectOctrees(one, modelOne, &childrenTwo->at(i), modelTwo, invBox2MoldeMatTimesBox1ModelMat);
+                intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
             }
             
         } else {
-            std::vector<glm::vec3> trianglesOne =  one->getIncludedTriangles();
-            std::vector<glm::vec3> trianglesTwo =  two->getIncludedTriangles();
+            std::vector<Triangle> trianglesOne =  one->getIncludedTriangles();
+            std::vector<Triangle> trianglesTwo =  two->getIncludedTriangles();
             
-            glm::vec3 point11;
-            glm::vec3 point12;
-            glm::vec3 point13;
+            std::vector<Triangle> trianglesOneWorld = std::vector<Triangle>();
+            std::vector<Triangle> trianglesTwoWorld = std::vector<Triangle>();
             
-            glm::vec3 point21;
-            glm::vec3 point22;
-            glm::vec3 point23;
+            for (int i = 0; i < trianglesOne.size(); ++i) {
+                trianglesOneWorld.push_back(trianglesOne[i].transformWith(modelOne));
+            }
             
-            for (int i = 0; i < trianglesOne.size(); i += 3) {
-                for (int j = 0; j < trianglesTwo.size(); j += 3) {
-                    
-                    point11 = trianglesOne[i];
-                    point11 = vec3(modelOne * vec4(point11.x, point11.y, point11.z, 1.f));
-                    point12 = trianglesOne[i+1];
-                    point12 = vec3(modelOne * vec4(point12.x, point12.y, point12.z, 1.f));
-                    point13 = trianglesOne[i+2];
-                    point13 = vec3(modelOne * vec4(point13.x, point13.y, point13.z, 1.f));
-                    
-                    
-                    point21 = trianglesTwo[j];
-                    point21 = vec3(modelTwo * vec4(point21.x, point21.y, point21.z, 1.f));
-                    point22 = trianglesTwo[j+1];
-                    point22 = vec3(modelTwo * vec4(point22.x, point22.y, point22.z, 1.f));
-                    point23 = trianglesTwo[j+2];
-                    point23 = vec3(modelTwo * vec4(point23.x, point23.y, point23.z, 1.f));
-                    
+            for (int i = 0; i < trianglesTwo.size(); ++i) {
+                trianglesTwoWorld.push_back(trianglesTwo[i].transformWith(modelTwo));
+            }
+            
+            for (int i = 0; i < trianglesOneWorld.size() /*&& intersectionPoints.size() == 0*/; ++i) {
+                for (int j = 0; j < trianglesTwoWorld.size() /*&& intersectionPoints.size() == 0*/; ++j) {
+
                     glm::vec3 intersectionPoint;
                     glm::vec3 intersectionNormal;
-                    
-                    if (IntersectionTest::intersectionTriangleTriangle(point11, point12, point13, point21, point22, point23, intersectionPoint, intersectionNormal))
+//                    countTriangleTriangle++;
+                    if (IntersectionTest::intersectionTriangleTriangle(trianglesOneWorld[i], trianglesTwoWorld[j], intersectionPoint, intersectionNormal))
                     {
+                        
                         Contact contact;
                         contact.p = intersectionPoint;
-                        contact.n = -1.f * intersectionNormal;
+                        contact.n = intersectionNormal;
                         
-                        /*glm::vec3 tmp1 = intersectionNormal * (1.f/length(intersectionNormal));
-                        glm::vec3 tmp2 = vec3(modelTwo * vec4(0,0,0,1)) - vec3(modelOne * vec4(0,0,0,1));
-                        tmp2 *= -1.f/length(tmp2);
-                        
-                        printf("cross length: %f\n", length(cross(tmp1, tmp2)));
-                        printf("dot: %f\n", dot(tmp1, tmp2));*/
+                        if (intersectionNormal == trianglesTwoWorld[j].normal)
+                        {
+//                            printf("changed normal: %f %f %f\n", contact.n.x, contact.n.y, contact.n.z);
+                            contact.n *= -1.f;
+                        } else {
+//                            printf("non changed normal: %f %f %f\n", contact.n.x, contact.n.y, contact.n.z);
+                        }
                         
                         intersectionPoints.push_back(contact);
                     }
@@ -204,11 +202,21 @@ std::vector<Contact> RigidBody::intersectWith(RigidBody & body)
 {
     std::vector<Contact> intersectionPoints = std::vector<Contact>();
     
+//    int oldcountBoxBox = countBoxBox;
+//    int oldcountTriangleTriangle = countTriangleTriangle;
+//    countBoxBox = 0;
+//    countTriangleTriangle = 0;
+    
     mat4 myModel = model();
     mat4 bodyModel = body.model();
     OOBB * myBoundingBox = getBoundingBox();
     OOBB * bodyBoundingBox = body.getBoundingBox();
-    intersectionPoints = intersectOctrees(myBoundingBox, myModel, bodyBoundingBox, bodyModel);
+    mat4 invBox2MoldeMatTimesBox1ModelMat = inverse(bodyModel) * myModel;
+    intersectionPoints = intersectOctrees(myBoundingBox, myModel, bodyBoundingBox, bodyModel, invBox2MoldeMatTimesBox1ModelMat);
+    
+//    countBoxBox = max(countBoxBox, oldcountBoxBox);
+//    countTriangleTriangle = max(countTriangleTriangle, oldcountTriangleTriangle);
+//    printf("box: %d triangle: %d\n", countBoxBox, countTriangleTriangle);
     
     return intersectionPoints;
 }
@@ -325,7 +333,12 @@ std::vector<vec3> RigidBody::intersectWithGround()
 
 void RigidBody::update(float dt) {
     
-    if (!m_active) return;      // Hacked "resting contacts"
+    if (!m_active)
+    {
+//        return;      // Hacked "resting contacts"
+        m_angularMomentum *= 0.7f; // new attempt for resting contacts
+        m_linearMomentum *= 0.7f;
+    }
     
     // Gravity
     addForce(vec3(0, -9.81 * m_mass, 0));  // hardcoded hack
@@ -519,15 +532,7 @@ void RigidBody::update(float dt) {
         // avoid overshooting and undershooting
         m_position.y -= distanceGround;
         
-        if (firstTime) {
-            printf("\tcollision points: %lu\n", collisionPoints.size());
-            vec3 linearImpulse = m_linearMomentum - org_linearMomentum;
-            printf("\tlinear impulse: %f %f %f\n", linearImpulse.x, linearImpulse.y, linearImpulse.z);
-            printf("\tm_linearMomentum: %f %f %f\n", m_linearMomentum.x, m_linearMomentum.y, m_linearMomentum.z);
-            firstTime = false;
-        }
-        
-        float vel = length(m_linearMomentum/m_mass + m_angularVelocity);
+        float vel = length(m_linearMomentum/m_mass) + length(m_angularVelocity);
         m_lastVelocities.push_back(vel);
         if (m_lastVelocities.size() > 10) {
             auto start = m_lastVelocities.end() - 10;
@@ -573,8 +578,8 @@ void RigidBody::renderOctree()
                 glm::vec3 vertex2 = vec3(box->getVertices()[(i+3)%size], box->getVertices()[(i+4)%size], box->getVertices()[(i+5)%size]);
                 
                 Body point = Body((vertex1 + vertex2) * 0.5f);
-                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.01f));
-                point.setMesh(&Assets::cube);
+                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.007f));
+                point.setMesh(Assets::getCube());
                 point.setMaterial(pointMaterial);
                 
                 point.setOrientation(getOrientation());
@@ -589,8 +594,8 @@ void RigidBody::renderOctree()
                 glm::vec3 vertex2 = vec3(box->getVertices()[(3*tmp[i/3])%size], box->getVertices()[(3*tmp[i/3]+1)%size], box->getVertices()[(3*tmp[i/3]+2)%size]);
                 
                 Body point = Body((vertex1 + vertex2) * 0.5f);
-                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.01f));
-                point.setMesh(&Assets::cube);
+                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.007f));
+                point.setMesh(Assets::getCube());
                 point.setMaterial(pointMaterial);
                 
                 point.setOrientation(getOrientation());
@@ -605,11 +610,12 @@ void RigidBody::renderOctree()
         }
         
     } else {
-        
+        mat4 myModel = model();
+        quat myOrientation = getOrientation();
         for (int i = 0; i < octreeMeshes->size(); ++i) {
             glm::vec3 tmp = octreeMeshes->at(i).getPosition();
-            octreeMeshes->at(i).setPosition(tmp + m_position);
-            octreeMeshes->at(i).setOrientation(getOrientation());
+            octreeMeshes->at(i).setOrientation(myOrientation);
+            octreeMeshes->at(i).setPosition(vec3(myModel * vec4(tmp.x, tmp.y, tmp.z, 1.f)));
             octreeMeshes->at(i).render();
             octreeMeshes->at(i).setPosition(tmp);
         }

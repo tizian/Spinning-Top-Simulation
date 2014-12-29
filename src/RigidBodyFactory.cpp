@@ -1,17 +1,13 @@
 #include "RigidBodyFactory.h"
 
-void RigidBodyFactory::reset(RigidBody &rb) {
+void reset(RigidBody &rb) {
     rb = RigidBody();
     rb.setPosition(glm::vec3(0, 5, 0));
     rb.setMaterial(Assets::getWhiteMaterial());
     rb.setTexture(Assets::getLightWood());
-    
-    //        rb.setOrientation(glm::quat_cast(glm::rotate((float)M_PI, glm::vec3(1, 0, 0))));
-    //        rb.addForce(vec3(0,0,400), rb.getPosition() + vec3(1,0,0));
-    //        rb.addForce(vec3(0,0,-400), rb.getPosition() + vec3(-1,0,0));
 }
 
-void RigidBodyFactory::resetSphere(RigidBody &rb) {
+void resetSphere(RigidBody &rb) {
     reset(rb);
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.5, 2.5, 2.5)));
     
@@ -20,7 +16,7 @@ void RigidBodyFactory::resetSphere(RigidBody &rb) {
     rb.type = 0;
 }
 
-void RigidBodyFactory::resetCube(RigidBody &rb) {
+void resetCube(RigidBody &rb) {
     reset(rb);
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(1.5, 1.5, 1.5)));
     
@@ -29,7 +25,7 @@ void RigidBodyFactory::resetCube(RigidBody &rb) {
     rb.type = 9;
 }
 
-void RigidBodyFactory::resetSpinningTop1(RigidBody &rb) {
+void resetSpinningTop1(RigidBody &rb) {
     reset(rb);
     //    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 3.4, 5)));
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 1.5*5, 5)));
@@ -39,11 +35,11 @@ void RigidBodyFactory::resetSpinningTop1(RigidBody &rb) {
     rb.type = 1;
 }
 
-void RigidBodyFactory::resetSpinningTop2(RigidBody &rb) {
+void resetSpinningTop2(RigidBody &rb) {
     reset(rb);
     
-    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
-    //        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 1.5*4.8, 4.8)));
+//    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
+    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 1.5*4.8, 4.8)));
     
     rb.setMesh(Assets::getSpinningTop2());
     
@@ -52,18 +48,18 @@ void RigidBodyFactory::resetSpinningTop2(RigidBody &rb) {
     rb.type = 2;
 }
 
-void RigidBodyFactory::resetSpinningTop3(RigidBody &rb) {
+void resetSpinningTop3(RigidBody &rb) {
     reset(rb);
     
-    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 2.4, 3.6)));
-    //        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 1.5*3.6, 3.6)));
+//    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 2.4, 3.6)));
+    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 1.5*3.6, 3.6)));
     
     rb.setMesh(Assets::getSpinningTop3());
     
     rb.type = 3;
 }
 
-void RigidBodyFactory::resetSpinningTop3Top(RigidBody &rb) {
+void resetSpinningTop3Top(RigidBody &rb) {
     reset(rb);
     
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(1.19, 2.42, 1.19)));    // After 1 Mio. samples
@@ -72,7 +68,7 @@ void RigidBodyFactory::resetSpinningTop3Top(RigidBody &rb) {
     rb.setMesh(Assets::getSpinningTop3Top());
 }
 
-void RigidBodyFactory::resetSpinningTop3Bottom(RigidBody &rb) {
+void resetSpinningTop3Bottom(RigidBody &rb) {
     reset(rb);
     
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.79, 2.42, 2.79)));    // After 1 Mio. samples
@@ -81,19 +77,22 @@ void RigidBodyFactory::resetSpinningTop3Bottom(RigidBody &rb) {
     rb.setMesh(Assets::getSpinningTop3Bottom());
 }
 
-void RigidBodyFactory::resetSpinningTop4(RigidBody &rb) {
+void resetSpinningTop4(RigidBody &rb) {
     reset(rb);
+    
+    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.01, 2.0, 2.01)));
     
     //        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2, 2, 2)));
     
-    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.06, 2.03, 2.06)));    // After 1 Mio. samples
+//    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.06, 2.03, 2.06)));    // After 1 Mio. samples
+//    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2, 1.5 * 2.0, 2)));
     
     rb.setMesh(Assets::getSpinningTop4());
     
     rb.type = 4;
 }
 
-void RigidBodyFactory::resetSpinningTop5(RigidBody &rb) {
+void resetSpinningTop5(RigidBody &rb) {
     reset(rb);
     
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.16, 3.89, 3.16)));    // After 1 Mio. samples
@@ -103,7 +102,7 @@ void RigidBodyFactory::resetSpinningTop5(RigidBody &rb) {
     rb.type = 5;
 }
 
-void RigidBodyFactory::resetSpinningTop6(RigidBody &rb) {
+void resetSpinningTop6(RigidBody &rb) {
     reset(rb);
     
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.63, 3.28, 3.63)));    // After 1 Mio. samples
@@ -113,7 +112,7 @@ void RigidBodyFactory::resetSpinningTop6(RigidBody &rb) {
     rb.type = 6;
 }
 
-void RigidBodyFactory::resetSpinningTop(RigidBody &rb, int type) {
+void RigidBodyFactory::resetSpinningTop(RigidBody &rb, int type, bool rotating, bool upsidedown, float xOffset, float yOffset) {
     if (type == 1) {
         resetSpinningTop1(rb);
     }
@@ -138,4 +137,17 @@ void RigidBodyFactory::resetSpinningTop(RigidBody &rb, int type) {
     else if (type == 0) {
         resetSphere(rb);
     }
+    
+    if (upsidedown)
+    {
+        rb.setOrientation(glm::quat_cast(glm::rotate((float)M_PI, glm::vec3(1, 0, 0))));
+    }
+    
+    if (rotating)
+    {
+        rb.addForce(glm::vec3(0,0,500), rb.getPosition() + glm::vec3(1,0,0));
+        rb.addForce(glm::vec3(0,0,-500), rb.getPosition() + glm::vec3(-1,0,0));
+    }
+    
+    rb.setPosition(rb.getPosition() + glm::vec3(xOffset, 0.f, yOffset));
 }

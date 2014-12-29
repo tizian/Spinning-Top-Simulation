@@ -60,6 +60,12 @@ bool debug;
 // render the octrees of the spinning tops
 bool showOctree;
 
+// render spinning tops as wireframe
+bool wireframe;
+
+// For reducing CPU usage when idle
+time_t lastMovement;
+
 GLFWwindow *window;
 
 Camera camera;
@@ -126,6 +132,7 @@ void interpolateStates(vector<RigidBody> * fromState, vector<RigidBody> * toStat
 int main()
 {
     time_t begin = time(0);
+    lastMovement = time(0);
     
 	setupContext();
     
@@ -180,15 +187,14 @@ int main()
     
     resetCamera();
 
-    light = PointLight(glm::vec3(0, 10, 0));
+    light = PointLight(glm::vec3(0, 100, 0));
     
     pause = false;
     
     debug = false;
     
     double accumulator = 0.0;
-    //forwardStep(timeStep);
-    
+
 	while (!glfwWindowShouldClose(window)) {
         
 		// Timer
@@ -257,13 +263,15 @@ int main()
                     deltaTime -= actualDeltaTime;
                 }
             }
+            
+            lastMovement = time(0);
         }
         
         if (slowMotion) {
             deltaTime = deltaTime * 8;
         }
         
-        input(deltaTime);
+        input(std::min(deltaTime, 0.02f));
         
         double tAfterUpdate = glfwGetTime();
         
@@ -277,6 +285,11 @@ int main()
         double renderTime = tAfterRender - tBeforeRender;
         
 //        printf("time\tupdate: %f\trender: %f\n", updateTime, renderTime);
+        
+        if ((int)difftime(time(0), lastMovement) > 3) {
+            glfwWaitEvents();
+            lastMovement = time(0);
+        }
         
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -311,9 +324,17 @@ void render(vector<RigidBody> * state) {
     light.setUniforms();
     camera.setUniforms();
     
+    if (wireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    
     for (int i = 0; i < state->size(); ++i)
     {
         state->at(i).render();
+    }
+    
+    if (wireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
     
     table.render();
@@ -376,31 +397,68 @@ void input(float dt) {
         simulation.toggleActiveRigidBody();
     }
     
+    if (glfwGetKeyOnce(window, GLFW_KEY_F)) {
+        wireframe = !wireframe;
+    }
+    
     if (!pause) {
-        
+        int type = -1;
         if (glfwGetKeyOnce(window, GLFW_KEY_1)) {
-            simulation.addRigidBody(1);
+            type = 1;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_2)) {
-            simulation.addRigidBody(2);
+            type = 2;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_3)) {
-            simulation.addRigidBody(3);
+            type = 3;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_4)) {
-            simulation.addRigidBody(4);
+            type = 4;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_5)) {
-            simulation.addRigidBody(5);
+            type = 5;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_6)) {
-            simulation.addRigidBody(6);
+            type = 6;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_9)) {
-            simulation.addRigidBody(9);
+            type = 9;
         }
         else if (glfwGetKeyOnce(window, GLFW_KEY_0)) {
-            simulation.addRigidBody(0);
+            type = 0;
+        }
+        
+        bool upsidedown = false;
+        bool rotating = false;
+        bool createTwo = false;
+        
+        if (glfwGetKey(window, GLFW_KEY_E))
+        {
+            rotating = true;
+        }
+        
+        if (glfwGetKey(window, GLFW_KEY_G))
+        {
+            upsidedown = true;
+        }
+        
+        if (glfwGetKey(window, GLFW_KEY_V)) {
+            createTwo = true;
+        }
+        
+        if (type != -1)
+        {
+            if (createTwo) {
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        simulation.addRigidBody(type, rotating, upsidedown, 3 * i, 3 * j);
+                    }
+                }
+            }
+            else {
+                simulation.addRigidBody(type, rotating, upsidedown, 0, 0);
+            }
+            
         }
         
         if (glfwGetKeyOnce(window, GLFW_KEY_BACKSPACE)) {
@@ -495,15 +553,21 @@ void input(float dt) {
     if (glfwGetKeyOnce(window, GLFW_KEY_X)) {
         slowMotion = !slowMotion;
         if (slowMotion) {
-            printf("Slow motion turned on.\n");
+            printf("Info: Slow motion turned on.\n");
         } else {
-            printf("Slow motion turned off.\n");
+            printf("Info: Slow motion turned off.\n");
         }
     }
     
     if (glfwGetKeyOnce(window, GLFW_KEY_P))
     {
         pause = !pause;
+        if (pause)
+        {
+            printf("Info: Simulation paused.\n");
+        } else {
+            printf("Info: Simulation continues.\n");
+        }
     }
     
     if (pause) {
