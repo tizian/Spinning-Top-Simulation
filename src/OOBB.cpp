@@ -4,7 +4,6 @@
 
 int maxNumberOfTriangles = 20;
 int maxDepth = 10;
-float minRadii = 0.000001;
 
 OOBB::OOBB()
 {
@@ -92,7 +91,7 @@ std::vector<OOBB> * OOBB::getChildren()
 }
 
 void OOBB::split(int depth) {
-    if (m_children.size() == 0 && m_includedTriangles.size()/3 > maxNumberOfTriangles && depth < maxDepth && m_radii.x > 2.f * minRadii && m_radii.y > 2.f * minRadii && m_radii.z > 2.f * minRadii) {
+    if (m_children.size() == 0 && m_includedTriangles.size()/3 > maxNumberOfTriangles && depth < maxDepth) {
         glm::vec3 childRadii = m_radii * 0.5f;
         
         glm::vec3 child1Origin = m_origin;
@@ -160,21 +159,6 @@ void OOBB::split(int depth) {
                 }
             }
         }
-    } else {
-        
-//        if (m_includedTriangles.size()/3 <= maxNumberOfTriangles) {
-//            printf("Stop splitting because of maxNumberOfTriangles (%lu)\n", m_includedTriangles.size()/3);
-//        }
-//        
-//        if (depth >= maxDepth) {
-//            printf("Stop splitting because of maxDepth\n");
-//        }
-//        
-//        if (m_radii.x <= 2.f * minRadii || m_radii.y <= 2.f * minRadii || m_radii.z <= 2.f * minRadii)
-//        {
-//            printf("Stop splitting because of minRadii\n");
-//        }
-
     }
 }
 
@@ -184,7 +168,7 @@ void OOBB::realPrint(int depth)
         printf("\t");
     }
     
-    printf("OOBB includedTriangles: %lu children: %lu depth: %d minRadii: %f\n", m_includedTriangles.size()/3, m_children.size(), m_depth, std::min(m_radii.x, std::min(m_radii.y, m_radii.z)));
+    printf("OOBB includedTriangles: %lu children: %lu depth: %d\n", m_includedTriangles.size()/3, m_children.size(), m_depth);
 //    printf("OOBB includedTriangles: %lu origin: %f %f %f radii: %f %f %f children: %lu\n", m_includedTriangles.size()/3, m_origin.x, m_origin.y, m_origin.z, m_radii.x,m_radii.y, m_radii.z, children.size());
     
     for (int i = 0; i < m_children.size(); ++i) {
