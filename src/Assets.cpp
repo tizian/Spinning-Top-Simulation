@@ -92,7 +92,7 @@ Texture * Assets::getLightWood() {
 }
 
 Texture * Assets::getDarkWood() {
-    static Texture darkWood = Texture("textures/darkWood-high.png");
+    static Texture darkWood = Texture("textures/wood4096.png");
     return &darkWood;
 }
 
