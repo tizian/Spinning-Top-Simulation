@@ -6,7 +6,7 @@ Course project for 'Physically-Based Simulation in Computer Graphics' at ETH Zü
 
 ##YouTube
 
-[https://www.youtube.com/watch?v=vEoIFi5xuzk](https://www.youtube.com/watch?v=vEoIFi5xuzk]
+[https://www.youtube.com/watch?v=vEoIFi5xuzk](https://www.youtube.com/watch?v=vEoIFi5xuzk)
 
 ##Used Libraries
 
