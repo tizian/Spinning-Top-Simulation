@@ -1,0 +1,52 @@
+#!/bin/bash
+
+g++ src/*.cpp -I /usr/local/include -I include -L /usr/local/lib -lglfw3 -lGLEW -lSOIL -lassimp -framework OpenGL -std=c++11 -o SpinningTops -headerpad_max_install_names
+
+mkdir SpinningTop.app
+mkdir SpinningTop.app/Contents
+mkdir SpinningTop.app/Contents/MacOS
+mkdir SpinningTop.app/Contents/Resources
+
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+<key>CFBundleGetInfoString</key>
+<string>SpinningTops</string>
+<key>CFBundleExecutable</key>
+<string>launchScript</string>
+<key>CFBundleIdentifier</key>
+<string>com.your-company-name.www</string>
+<key>CFBundleName</key>
+<string>SpinningTops</string>
+<key>CFBundleIconFile</key>
+<string>Icon.icns</string>
+<key>CFBundleShortVersionString</key>
+<string>1.0</string>
+<key>CFBundleInfoDictionaryVersion</key>
+<string>6.0</string>
+<key>CFBundlePackageType</key>
+<string>APPL</string>
+<key>IFMajorVersion</key>
+<integer>0</integer>
+<key>IFMinorVersion</key>
+<integer>1</integer>
+</dict>
+</plist>" > SpinningTop.app/Contents/Info.plist
+
+mv SpinningTops SpinningTop.app/Contents/MacOS/
+cp -r models SpinningTop.app/Contents/Resources/
+cp -r shaders SpinningTop.app/Contents/Resources/
+cp -r textures SpinningTop.app/Contents/Resources/
+
+echo "#!/bin/bash
+cd \"\${0%/*}\"
+./SpinningTops" > SpinningTop.app/Contents/MacOS/launchScript
+chmod +x SpinningTop.app/Contents/MacOS/launchScript
+
+cp libraries/* SpinningTop.app/Contents/MacOS/
+
+install_name_tool -change /usr/local/opt/glfw3/lib/libglfw3.3.dylib @executable_path/libglfw3.3.dylib SpinningTop.app/Contents/MacOS/SpinningTops 
+install_name_tool -change /usr/local/lib/libGLEW.1.11.0.dylib @executable_path/libGLEW.1.11.0.dylib SpinningTop.app/Contents/MacOS/SpinningTops 
+install_name_tool -change /usr/local/libsoil/1.07/libSOIL.dylib @executable_path/libSOIL.dylib SpinningTop.app/Contents/MacOS/SpinningTops
+install_name_tool -change /usr/local/opt/assimp/lib/libassimp.3.dylib @executable_path/libassimp.3.dylib SpinningTop.app/Contents/MacOS/SpinningTops 
