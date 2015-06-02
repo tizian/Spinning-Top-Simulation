@@ -18,18 +18,34 @@ Course project for 'Physically-Based Simulation in Computer Graphics' at ETH Zü
 
 ##Installation
 
-Compile and run (change include and library directories accordingly):
+### CMake (Recommended)
+
 ```
-$ g++ src/*.cpp -I /usr/local/include -I include -L /usr/local/lib -lglfw3 -lGLEW -lSOIL -lassimp -framework OpenGL -std=c++11 -o SpinningTops
-$ ./SpinningTops
+mkdir build
+cd build
+cmake ..
+make
 ```
 
-We are working on a more convenient solution.
+Run from the root directory
+
+```
+./build/spinningtops
+```
+
+### Do it yourself (Not recommended)
+
+Compile and run (change include and library directories accordingly):
+
+```
+$ g++ src/*.cpp -I /usr/local/include -I include -L /usr/local/lib -lglfw3 -lGLEW -lSOIL -lassimp -framework OpenGL -std=c++11 -o spinningtops
+$ ./spinningtops
+```
 
 ##Usage
 
-The program is controlled by keyboard input.
-The currently active spinning top is rendered with a green tint.
+The program is controlled via keyboard inputs.
+The currently active spinning top is highlighted with a green tint.
 
 ### Camera movement
 
