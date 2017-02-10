@@ -8,21 +8,21 @@ PointLight::PointLight() {
     m_color = glm::vec3(1, 1, 1);
 }
 
-PointLight::PointLight(const glm::vec3 & position) {
+PointLight::PointLight(const glm::vec3 &position) {
     m_position = glm::vec3(position);
     m_color = glm::vec3(1, 1, 1);
 }
 
-PointLight::PointLight(const glm::vec3 & position, const glm::vec3 & color) {
+PointLight::PointLight(const glm::vec3 &position, const glm::vec3 &color) {
     m_position = glm::vec3(position);
     m_color = glm::vec3(color);
 }
 
-void PointLight::setPosition(const glm::vec3 & position) {
+void PointLight::setPosition(const glm::vec3 &position) {
     m_position = position;
 }
 
-void PointLight::setColor(const glm::vec3 & color) {
+void PointLight::setColor(const glm::vec3 &color) {
     m_color = color;
 }
 

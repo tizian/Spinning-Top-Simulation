@@ -8,9 +8,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 // Quaternion based, free moving camera.
-
-class Camera
-{
+class Camera {
 public:
     Camera();
 
@@ -20,10 +18,10 @@ public:
     const glm::vec3 forward()   const;
 
     // Sets camera position
-    void setPosition(const glm::vec3 & position);
+    void setPosition(const glm::vec3 &position);
 
     // Sets camera orientation
-    void setOrientation(const glm::fquat & orientation);
+    void setOrientation(const glm::fquat &orientation);
     
     // Set camera speed
     void setSpeed(const float speed);
@@ -34,7 +32,7 @@ public:
     float getRotationSpeed() const;
     
     // Moves camera using world space axes
-    void move(const glm::vec3 & delta);
+    void move(const glm::vec3 &delta);
 
     // Moves camera relative to itself
     void moveLeftRight(float delta);
@@ -42,7 +40,7 @@ public:
     void moveForwardBackward(float delta);
 
     // Rotates camera by an angle around an axis
-    void rotate(float angle, glm::vec3 & axis);
+    void rotate(float angle, glm::vec3 &axis);
 
     // Performs pitch, yaw, roll by an angle
     void pitch(float angle);

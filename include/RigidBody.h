@@ -7,8 +7,8 @@
 
 class RigidBody : public Body {
 public:
-    RigidBody(const glm::vec3 & position, const glm::quat & orientation, const glm::vec3 & scale);
-    RigidBody(const glm::vec3 & position);
+    RigidBody(const glm::vec3 &position, const glm::quat &orientation, const glm::vec3 &scale);
+    RigidBody(const glm::vec3 &position);
     RigidBody();
     
     virtual void update(float dt);
@@ -16,7 +16,7 @@ public:
     virtual void setMesh(Mesh *mesh);
     void setBodyInertiaTensorInv(const glm::mat3 bodyInertiaTensorInv);
     
-    OOBB * getBoundingBox();
+    OOBB *getBoundingBox();
     
     void addForce(const glm::vec3 force);
     void addForce(const glm::vec3 force, const glm::vec3 position);
@@ -30,7 +30,7 @@ public:
     
     bool isCurrentlyActive;
     
-    std::vector<Contact> intersectWith(RigidBody & body);
+    std::vector<Contact> intersectWith(RigidBody &body);
     
     void renderOctree();
     
@@ -70,7 +70,7 @@ private:
     
     std::vector<float> m_lastVelocities;
     
-    OOBB * m_boundingBox;
+    OOBB *m_boundingBox;
     
-    std::vector<Body> * octreeMeshes;
+    std::vector<Body> *octreeMeshes;
 };

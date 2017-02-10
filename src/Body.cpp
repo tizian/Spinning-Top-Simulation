@@ -5,7 +5,7 @@
 
 using namespace glm;
 
-Body::Body(const glm::vec3 & position, const glm::quat & orientation, const glm::vec3 & scale) {
+Body::Body(const glm::vec3 &position, const glm::quat &orientation, const glm::vec3 &scale) {
     m_position = position;
     m_orientation = orientation;
     m_scale = scale;
@@ -15,7 +15,7 @@ Body::Body(const glm::vec3 & position, const glm::quat & orientation, const glm:
     m_texture = nullptr;
 }
 
-Body::Body(const glm::vec3 & position) {
+Body::Body(const glm::vec3 &position) {
     m_position = position;
     m_orientation = glm::quat();
     m_scale = glm::vec3(1, 1, 1);
@@ -35,27 +35,27 @@ Body::Body() {
     m_texture = nullptr;
 }
 
-void Body::setPosition(const glm::vec3 & position) {
+void Body::setPosition(const glm::vec3 &position) {
     m_position = position;
 }
 
-void Body::setOrientation(const glm::quat & orientation) {
+void Body::setOrientation(const glm::quat &orientation) {
     m_orientation = normalize(orientation);
 }
 
-void Body::setScale(const glm::vec3 & scale) {
+void Body::setScale(const glm::vec3 &scale) {
     m_scale = scale;
 }
 
-void Body::setMaterial(Material * material) {
+void Body::setMaterial(Material *material) {
     m_material = material;
 }
 
-void Body::setMesh(Mesh * mesh) {
+void Body::setMesh(Mesh *mesh) {
     m_mesh = mesh;
 }
 
-void Body::setTexture(Texture * texture) {
+void Body::setTexture(Texture *texture) {
     m_texture = texture;
 }
 
@@ -71,15 +71,15 @@ glm::vec3 Body::getScale() const {
     return m_scale;
 }
 
-Material * Body::getMaterial() const {
+Material *Body::getMaterial() const {
     return m_material;
 }
 
-Mesh * Body::getMesh() const {
+Mesh *Body::getMesh() const {
     return m_mesh;
 }
 
-Texture * Body::getTexture() const {
+Texture *Body::getTexture() const {
     return m_texture;
 }
 
@@ -111,7 +111,6 @@ void Body::render() {
         m_texture->use();
         Shader::setUniform("tex", m_texture->getTextureUnit());
     }
-    
     
     if (m_mesh == nullptr) {
         printf("ERROR: Can't render ModelInstance. Mesh not set.\n");

@@ -1,29 +1,28 @@
 #pragma once
 
-#include <GL/gl3w.h>
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 
-class Shader
-{
+#include <GL/gl3w.h>
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+
+class Shader {
 public:
     Shader() {};
-    Shader(const std::string & vertexShaderPath, const std::string & fragmentShaderPath);
+    Shader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath);
     
     static GLint getActiveProgramID() { return activeProgramID; }
     
-    static void setUniform(const std::string & name, float x, float y, float z);
-    static void setUniform(const std::string & name, const glm::vec3 & v);
-    static void setUniform(const std::string & name, const glm::vec4 & v);
-    static void setUniform(const std::string & name, const glm::mat3 & m);
-    static void setUniform(const std::string & name, const glm::mat4 & m);
-    static void setUniform(const std::string & name, float val);
-    static void setUniform(const std::string & name, int val);
-    static void setUniform(const std::string & name, bool val);
+    static void setUniform(const std::string &name, float x, float y, float z);
+    static void setUniform(const std::string &name, const glm::vec3 &v);
+    static void setUniform(const std::string &name, const glm::vec4 &v);
+    static void setUniform(const std::string &name, const glm::mat3 &m);
+    static void setUniform(const std::string &name, const glm::mat4 &m);
+    static void setUniform(const std::string &name, float val);
+    static void setUniform(const std::string &name, int val);
+    static void setUniform(const std::string &name, bool val);
     
     GLint getProgramID() const;
 
@@ -34,14 +33,14 @@ public:
 private:
     static GLint activeProgramID;
     
-    char * readFile(const std::string & filename);
+    char *readFile(const std::string &filename);
     bool compiledStatus(GLint shaderID);
     bool linkedStatus(GLint programID);
 
-    GLint compileShader(const char * shaderSource, GLenum shaderType);
+    GLint compileShader(const char *shaderSource, GLenum shaderType);
     GLint linkShaderProgram(GLint vertexShaderID, GLint fragmentShaderID);
     
-    static GLint getUniform(const std::string & name);
+    static GLint getUniform(const std::string &name);
     
     GLint m_programID;
 };

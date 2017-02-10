@@ -1,28 +1,26 @@
-#define GLM_FORCE_RADIANS
-
-#ifndef M_PI
-    #define M_PI 3.14159265358979323846
-#endif
+#include "Assets.h"
+#include "Camera.h"
+#include "PointLight.h"
+#include "Simulation.h"
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/ext.hpp>
 
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <ctime>
+#include <fstream>
+#include <iostream>
+#include <string>
 #include <vector>
 
-#include "Assets.h"
-#include "Simulation.h"
-
-#include "PointLight.h"
-#include "Camera.h"
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 using namespace std;
 using namespace glm;
@@ -81,15 +79,14 @@ Body debugPoint;
 
 Simulation simulation;
 
-void resetCamera()
-{
+void resetCamera() {
     camera.setPosition(glm::vec3(0.0f, 8.f, 15.f));
     camera.setOrientation(fquat(1.0,0,0,0));
     camera.pitch(10 * M_PI / 180.0f);
     camera.setAspectRatio((float)width/height);
 }
 
-void addTorque(RigidBody * rb, vec3 force) {
+void addTorque(RigidBody *rb, vec3 force) {
     vec3 F1 = force;
     vec3 F2 = -1.f * force;
     
@@ -108,8 +105,7 @@ void addTorque(RigidBody * rb, vec3 force) {
 
 // return (1-alpha) * fromState + alpha * toState;
 // interpolates positiona and orientation
-void interpolateStates(vector<RigidBody> * fromState, vector<RigidBody> * toState, vector<RigidBody> *interpolatedState, float alpha)
-{
+void interpolateStates(vector<RigidBody> *fromState, vector<RigidBody> *toState, vector<RigidBody> *interpolatedState, float alpha) {
     if (interpolatedState->size() > 0) {
         interpolatedState->clear();
     }
@@ -118,7 +114,7 @@ void interpolateStates(vector<RigidBody> * fromState, vector<RigidBody> * toStat
         interpolatedState = toState;
     }
     else {
-        for (int i = 0; i < fromState->size(); i++) {
+        for (size_t i = 0; i < fromState->size(); i++) {
             RigidBody current = fromState->at(i);
             
             current.setPosition(mix(fromState->at(i).getPosition(), toState->at(i).getPosition(), alpha));
@@ -129,8 +125,7 @@ void interpolateStates(vector<RigidBody> * fromState, vector<RigidBody> * toStat
     }
 }
 
-int main()
-{
+int main() {
     time_t begin = time(0);
     lastMovement = time(0);
     
@@ -196,7 +191,6 @@ int main()
     double accumulator = 0.0;
 
     while (!glfwWindowShouldClose(window)) {
-        
         // Timer
         static double previous = glfwGetTime();
         double current = glfwGetTime();
@@ -211,23 +205,19 @@ int main()
         
         double tBeforeUpdate = glfwGetTime();
         
-        if (!pause)
-        {
+        if (!pause) {
             //printf("update call\n");
-            if (timeStepMethod == 0)
-            {
+            if (timeStepMethod == 0) {
                 simulation.forwardStep(timeStep);
                 renderState = *simulation.getCurrentState();
             }
+
             if (timeStepMethod == 1)
             {
                 simulation.forwardStep(deltaTime);
                 renderState = *simulation.getCurrentState();
-            }
-            else if (timeStepMethod == 2)
-            {
-                if (deltaTime > 0.25)
-                {
+            } else if (timeStepMethod == 2) {
+                if (deltaTime > 0.25) {
                     deltaTime = 0.25;
                     printf("Warning: deltaTime is too big!\n");
                 }
@@ -242,20 +232,16 @@ int main()
                 
                 double alpha = accumulator / timeStep;
                 
-                if (simulation.getNumberOfStates() > 1)
-                {
+                if (simulation.getNumberOfStates() > 1) {
                     vector<RigidBody> interpolatedState = vector<RigidBody>();
                     
                     interpolateStates(simulation.getLastState(), simulation.getCurrentState(), &interpolatedState, alpha);
                     
                     renderState = interpolatedState;
-                }
-                else {
+                } else {
                     renderState = *simulation.getCurrentState();
                 }
-            }
-            else if (timeStepMethod == 3)
-            {
+            } else if (timeStepMethod == 3) {
                 while (deltaTime > 0.0) {
                     float actualDeltaTime = glm::min(deltaTime, timeStep);
                     simulation.forwardStep(actualDeltaTime);
@@ -302,7 +288,7 @@ int main()
     return 0;
 }
 
-void render(vector<RigidBody> * state) {
+void render(vector<RigidBody> *state) {
     // clear drawing surface
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -328,8 +314,7 @@ void render(vector<RigidBody> * state) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
     
-    for (int i = 0; i < state->size(); ++i)
-    {
+    for (size_t i = 0; i < state->size(); ++i) {
         state->at(i).render();
     }
     
@@ -344,9 +329,8 @@ void render(vector<RigidBody> * state) {
     light.setUniforms();
     camera.setUniforms();
     
-    if (showOctree)
-    {
-        for (int i = 0; i < state->size(); ++i) {
+    if (showOctree) {
+        for (size_t i = 0; i < state->size(); ++i) {
             state->at(i).renderOctree();
         }
     }
@@ -355,7 +339,7 @@ void render(vector<RigidBody> * state) {
         glDisable(GL_DEPTH_TEST);
         
         vector<DebugPoint> debugPoints = simulation.getDebugPoints();
-        for (int i = 0; i < debugPoints.size(); i++) {
+        for (size_t i = 0; i < debugPoints.size(); i++) {
             debugMaterial.setColor(debugPoints[i].color);
             debugPoint.setPosition(debugPoints[i].position);
             
@@ -377,8 +361,7 @@ void render(vector<RigidBody> * state) {
     camera.setUniforms();
     Shader::setUniform("shadowColor", glm::vec4(0, 0, 0, 0.6));
     
-    for (int i = 0; i < state->size(); ++i)
-    {
+    for (size_t i = 0; i < state->size(); ++i) {
         state->at(i).render();
     }
 }
@@ -432,13 +415,11 @@ void input(float dt) {
         bool rotating = false;
         bool createTwo = false;
         
-        if (glfwGetKey(window, GLFW_KEY_E))
-        {
+        if (glfwGetKey(window, GLFW_KEY_E)) {
             rotating = true;
         }
         
-        if (glfwGetKey(window, GLFW_KEY_G))
-        {
+        if (glfwGetKey(window, GLFW_KEY_G)) {
             upsidedown = true;
         }
         
@@ -446,16 +427,14 @@ void input(float dt) {
             createTwo = true;
         }
         
-        if (type != -1)
-        {
+        if (type != -1) {
             if (createTwo) {
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 2; j++) {
                         simulation.addRigidBody(type, rotating, upsidedown, 3 * i, 3 * j);
                     }
                 }
-            }
-            else {
+            } else {
                 simulation.addRigidBody(type, rotating, upsidedown, 0, 0);
             }
             
@@ -469,18 +448,16 @@ void input(float dt) {
             simulation.removeAllRigidBodies();
         }
         
-        
         // Control spinning top
         RigidBody * spinningTop = simulation.getActiveRigidBody();
         if (spinningTop != nullptr) {
-            
             if (glfwGetKey(window, GLFW_KEY_T)) {
                 addTorque(spinningTop, vec3(0,0,10) * dt/timeStep);
             }
             if (glfwGetKey(window, GLFW_KEY_R)) {
                 addTorque(spinningTop, vec3(0,0,-10) * dt/timeStep);
             }
-            
+
             if (glfwGetKey(window, GLFW_KEY_U)) {
                 spinningTop->addForce(glm::vec3(0, 0, -10) * dt/timeStep, spinningTop->getPosition());
             }
@@ -503,9 +480,9 @@ void input(float dt) {
     }
 
     // Camera
-    
+
     float deltaX = camera.getSpeed() * dt;
-    
+
     if (glfwGetKey(window, GLFW_KEY_SPACE)) {
         camera.moveUpDown(-deltaX);
     }
@@ -559,11 +536,9 @@ void input(float dt) {
         }
     }
     
-    if (glfwGetKeyOnce(window, GLFW_KEY_P))
-    {
+    if (glfwGetKeyOnce(window, GLFW_KEY_P)) {
         pause = !pause;
-        if (pause)
-        {
+        if (pause) {
             printf("Info: Simulation paused.\n");
         } else {
             printf("Info: Simulation continues.\n");
@@ -574,14 +549,12 @@ void input(float dt) {
         if (glfwGetKeyOnce(window, GLFW_KEY_N)) {
             simulation.forwardStep(timeStep);
         }
-        
         if (glfwGetKey(window, GLFW_KEY_N) && glfwGetKey(window, GLFW_KEY_M)) {
             simulation.forwardStep(timeStep);
         }
         if (glfwGetKey(window, GLFW_KEY_B) && glfwGetKey(window, GLFW_KEY_M)) {
             simulation.backwardStep();
         }
-        
         if (glfwGetKeyOnce(window, GLFW_KEY_B)) {
             simulation.backwardStep();
         }
@@ -646,8 +619,7 @@ void glfwWindowResizeCallback(GLFWwindow *window, int w, int h) {
         camera.setAspectRatio((float)width/height);
 }
 
-void glfwFrameBufferSizeCallback(GLFWwindow* window, int w, int h)
-{
+void glfwFrameBufferSizeCallback(GLFWwindow* window, int w, int h) {
     glfwGetFramebufferSize(window, &width, &height);
     printf("Framebuffer width: %d height: %d\n", width, height);
     

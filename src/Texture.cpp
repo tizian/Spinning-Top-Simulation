@@ -5,7 +5,7 @@
 
 int Texture::nextTextureUnit = 0;
 
-Texture::Texture(const std::string & texturePath) {
+Texture::Texture(const std::string &texturePath) {
     m_textureUnit = Texture::nextTextureUnit;
     Texture::nextTextureUnit++;
     
@@ -25,7 +25,7 @@ Texture::Texture(const std::string & texturePath) {
     // glActiveTexture(GL_TEXTURE0);
 }
 
-Texture::Texture(const std::string & xpos, const std::string & xneg, const std::string & ypos, const std::string & yneg, const std::string & zpos, const std::string & zneg) {
+Texture::Texture(const std::string &xpos, const std::string &xneg, const std::string &ypos, const std::string &yneg, const std::string &zpos, const std::string &zneg) {
     m_textureUnit = Texture::nextTextureUnit;
     Texture::nextTextureUnit++;
     

@@ -2,9 +2,9 @@
 
 GLint Shader::activeProgramID = 0;
 
-Shader::Shader(const std::string & vertexShaderPath, const std::string & fragmentShaderPath) {
-	char * vertexCode = readFile(vertexShaderPath);
-	char * fragmentCode = readFile(fragmentShaderPath);
+Shader::Shader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath) {
+	char *vertexCode = readFile(vertexShaderPath);
+	char *fragmentCode = readFile(fragmentShaderPath);
 
 	if (!(vertexCode && fragmentCode)) {
 		printf("Can't find shader file\n");
@@ -20,7 +20,7 @@ Shader::Shader(const std::string & vertexShaderPath, const std::string & fragmen
 	glDeleteShader(fragmentID);
 }
 
-char * Shader::readFile(const std::string & filename) {
+char *Shader::readFile(const std::string &filename) {
 	FILE *fp = fopen(filename.c_str(), "r");
     if (fp == nullptr) {
         printf("Shader file not found: %s\n", filename.c_str());
@@ -46,8 +46,7 @@ bool Shader::compiledStatus(GLint shaderID) {
 	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compiled);
 	if (compiled) {
 		return true;
-	}
-	else {
+	} else {
 		GLint logLength;
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
 		char *msgBuffer = new char[logLength];
@@ -58,7 +57,7 @@ bool Shader::compiledStatus(GLint shaderID) {
 	}
 }
 
-GLint Shader::compileShader(const char * shaderSource, GLenum shaderType) {
+GLint Shader::compileShader(const char *shaderSource, GLenum shaderType) {
 	GLint shaderID = glCreateShader(shaderType);
 	glShaderSource(shaderID, 1, (const GLchar**)&shaderSource, NULL);
 	glCompileShader(shaderID);
@@ -74,8 +73,7 @@ bool Shader::linkedStatus(GLint programID) {
 	glGetProgramiv(programID, GL_LINK_STATUS, &linked);
 	if (linked) {
 		return true;
-	}
-	else {
+	} else {
 		GLint logLength;
 		glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &logLength);
 		char *msgBuffer = new char[logLength];
@@ -97,10 +95,11 @@ GLint Shader::linkShaderProgram(GLint vertexShaderID, GLint fragmentShaderID) {
 	if (linked) {
 		return programID;
 	}
+
 	return -1;
 }
 
-GLint Shader::getUniform(const std::string & name) {
+GLint Shader::getUniform(const std::string &name) {
 	if (name.empty()) {
 		printf("Could not find uniform location: Invalid name.\n");
 		exit(-1);
@@ -111,59 +110,60 @@ GLint Shader::getUniform(const std::string & name) {
 		printf("Could not get uniform location with name: %s.\n", name.c_str());
 		exit(-1);
 	}
+
 	return uniform;
 }
 
-void Shader::setUniform(const std::string & name, float x, float y, float z) {
+void Shader::setUniform(const std::string &name, float x, float y, float z) {
     GLint loc = getUniform(name);
     if (loc >= 0) {
         glUniform3f(loc, x, y, z);
     }
 }
 
-void Shader::setUniform(const std::string & name, const glm::vec3 & v) {
+void Shader::setUniform(const std::string &name, const glm::vec3 &v) {
     GLint loc = getUniform(name);
     if (loc >= 0) {
         glUniform3f(loc, v.x, v.y, v.z);
     }
 }
 
-void Shader::setUniform(const std::string & name, const glm::vec4 & v) {
+void Shader::setUniform(const std::string &name, const glm::vec4 &v) {
     GLint loc = getUniform(name);
     if (loc >= 0) {
         glUniform4f(loc, v.x, v.y, v.z, v.w);
     }
 }
 
-void Shader::setUniform(const std::string & name, const glm::mat3 & m) {
+void Shader::setUniform(const std::string &name, const glm::mat3 &m) {
     GLint loc = getUniform(name);
     if (loc >= 0) {
         glUniformMatrix3fv(loc, 1, GL_FALSE, &m[0][0]);
     }
 }
 
-void Shader::setUniform(const std::string & name, const glm::mat4&  m) {
+void Shader::setUniform(const std::string &name, const glm::mat4 &m) {
     GLint loc = getUniform(name);
     if (loc >= 0) {
         glUniformMatrix4fv(loc, 1, GL_FALSE, &m[0][0]);
     }
 }
 
-void Shader::setUniform(const std::string & name, float val) {
+void Shader::setUniform(const std::string &name, float val) {
     GLint loc = getUniform(name);
     if (loc >= 0) {
         glUniform1f(loc, val);
     }
 }
 
-void Shader::setUniform(const std::string & name, int val) {
+void Shader::setUniform(const std::string &name, int val) {
     GLint loc = getUniform(name);
     if (loc >= 0) {
         glUniform1i(loc, val);
     }
 }
 
-void Shader::setUniform(const std::string & name, bool val) {
+void Shader::setUniform(const std::string &name, bool val) {
     GLint loc = getUniform(name);
     if (loc >= 0) {
         glUniform1i(loc, val);

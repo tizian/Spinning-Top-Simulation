@@ -1,14 +1,14 @@
 #pragma once
 
-#include <vector>
-
 #include "Contact.h"
 #include "RigidBody.h"
+
+#include <vector>
 
 using namespace glm;
 
 namespace Collision {
-    
+
     // Coefficient of restitution
     static float e = 0.3f;
     
@@ -16,7 +16,7 @@ namespace Collision {
      *
      * Precondiditon: first contact in list is the single contact point for the collision response impulse
      */
-    static void collisionResponseWithGround(RigidBody & a, std::vector<Contact> & contacts) {
+    static void collisionResponseWithGround(RigidBody &a, std::vector<Contact> &contacts) {
         if (contacts.size() == 0) return;
         
         vec3 org_linearMomentum = a.getLinearMomentum();
@@ -35,10 +35,7 @@ namespace Collision {
         
         if (vrelMagnitude > 0.8) return;
         
-        
-        
         // Colliding contact
-        
         float j = -(1.f+e) * dot(vrel, normal) / (1.f/a.getMass() + dot(normal, cross(a.getInertiaTensorInv() * cross(ra, normal), ra)));
         j = max(0.0f, j);
         
@@ -52,8 +49,7 @@ namespace Collision {
         int start_i = contacts.size() == 1 ? 0 : 1;
         int numberContacts = contacts.size() == 1 ? 1 : (int)contacts.size() - 1;
         
-        for (int i = start_i; i < contacts.size(); i++) {
-            
+        for (size_t i = start_i; i < contacts.size(); i++) {
             vec3 p = contacts[i].p;
             vec3 n = contacts[i].n;
             
@@ -61,7 +57,6 @@ namespace Collision {
             vrel = org_linearMomentum/a.getMass() + cross(a.getAngularVelocity(), ra);
             
             // Torque Friction from http://ch.mathworks.com/help/physmod/simscape/ref/rotationalfriction.html
-            
             float frictionTorque;                       // T
             float coulombFrictionTorque = 20;           // T_C; [N*m]
             float breakawayFrictionTorque = 25;         // T_brk; [N*m];
@@ -70,46 +65,36 @@ namespace Collision {
             float coefficient = 10;                     // c_v; [rad/s]
             
             // x
-            
             float omega = a.getAngularVelocity().x;
             
-            if (abs(omega) >= velocityThreshold)
-            {
+            if (abs(omega) >= velocityThreshold) {
                 frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
-            }
-            else {
+            } else {
                 frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
             }
             a.addTorque(0.1f * vec3(-frictionTorque / numberContacts, 0.0, 0.0));
             
             // y
-            
             omega = a.getAngularVelocity().y;
             
-            if (abs(omega) >= velocityThreshold)
-            {
+            if (abs(omega) >= velocityThreshold) {
                 frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
-            }
-            else {
+            } else {
                 frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
             }
             a.addTorque(0.1f * vec3(0, -frictionTorque / numberContacts, 0));
             
             // z
-            
             omega = a.getAngularVelocity().z;
             
-            if (abs(omega) >= velocityThreshold)
-            {
+            if (abs(omega) >= velocityThreshold) {
                 frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
-            }
-            else {
+            } else {
                 frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
             }
             a.addTorque(0.1f * vec3(0, 0, -frictionTorque / numberContacts));
             
             // Linear Friction from http://ch.mathworks.com/help/physmod/simscape/ref/translationalfriction.html
-            
             float frictionForce;                // F
             float coulombFrictionForce = 20;    // F_C; [N]
             float breakawayFrictionForce = 25;  // F_brk; [N];
@@ -118,49 +103,35 @@ namespace Collision {
             coefficient = 10;                   // c_v; [s/m]
             
             // x
-            
             float v = vrel.x;
-            
-            if (abs(v) >= velocityThreshold)
-            {
+            if (abs(v) >= velocityThreshold) {
                 frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
             } else {
                 frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
             }
-            
             a.addForce(0.1f * vec3(-frictionForce / numberContacts, 0, 0), p/* - vec3(0, distanceGround, 0)*/);
             
             // y
-            
             v = vrel.y;
-            
-            if (abs(v) >= velocityThreshold)
-            {
+            if (abs(v) >= velocityThreshold) {
                 frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
             } else {
                 frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
             }
-            
             a.addForce(0.1f * vec3(0, -frictionForce / numberContacts, 0), p/* - vec3(0, distanceGround, 0)*/);
             
             // z
-            
             v = vrel.z;
-            
-            if (abs(v) >= velocityThreshold)
-            {
+            if (abs(v) >= velocityThreshold) {
                 frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
             } else {
                 frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
             }
-            
             a.addForce(0.1f * vec3(0, 0, -frictionForce / numberContacts), p/* - vec3(0, distanceGround, 0)*/);
         }
-        
     }
     
-    static void collisionResponseBetween(RigidBody & a, RigidBody & b, std::vector<Contact> & contacts) {
-        
+    static void collisionResponseBetween(RigidBody &a, RigidBody &b, std::vector<Contact> &contacts) {
         int numberContacts = (int)contacts.size();
         if (numberContacts == 0) return;
         
@@ -174,8 +145,7 @@ namespace Collision {
         }
         
         theCollisionPoint *= 1.f/(float)numberContacts;
-        if (length(theCollisionNormal) != 0)
-        {
+        if (length(theCollisionNormal) != 0) {
             theCollisionNormal = normalize(theCollisionNormal);
         } else {
             theCollisionNormal = contacts[0].n;
@@ -205,14 +175,12 @@ namespace Collision {
             float vrelMagnitude = dot(normal, vrel);
             // printf("vrel: %f\n", vrelMagnitude);
         
-            if (vrelMagnitude > 0.8)
-            {
-               // printf("no impuls added\n");
+            if (vrelMagnitude > 0.8) {
+                // printf("no impuls added\n");
                 return;
             }
         
             // Colliding contact
-            
             float nom = -(1.f+e) * dot(vrel, normal);
             float denom1 = 1.f/a.getMass() + 1.f/b.getMass();
             float denom2 = dot(normal, cross(a.getInertiaTensorInv() * cross(ra, normal), ra));
@@ -230,6 +198,6 @@ namespace Collision {
             
             a.addImpulse(collisionImpulse, point);
             b.addImpulse(-collisionImpulse, point);
-       // }
+        // }
     }
 }

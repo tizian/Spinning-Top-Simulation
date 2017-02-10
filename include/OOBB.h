@@ -1,37 +1,36 @@
 #pragma once
 
-#include <GL/gl3w.h>
-#include <glm/glm.hpp>
+#include "IntersectionTest.h"
+#include "Mesh.h"
+#include "Triangle.h"
 
 #include <vector>
 
-#include "Mesh.h"
-#include "IntersectionTest.h"
-#include "Triangle.h"
+#include <GL/gl3w.h>
+#include <glm/glm.hpp>
 
 class OOBB {
 public:
     OOBB();
     OOBB(std::vector<Triangle> includedTriangles, glm::vec3 origin, glm::vec3 radii);
-    OOBB(Mesh * mesh);
+    OOBB(Mesh *mesh);
     
     glm::vec3 getOrigin();
     glm::vec3 getRadii();
     
     GLuint getNumVertices();
-    GLfloat * getVertices();
+    GLfloat *getVertices();
     
     int getDepth();
     
     std::vector<Triangle> getIncludedTriangles();
-    std::vector<OOBB> * getChildren();
+    std::vector<OOBB> *getChildren();
     
     void split(int depth);
     
     void print(bool recursive);
     
 private:
-    
     void setDefaults();
     
     void calculateBoundingBox();
@@ -45,7 +44,7 @@ private:
     glm::vec3 m_origin; // lower left corner
     glm::vec3 m_radii; // width, height, depth
     
-    GLfloat * m_vertices = nullptr;
+    GLfloat *m_vertices = nullptr;
     
     std::vector<Triangle> m_includedTriangles;
     

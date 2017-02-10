@@ -1,20 +1,19 @@
 #include "RigidBody.h"
 
-#ifndef MAXFLOAT
-    #define MAXFLOAT      3.40282347e+37F
-#endif
-
-#include <GLFW/glfw3.h>
-
-#include <glm/gtc/matrix_access.hpp>
-#include <glm/ext.hpp>
+#include "Assets.h"
+#include "InertiaTensor.h"
 
 #include <algorithm>
 #include <numeric>
 #include <queue>
 
-#include "Assets.h"
-#include "InertiaTensor.h"
+#include <GLFW/glfw3.h>
+#include <glm/gtc/matrix_access.hpp>
+#include <glm/ext.hpp>
+
+#ifndef MAXFLOAT
+    #define MAXFLOAT      3.40282347e+37F
+#endif
 
 using namespace glm;
 
@@ -58,8 +57,7 @@ void RigidBody::setDefaults() {
     octreeMeshes = new std::vector<Body>();
 }
 
-void RigidBody::printState()
-{
+void RigidBody::printState() {
     printf("\n");
     printf("m_position: %f %f %f\n", m_position.x, m_position.y, m_position.z);
     printf("m_orientation: %f %f %f %f\n", m_orientation.w, m_orientation.x, m_orientation.y, m_orientation.z);
@@ -82,8 +80,7 @@ void RigidBody::setMesh(Mesh *mesh) {
     // printf("body inertia tensor inv:\n\t%f %f %f\n\t%f %f %f\n\t%f %f %f\n", m_bodyInertiaTensorInv[0][0], m_bodyInertiaTensorInv[0][1], m_bodyInertiaTensorInv[0][2], m_bodyInertiaTensorInv[1][0], m_bodyInertiaTensorInv[1][1], m_bodyInertiaTensorInv[1][2], m_bodyInertiaTensorInv[2][0], m_bodyInertiaTensorInv[2][1], m_bodyInertiaTensorInv[2][2]);
 }
 
-OOBB * RigidBody::getBoundingBox()
-{
+OOBB * RigidBody::getBoundingBox() {
     return m_boundingBox;
 }
 
@@ -121,8 +118,7 @@ void RigidBody::addTorque(const glm::vec3 torque) {
     m_torque += torque;
 }
 
-std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, mat4 & modelTwo, mat4 & invBox2MoldeMatTimesBox1ModelMat)
-{
+std::vector<Contact> intersectOctrees(OOBB *one, mat4 &modelOne, OOBB *two, mat4 &modelTwo, mat4 &invBox2MoldeMatTimesBox1ModelMat) {
     std::vector<Contact> intersectionPoints = std::vector<Contact>();
     // countBoxBox++;
     if (IntersectionTest::intersectionBoxBox(one->getOrigin(), one->getRadii(), two->getOrigin(), two->getRadii(), invBox2MoldeMatTimesBox1ModelMat)) {
@@ -130,28 +126,23 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
         std::vector<OOBB> * childrenOne = one->getChildren();
         std::vector<OOBB> * childrenTwo = two->getChildren();
         
-        if (childrenOne->size() > 0 && childrenTwo->size() > 0)
-        {
-            for (int i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
-                for (int j = 0; j < childrenTwo->size() && intersectionPoints.size() == 0; ++j) {
+        if (childrenOne->size() > 0 && childrenTwo->size() > 0) {
+            for (size_t i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
+                for (size_t j = 0; j < childrenTwo->size() && intersectionPoints.size() == 0; ++j) {
                     std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, &childrenTwo->at(j), modelTwo, invBox2MoldeMatTimesBox1ModelMat);
                     intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
                 }
             }
         } else if (childrenOne->size() > 0) {
-            
-            for (int i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
+            for (size_t i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
                 std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, two, modelTwo, invBox2MoldeMatTimesBox1ModelMat);
                 intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
             }
-            
         } else if (childrenTwo->size() > 0) {
-        
-            for (int i = 0; i < childrenTwo->size() && intersectionPoints.size() == 0; ++i) {
+            for (size_t i = 0; i < childrenTwo->size() && intersectionPoints.size() == 0; ++i) {
                 std::vector<Contact> newPoints = intersectOctrees(one, modelOne, &childrenTwo->at(i), modelTwo, invBox2MoldeMatTimesBox1ModelMat);
                 intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
             }
-            
         } else {
             std::vector<Triangle> trianglesOne =  one->getIncludedTriangles();
             std::vector<Triangle> trianglesTwo =  two->getIncludedTriangles();
@@ -159,29 +150,27 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
             std::vector<Triangle> trianglesOneWorld = std::vector<Triangle>();
             std::vector<Triangle> trianglesTwoWorld = std::vector<Triangle>();
             
-            for (int i = 0; i < trianglesOne.size(); ++i) {
+            for (size_t i = 0; i < trianglesOne.size(); ++i) {
                 trianglesOneWorld.push_back(trianglesOne[i].transformWith(modelOne));
             }
             
-            for (int i = 0; i < trianglesTwo.size(); ++i) {
+            for (size_t i = 0; i < trianglesTwo.size(); ++i) {
                 trianglesTwoWorld.push_back(trianglesTwo[i].transformWith(modelTwo));
             }
             
-            for (int i = 0; i < trianglesOneWorld.size() /*&& intersectionPoints.size() == 0*/; ++i) {
-                for (int j = 0; j < trianglesTwoWorld.size() /*&& intersectionPoints.size() == 0*/; ++j) {
+            for (size_t i = 0; i < trianglesOneWorld.size() /*&& intersectionPoints.size() == 0*/; ++i) {
+                for (size_t j = 0; j < trianglesTwoWorld.size() /*&& intersectionPoints.size() == 0*/; ++j) {
 
                     glm::vec3 intersectionPoint;
                     glm::vec3 intersectionNormal;
                     // countTriangleTriangle++;
-                    if (IntersectionTest::intersectionTriangleTriangle(trianglesOneWorld[i], trianglesTwoWorld[j], intersectionPoint, intersectionNormal))
-                    {
+                    if (IntersectionTest::intersectionTriangleTriangle(trianglesOneWorld[i], trianglesTwoWorld[j], intersectionPoint, intersectionNormal)) {
                         
                         Contact contact;
                         contact.p = intersectionPoint;
                         contact.n = intersectionNormal;
                         
-                        if (intersectionNormal == trianglesTwoWorld[j].normal)
-                        {
+                        if (intersectionNormal == trianglesTwoWorld[j].normal) {
                             // printf("changed normal: %f %f %f\n", contact.n.x, contact.n.y, contact.n.z);
                             contact.n *= -1.f;
                         } else {
@@ -198,8 +187,7 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
     return intersectionPoints;
 }
 
-std::vector<Contact> RigidBody::intersectWith(RigidBody & body)
-{
+std::vector<Contact> RigidBody::intersectWith(RigidBody &body) {
     std::vector<Contact> intersectionPoints = std::vector<Contact>();
     
     // int oldcountBoxBox = countBoxBox;
@@ -209,8 +197,8 @@ std::vector<Contact> RigidBody::intersectWith(RigidBody & body)
     
     mat4 myModel = model();
     mat4 bodyModel = body.model();
-    OOBB * myBoundingBox = getBoundingBox();
-    OOBB * bodyBoundingBox = body.getBoundingBox();
+    OOBB *myBoundingBox = getBoundingBox();
+    OOBB *bodyBoundingBox = body.getBoundingBox();
     mat4 invBox2MoldeMatTimesBox1ModelMat = inverse(bodyModel) * myModel;
     intersectionPoints = intersectOctrees(myBoundingBox, myModel, bodyBoundingBox, bodyModel, invBox2MoldeMatTimesBox1ModelMat);
     
@@ -223,33 +211,28 @@ std::vector<Contact> RigidBody::intersectWith(RigidBody & body)
 
 // assume ground at (x, 0, z)
 // only accurate if rigidbody is below the ground, otherwise it returns the distance of the boundingBox to the ground
-float RigidBody::distanceToGround()
-{
+float RigidBody::distanceToGround() {
     GLfloat dist = MAXFLOAT;
-    GLfloat * vertices = m_boundingBox->getVertices();
+    GLfloat *vertices = m_boundingBox->getVertices();
     
     mat4 myModel = model();
     
-    for (int i = 0; i < m_boundingBox->getNumVertices(); i += 3) {
+    for (GLuint i = 0; i < m_boundingBox->getNumVertices(); i += 3) {
         vec4 tmp = myModel * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
         // printf("boundingBox: %f %f %f\n", vertices[i], vertices[i+1], vertices[i+2]);
-        if (tmp.y < dist)
-        {
+        if (tmp.y < dist) {
             dist = tmp.y;
         }
     }
     
-    if (dist < 0)
-    {
+    if (dist < 0) {
         dist = MAXFLOAT;
         vertices = m_mesh->getDistinctVertices();
         
-        for (int i = 0; i < m_mesh->getNumDistinctVertices(); i += 3)
-        {
+        for (GLuint i = 0; i < m_mesh->getNumDistinctVertices(); i += 3) {
             vec4 tmp = myModel * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
             // printf("x: %f y: %f z: %f\n", tmp.x, tmp.y, tmp.z);
-            if (tmp.y < dist)
-            {
+            if (tmp.y < dist) {
                 // printf("relevant vertex: %d\n", i/3);
                 dist = tmp.y;
             }
@@ -262,8 +245,7 @@ float RigidBody::distanceToGround()
 // assume ground at (x, 0, z)
 // returns the colliding vertices with their world coordinates
 // The first entry is the one for collision response. The others are for the friction
-std::vector<vec3> RigidBody::intersectWithGround()
-{
+std::vector<vec3> RigidBody::intersectWithGround() {
     // vec3 normal = vec3(0,1,0);
     std::vector<vec3> points = std::vector<vec3>();
     
@@ -273,16 +255,14 @@ std::vector<vec3> RigidBody::intersectWithGround()
     
     mat4 myModel = model();
     
-    for (int i = 0; i < numVertices; i += 3)
-    {
+    for (GLuint i = 0; i < numVertices; i += 3) {
         vec3 vertex = vec3(vertices[i], vertices[i+1], vertices[i+2]); // body space
         vec4 tmp = myModel * vec4(vertex.x, vertex.y, vertex.z, 1.0f); // world space
         vertex = vec3(tmp.x, tmp.y, tmp.z);
         
         // tmp = transpose(inverse(model())) * vec4(normals[i], normals[i+1], normals[i+2], 1.f);
         // vec3 vertexNormal = vec3(tmp.x, tmp.y, tmp.z);
-        if (vertex.y < 0)
-        {
+        if (vertex.y < 0) {
             if (points.empty()) {
                 points.push_back(vertex);
             } else if (points[0].y == vertex.y) {
@@ -332,9 +312,7 @@ std::vector<vec3> RigidBody::intersectWithGround()
 }
 
 void RigidBody::update(float dt) {
-    
-    if (!m_active)
-    {
+    if (!m_active) {
         // return;      // Hacked "resting contacts"
         m_angularMomentum *= 0.7f; // new attempt for resting contacts
         m_linearMomentum *= 0.7f;
@@ -371,8 +349,7 @@ void RigidBody::update(float dt) {
     m_torque = glm::vec3(0, 0, 0);
     
     // check for ground collision and do collision response
-    if (distanceGround < 0)
-    {
+    if (distanceGround < 0) {
         if (firstTime) {
             printf("First contact with ground:\n\tdistance: %f\n", distanceGround);
         }
@@ -407,10 +384,8 @@ void RigidBody::update(float dt) {
         
         addImpulse(impulse, collisionPoints[0]);
         
-        for (int i = collisionPoints.size() == 1 ? 0 : 1; i < collisionPoints.size(); i++)
-        {
-            if (frictionMethod == 0) // forced based friction model
-            {
+        for (size_t i = collisionPoints.size() == 1 ? 0 : 1; i < collisionPoints.size(); i++) {
+            if (frictionMethod == 0) {  // forced based friction model
                 r = collisionPoints[i] - m_position;
                 vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r); // http://en.wikipedia.org/wiki/Angular_velocity
 
@@ -422,9 +397,7 @@ void RigidBody::update(float dt) {
                 // } else {
                 //    addForce(vrel * -1.f, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
                 // }
-            }
-            if (frictionMethod == 1)    // Impulse-Based Friction Model (Coulomb friction model)
-            {
+            } else if (frictionMethod == 1) { // Impulse-Based Friction Model (Coulomb friction model)
                 r = collisionPoints[i] - m_position;
                 vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r);
                 
@@ -440,9 +413,7 @@ void RigidBody::update(float dt) {
                 
                 addImpulse(frictionImpulse, collisionPoints[i]);
             
-            }
-            else if (frictionMethod == 3) // MatLab friction
-            {
+            } else if (frictionMethod == 3) { // MatLab friction
                 int collisionPointsSize = collisionPoints.size() == 1 ? 1 : (int)collisionPoints.size() - 1;
                 r = collisionPoints[i] - m_position;
                 vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r);
@@ -457,8 +428,7 @@ void RigidBody::update(float dt) {
                 float viscousFrictionCoefficient = 0.001; // f; [N*m/(rad/s)];
                 float coefficient = 10; // c_v; [rad/s]
                 
-                if (abs(omega) >= velocityThreshold)
-                {
+                if (abs(omega) >= velocityThreshold) {
                     frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
                 } else {
                     frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
@@ -467,8 +437,7 @@ void RigidBody::update(float dt) {
                 
                 omega = m_angularVelocity.y;
                 
-                if (abs(omega) >= velocityThreshold)
-                {
+                if (abs(omega) >= velocityThreshold) {
                     frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
                 } else {
                     frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
@@ -477,8 +446,7 @@ void RigidBody::update(float dt) {
                 
                 omega = m_angularVelocity.z;
                 
-                if (abs(omega) >= velocityThreshold)
-                {
+                if (abs(omega) >= velocityThreshold) {
                     frictionTorque = (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * abs(omega))) * sign(omega) + viscousFrictionCoefficient * omega;
                 } else {
                     frictionTorque = omega * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionTorque + (breakawayFrictionTorque - coulombFrictionTorque) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
@@ -495,8 +463,7 @@ void RigidBody::update(float dt) {
                 viscousFrictionCoefficient = 10; // f; [N/(m//s)]; default = 100;
                 coefficient = 10; // c_v; [s/m]
                 
-                if (abs(v) >= velocityThreshold)
-                {
+                if (abs(v) >= velocityThreshold) {
                     frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
                 } else {
                     frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
@@ -506,8 +473,7 @@ void RigidBody::update(float dt) {
                 
                 // y component
                 v = vrel.y; // m_linearMomentum.z / m_mass; // v
-                if (abs(v) >= velocityThreshold)
-                {
+                if (abs(v) >= velocityThreshold) {
                     frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
                 } else {
                     frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
@@ -517,8 +483,7 @@ void RigidBody::update(float dt) {
                 
                 // z component
                 v = vrel.z; // m_linearMomentum.z / m_mass; // v
-                if (abs(v) >= velocityThreshold)
-                {
+                if (abs(v) >= velocityThreshold) {
                     frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
                 } else {
                     frictionForce = v * (viscousFrictionCoefficient * velocityThreshold + (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * velocityThreshold))) / velocityThreshold;
@@ -556,19 +521,17 @@ void RigidBody::update(float dt) {
     // printState();
 }
 
-void RigidBody::renderOctree()
-{
-    if (octreeMeshes->size() == 0)
-    {
-        Material * pointMaterial = new Material(vec3(1,0,0));
+void RigidBody::renderOctree() {
+    if (octreeMeshes->size() == 0) {
+        Material *pointMaterial = new Material(vec3(1,0,0));
         
         int size = 3*8;
         
-        std::queue<OOBB*> boxes = std::queue<OOBB*>();
+        std::queue<OOBB *> boxes = std::queue<OOBB *>();
         boxes.push(getBoundingBox());
         
         while (!boxes.empty()) {
-            OOBB * box = boxes.front();
+            OOBB *box = boxes.front();
             boxes.pop();
             
             for (int i = 0; i < size; i += 3) {
@@ -601,16 +564,15 @@ void RigidBody::renderOctree()
                 octreeMeshes->push_back(point);
             }
             
-            for (int i = 0; i < box->getChildren()->size(); ++i) {
+            for (size_t i = 0; i < box->getChildren()->size(); ++i) {
                 boxes.push(&box->getChildren()->at(i));
             }
-            
         }
-        
     } else {
         mat4 myModel = model();
         quat myOrientation = getOrientation();
-        for (int i = 0; i < octreeMeshes->size(); ++i) {
+        
+        for (size_t i = 0; i < octreeMeshes->size(); ++i) {
             glm::vec3 tmp = octreeMeshes->at(i).getPosition();
             octreeMeshes->at(i).setOrientation(myOrientation);
             octreeMeshes->at(i).setPosition(vec3(myModel * vec4(tmp.x, tmp.y, tmp.z, 1.f)));

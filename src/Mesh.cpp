@@ -1,12 +1,12 @@
 #include "Mesh.h"
 
-#include <tiny_obj_loader.h>
 #include <vector>
-#include <iostream>
+
+#include <tiny_obj_loader.h>
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-Mesh::Mesh(const std::string & filename) {
+Mesh::Mesh(const std::string &filename) {
     glGenVertexArrays(1, &m_vao);       // Generate a VAO
     glGenBuffers(1, &m_vbo);            // Generate a VBO
     m_vertices = m_distinctVertices = m_normals = m_uvs = m_colors = NULL;
@@ -15,7 +15,7 @@ Mesh::Mesh(const std::string & filename) {
     loadFromFile(filename);
 }
 
-Mesh::Mesh(GLfloat * vertices, int numVertices) {
+Mesh::Mesh(GLfloat *vertices, int numVertices) {
     if (vertices != nullptr) {
         glGenVertexArrays(1, &m_vao);       // Generate a VAO
         glGenBuffers(1, &m_vbo);            // Generate a VBO
@@ -72,25 +72,23 @@ void Mesh::setVertexColors(GLfloat *colors, int numColors) {
     this->m_numColors = numColors;
 }
 
-GLfloat * Mesh::getVertices()
-{
+GLfloat *Mesh::getVertices() {
     return m_vertices;
 }
 
-GLuint Mesh::getNumVertices(){
+GLuint Mesh::getNumVertices() {
     return m_numVertices;
 }
 
-GLfloat * Mesh::getDistinctVertices()
-{
+GLfloat *Mesh::getDistinctVertices() {
     return m_distinctVertices;
 }
 
-GLuint Mesh::getNumDistinctVertices(){
+GLuint Mesh::getNumDistinctVertices() {
     return m_numDistinctVertices;
 }
 
-GLfloat * Mesh::getNormals(){
+GLfloat *Mesh::getNormals(){
     return m_normals;
 }
 
@@ -168,7 +166,7 @@ void Mesh::render() {
     }
 }
 
-void Mesh::loadFromFile(const std::string & filename) {
+void Mesh::loadFromFile(const std::string &filename) {
     using namespace tinyobj;
 
     std::vector<shape_t>    shapes;

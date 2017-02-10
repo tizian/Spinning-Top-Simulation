@@ -1,8 +1,8 @@
 #pragma once
 
+#include "DebugPoint.h"
 #include "RigidBody.h"
 #include "RigidBodyFactory.h"
-#include "DebugPoint.h"
 
 class Simulation {
 public:
@@ -10,15 +10,15 @@ public:
     
     void reset();
     
-    std::vector<RigidBody> * getCurrentState();
-    std::vector<RigidBody> * getLastState();
+    std::vector<RigidBody> *getCurrentState();
+    std::vector<RigidBody> *getLastState();
     
     size_t getNumberOfStates();
 
     void forwardStep(float dt);
     void backwardStep();
     
-    RigidBody * getActiveRigidBody();
+    RigidBody *getActiveRigidBody();
     void removeActiveRigidBody();
     void toggleActiveRigidBody();
     void addRigidBody(int type, bool rotating, bool upsidedown, float xOffset, float yOffset);

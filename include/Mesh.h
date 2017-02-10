@@ -5,37 +5,35 @@
 #include <string>
 
 // Handles loading and rendering of model assets. (Raw models without material, textures, transformations)
-
-class Mesh
-{
+class Mesh {
 public:
-    Mesh(const std::string & filename);
-    Mesh(GLfloat * vertices, int numVertices);
+    Mesh(const std::string &filename);
+    Mesh(GLfloat *vertices, int numVertices);
     Mesh() {};
 
-    void setGeometry(GLfloat * vertices, int numVertices);
-    void setNormals(GLfloat * normals, int numNormals);
-    void setVertexColors(GLfloat * colors, int numColors);
-    void setTextureCoordinates(GLfloat * uvs, int numUVs);
+    void setGeometry(GLfloat *vertices, int numVertices);
+    void setNormals(GLfloat *normals, int numNormals);
+    void setVertexColors(GLfloat *colors, int numColors);
+    void setTextureCoordinates(GLfloat *uvs, int numUVs);
 
-    GLfloat * getVertices();
+    GLfloat *getVertices();
     GLuint getNumVertices();
-    GLfloat * getDistinctVertices();
+    GLfloat *getDistinctVertices();
     GLuint getNumDistinctVertices();
-    GLfloat * getNormals();
+    GLfloat *getNormals();
     
-    void loadFromFile(const std::string & filename);
+    void loadFromFile(const std::string &filename);
     void loadVBO();
     void render();
 
     void destroy();
 
 private:
-    GLfloat * m_vertices;           // x, y, z
-    GLfloat * m_distinctVertices;   // no vertex appears twice
-    GLfloat * m_normals;            // vertex normals
-    GLfloat * m_uvs;                // texture coordinates
-    GLfloat * m_colors;             // vertex colors
+    GLfloat *m_vertices;           // x, y, z
+    GLfloat *m_distinctVertices;   // no vertex appears twice
+    GLfloat *m_normals;            // vertex normals
+    GLfloat *m_uvs;                // texture coordinates
+    GLfloat *m_colors;             // vertex colors
     
     GLuint m_numVertices;
     GLuint m_numDistinctVertices;

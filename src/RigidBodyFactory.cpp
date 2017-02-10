@@ -115,36 +115,27 @@ void resetSpinningTop6(RigidBody &rb) {
 void RigidBodyFactory::resetSpinningTop(RigidBody &rb, int type, bool rotating, bool upsidedown, float xOffset, float yOffset) {
     if (type == 1) {
         resetSpinningTop1(rb);
-    }
-    else if (type == 2) {
+    } else if (type == 2) {
         resetSpinningTop2(rb);
-    }
-    else if (type == 3) {
+    } else if (type == 3) {
         resetSpinningTop3(rb);
-    }
-    else if (type == 4) {
+    } else if (type == 4) {
         resetSpinningTop4(rb);
-    }
-    else if (type == 5) {
+    } else if (type == 5) {
         resetSpinningTop5(rb);
-    }
-    else if (type == 6) {
+    } else if (type == 6) {
         resetSpinningTop6(rb);
-    }
-    else if (type == 9) {
+    } else if (type == 9) {
         resetCube(rb);
-    }
-    else if (type == 0) {
+    } else if (type == 0) {
         resetSphere(rb);
     }
     
-    if (upsidedown)
-    {
+    if (upsidedown) {
         rb.setOrientation(glm::quat_cast(glm::rotate((float)M_PI, glm::vec3(1, 0, 0))));
     }
     
-    if (rotating)
-    {
+    if (rotating) {
         rb.addForce(glm::vec3(0,0,500), rb.getPosition() + glm::vec3(1,0,0));
         rb.addForce(glm::vec3(0,0,-500), rb.getPosition() + glm::vec3(-1,0,0));
     }

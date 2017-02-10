@@ -17,16 +17,15 @@ void Simulation::reset() {
     m_simulationStates.push_back(state);
 }
 
-vector<RigidBody> * Simulation::getCurrentState() {
-    vector<RigidBody> * state = &m_simulationStates.back();
+vector<RigidBody> *Simulation::getCurrentState() {
+    vector<RigidBody> *state = &m_simulationStates.back();
     return state;
 }
 
-vector<RigidBody> * Simulation::getLastState() {
+vector<RigidBody> *Simulation::getLastState() {
     if (m_simulationStates.size() < 2) {
         return nullptr;
-    }
-    else {
+    } else {
         return &m_simulationStates.at(m_simulationStates.size() - 2);
     }
 }
@@ -41,19 +40,18 @@ void Simulation::forwardStep(float dt) {
     vector<RigidBody> newState = m_simulationStates.back();
 
     // update rigidbodies
-    for (int i = 0; i < newState.size(); i++) {
+    for (size_t i = 0; i < newState.size(); i++) {
         newState[i].update(dt);
 
         showDebugPoint(newState[i].getPosition());
     }
 
     // collision detection and response
-    for (int i = 0; i < newState.size(); ++i) {
-        for (int j = i+1; j < newState.size(); ++j) {
+    for (size_t i = 0; i < newState.size(); ++i) {
+        for (size_t j = i+1; j < newState.size(); ++j) {
             
             std::vector<Contact> contacts = newState[i].intersectWith(newState[j]);
-            if (contacts.size() > 0)
-            {
+            if (contacts.size() > 0) {
                 // printf("collisionPoints: %lu\n", contacts.size());
                 Collision::collisionResponseBetween(newState[j], newState[i], contacts);
             }
@@ -74,21 +72,20 @@ void Simulation::backwardStep() {
         m_simulationStates.pop_back();
     }
     
-    vector<RigidBody> * state = &m_simulationStates.back();
+    vector<RigidBody> *state = &m_simulationStates.back();
     m_activeRigidBody = -1;
-    for (int i = 0; i < state->size(); i++) {
+    for (size_t i = 0; i < state->size(); i++) {
         if (state->at(i).isCurrentlyActive) {
             m_activeRigidBody = i;
         }
     }
 }
 
-RigidBody * Simulation::getActiveRigidBody() {
+RigidBody *Simulation::getActiveRigidBody() {
     if (m_activeRigidBody == -1) {
         return nullptr;
-    }
-    else {
-        vector<RigidBody> * state = &m_simulationStates.back();
+    } else {
+        vector<RigidBody> *state = &m_simulationStates.back();
         return &state->at(m_activeRigidBody);
     }
 }
@@ -100,12 +97,14 @@ void Simulation::removeActiveRigidBody() {
     getActiveRigidBody()->isCurrentlyActive = false;
     getActiveRigidBody()->setMaterial(Assets::getWhiteMaterial());
     
-    vector<RigidBody> * state = &m_simulationStates.back();
+    vector<RigidBody> *state = &m_simulationStates.back();
     state->erase(state->begin() + m_activeRigidBody);
     m_activeRigidBody++;
-    if (m_activeRigidBody > state->size() - 1) {
+
+    if (m_activeRigidBody > (int)state->size() - 1) {
         m_activeRigidBody = 0;
     }
+
     if (state->size() == 0) {
         m_activeRigidBody = -1;
     }
@@ -113,29 +112,28 @@ void Simulation::removeActiveRigidBody() {
     if (m_activeRigidBody == -1) {
         return;
     }
+
     getActiveRigidBody()->isCurrentlyActive = true;
     getActiveRigidBody()->setMaterial(Assets::getSlightlyGreenMaterial());
 }
 
 void Simulation::removeAllRigidBodies() {
-    vector<RigidBody> * state = &m_simulationStates.back();
+    vector<RigidBody> *state = &m_simulationStates.back();
     state->erase(state->begin(), state->end());
     m_activeRigidBody = -1;
 }
 
 void Simulation::toggleActiveRigidBody() {
-    vector<RigidBody> * state = &m_simulationStates.back();
+    vector<RigidBody> *state = &m_simulationStates.back();
     
     if (m_activeRigidBody < 0) {
         return;
-    }
-    else {
+    } else {
         getActiveRigidBody()->isCurrentlyActive = false;
         getActiveRigidBody()->setMaterial(Assets::getWhiteMaterial());
-        if (m_activeRigidBody < state->size() - 1) {
+        if (m_activeRigidBody < (int)state->size() - 1) {
             m_activeRigidBody++;
-        }
-        else {
+        } else {
             m_activeRigidBody = 0;
         }
         getActiveRigidBody()->isCurrentlyActive = true;
@@ -147,7 +145,7 @@ void Simulation::addRigidBody(int type, bool rotating, bool upsidedown, float xO
     RigidBody rb;
     RigidBodyFactory::resetSpinningTop(rb, type, rotating, upsidedown, xOffset, yOffset);
     
-    vector<RigidBody> * state = &m_simulationStates.back();
+    vector<RigidBody> *state = &m_simulationStates.back();
     state->push_back(rb);
     
     if (m_activeRigidBody == -1) {
