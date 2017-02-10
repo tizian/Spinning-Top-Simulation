@@ -61,7 +61,7 @@ OOBB::OOBB(Mesh * mesh) {
     {
         split(0);
         setDepths(0);
-//        print(false);
+        print(false);
     } else {
         printf("ERROR: Could not create Octree, because there are equal vertices in the same triangles.\n");
     }
@@ -175,7 +175,7 @@ void OOBB::realPrint(int depth)
     }
     
     printf("OOBB includedTriangles: %lu children: %lu depth: %d\n", m_includedTriangles.size()/3, m_children.size(), m_depth);
-//    printf("OOBB includedTriangles: %lu origin: %f %f %f radii: %f %f %f children: %lu\n", m_includedTriangles.size()/3, m_origin.x, m_origin.y, m_origin.z, m_radii.x,m_radii.y, m_radii.z, children.size());
+    // printf("OOBB includedTriangles: %lu origin: %f %f %f radii: %f %f %f children: %lu\n", m_includedTriangles.size()/3, m_origin.x, m_origin.y, m_origin.z, m_radii.x,m_radii.y, m_radii.z, children.size());
     
     for (int i = 0; i < m_children.size(); ++i) {
         m_children[i].realPrint(depth + 1);
@@ -220,8 +220,7 @@ void OOBB::print(bool recursive)
         }
         
         printf("OOBB origin: %f %f %f radii: %f %f %f includedTriangles: %lu totalTrianglesOnLowestLevel: %d totalNodeCount: %d depth: %d\n", m_origin.x, m_origin.y, m_origin.z, m_radii.x,m_radii.y, m_radii.z, m_includedTriangles.size()/3, totalTrianglesOnLowestLevel, totalNodeCount, totalDepth);
-    }
-    
+    }   
 }
 
 void OOBB::setDefaults() {
@@ -268,7 +267,6 @@ void OOBB::calculateBoundingBox() {
     setBoundingVertices();
 }
 
-
 void OOBB::setBoundingVertices()
 {
     // calculate my own vertices
@@ -305,10 +303,4 @@ void OOBB::setBoundingVertices()
     m_vertices[21] = m_origin.x;
     m_vertices[22] = m_origin.y + m_radii.y;
     m_vertices[23] = m_origin.z;
-    
 }
-
-
-
-
-

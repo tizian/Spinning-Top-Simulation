@@ -13,8 +13,8 @@
 class Shader
 {
 public:
-	Shader() {};
-	Shader(const std::string & vertexShaderPath, const std::string & fragmentShaderPath);
+    Shader() {};
+    Shader(const std::string & vertexShaderPath, const std::string & fragmentShaderPath);
     
     static GLint getActiveProgramID() { return activeProgramID; }
     
@@ -29,19 +29,19 @@ public:
     
     GLint getProgramID() const;
 
-	void use();
+    void use();
 
-	void destroy();
+    void destroy();
 
 private:
     static GLint activeProgramID;
     
-	char * readFile(const std::string & filename);
-	bool compiledStatus(GLint shaderID);
-	bool linkedStatus(GLint programID);
+    char * readFile(const std::string & filename);
+    bool compiledStatus(GLint shaderID);
+    bool linkedStatus(GLint programID);
 
-	GLint compileShader(const char * shaderSource, GLenum shaderType);
-	GLint linkShaderProgram(GLint vertexShaderID, GLint fragmentShaderID);
+    GLint compileShader(const char * shaderSource, GLenum shaderType);
+    GLint linkShaderProgram(GLint vertexShaderID, GLint fragmentShaderID);
     
     static GLint getUniform(const std::string & name);
     

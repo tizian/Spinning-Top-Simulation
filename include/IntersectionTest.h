@@ -59,36 +59,36 @@ namespace IntersectionTest {
         float t;
         float eps = 0.000001;
         
-        //Find vectors for two edges sharing point1
+        // Find vectors for two edges sharing point1
         e1 = point2 - point1;
         e2 = point3 - point1;
-        //Begin calculating determinant - also used to calculate u parameter
+        // Begin calculating determinant - also used to calculate u parameter
         P = glm::cross(rayDirection, e2);
-        //if determinant is near zero, ray lies in plane of triangle
+        // if determinant is near zero, ray lies in plane of triangle
         det = glm::dot(e1, P);
-        //NOT CULLING
+        // NOT CULLING
         if(det > -eps && det < eps) return false;
         inv_det = 1.f / det;
         
-        //calculate distance from point1 to ray origin
+        // calculate distance from point1 to ray origin
         T = rayOrigin - point1;
         
-        //Calculate u parameter and test bound
+        // Calculate u parameter and test bound
         u = glm::dot(T, P) * inv_det;
-        //The intersection lies outside of the triangle
+        // The intersection lies outside of the triangle
         if(u < 0.f || u > 1.f) return false;
         
-        //Prepare to test v parameter
+        // Prepare to test v parameter
         Q = glm::cross(T, e1);
         
-        //Calculate V parameter and test bound
+        // Calculate V parameter and test bound
         v = glm::dot(rayDirection, Q) * inv_det;
-        //The intersection lies outside of the triangle
+        // The intersection lies outside of the triangle
         if(v < 0.f || u + v  > 1.f) return false;
         
         t = glm::dot(e2, Q) * inv_det;
         
-        if(t > eps) { //ray intersection
+        if(t > eps) { // ray intersection
             output = t;
             return true;
         }

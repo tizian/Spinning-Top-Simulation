@@ -31,7 +31,7 @@ namespace Collision {
         vec3 vrel = va - vb;
         
         float vrelMagnitude = dot(normal, vrel);
-//        printf("vrel: %f\n", vrelMagnitude);
+        // printf("vrel: %f\n", vrelMagnitude);
         
         if (vrelMagnitude > 0.8) return;
         
@@ -44,7 +44,7 @@ namespace Collision {
         
         vec3 collisionImpulse = j * normal;
         
-//        printf("impulse: %f %f %f\n", collisionImpulse.x, collisionImpulse.y, collisionImpulse.z);
+        // printf("impulse: %f %f %f\n", collisionImpulse.x, collisionImpulse.y, collisionImpulse.z);
         
         a.addImpulse(collisionImpulse, point);
         
@@ -168,9 +168,9 @@ namespace Collision {
         vec3 theCollisionNormal = vec3(0,0,0);
         for (int i = 0; i < numberContacts; ++i) {
             theCollisionPoint += contacts[i].p;
-//            printf("a point: %f %f %f\n", contacts[i].p.x, contacts[i].p.y, contacts[i].p.z);
+            // printf("a point: %f %f %f\n", contacts[i].p.x, contacts[i].p.y, contacts[i].p.z);
             theCollisionNormal += contacts[i].n;
-//            printf("a normal: %f %f %f\n", contacts[i].n.x, contacts[i].n.y, contacts[i].n.z);
+            // printf("a normal: %f %f %f\n", contacts[i].n.x, contacts[i].n.y, contacts[i].n.z);
         }
         
         theCollisionPoint *= 1.f/(float)numberContacts;
@@ -181,16 +181,16 @@ namespace Collision {
             theCollisionNormal = contacts[0].n;
             printf("unable to get average normal\n");
         }
-//        theCollisionNormal = vec3(0,1,0); // this is how it should be (for the start case) our solution gives: 0.16, 0.98, -0.05 which is too imprecise :-(
-//        printf("theCollisionPont: %f %f %f\n", theCollisionPoint.x, theCollisionPoint.y, theCollisionPoint.z);
-//        printf("theCollisionNormal: %f %f %f\n", theCollisionNormal.x, theCollisionNormal.y, theCollisionNormal.z);
+        // theCollisionNormal = vec3(0,1,0); // this is how it should be (for the start case) our solution gives: 0.16, 0.98, -0.05 which is too imprecise :-(
+        // printf("theCollisionPont: %f %f %f\n", theCollisionPoint.x, theCollisionPoint.y, theCollisionPoint.z);
+        // printf("theCollisionNormal: %f %f %f\n", theCollisionNormal.x, theCollisionNormal.y, theCollisionNormal.z);
         
         vec3 org_linearMomentumA = a.getLinearMomentum();
         vec3 org_linearMomentumB = b.getLinearMomentum();
         
-//        for (int i = 0; i < numberContacts; i++) {
-//            vec3 point = contacts[i].p;
-//            vec3 normal = contacts[i].n;
+        // for (int i = 0; i < numberContacts; i++) {
+        //     vec3 point = contacts[i].p;
+        //     vec3 normal = contacts[i].n;
         vec3 point = theCollisionPoint;
         vec3 normal = theCollisionNormal;
         
@@ -203,11 +203,11 @@ namespace Collision {
             vec3 vrel = va - vb;
             
             float vrelMagnitude = dot(normal, vrel);
-//            printf("vrel: %f\n", vrelMagnitude);
+            // printf("vrel: %f\n", vrelMagnitude);
         
             if (vrelMagnitude > 0.8)
             {
-//                printf("no impuls added\n");
+               // printf("no impuls added\n");
                 return;
             }
         
@@ -219,17 +219,17 @@ namespace Collision {
             float denom3 = dot(normal, cross(b.getInertiaTensorInv() * cross(rb, normal), rb));
             
             float j = nom / (denom1 + denom2 + denom3);
-//            printf("j: %f\n", j);
-//            j = j / (float)numberContacts;
+            // printf("j: %f\n", j);
+            // j = j / (float)numberContacts;
             j = max(0.0f, j);
         
             vec3 collisionImpulse = j * normal;
             
-//            printf("impulse: %f %f %f\n", collisionImpulse.x, collisionImpulse.y, collisionImpulse.z);
-//            printf("normal: %f %f %f\n", normal.x, normal.y, normal.z);
+            // printf("impulse: %f %f %f\n", collisionImpulse.x, collisionImpulse.y, collisionImpulse.z);
+            // printf("normal: %f %f %f\n", normal.x, normal.y, normal.z);
             
             a.addImpulse(collisionImpulse, point);
             b.addImpulse(-collisionImpulse, point);
-//        }
+       // }
     }
 }

@@ -59,7 +59,7 @@ private:
     glm::vec3 m_angularMomentum;     // L(t) = I(t) * omega(t)
     
     // derived quantities
-//    vec3 m_linearVelocity;      // v(t)
+    // vec3 m_linearVelocity;      // v(t)
     glm::vec3 m_angularVelocity;     // omega(t)
     glm::mat3 m_inertiaTensorInv;    // I(t)^-1
     glm::mat3 m_rotationMatrix;      // R(t)

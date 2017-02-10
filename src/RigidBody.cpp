@@ -78,8 +78,8 @@ void RigidBody::setMesh(Mesh *mesh) {
 
     m_boundingBox = new OOBB(mesh);
     
-//    m_bodyInertiaTensorInv = InertiaTensor::calculateInertiaTensor(this);
-//    printf("body inertia tensor inv:\n\t%f %f %f\n\t%f %f %f\n\t%f %f %f\n", m_bodyInertiaTensorInv[0][0], m_bodyInertiaTensorInv[0][1], m_bodyInertiaTensorInv[0][2], m_bodyInertiaTensorInv[1][0], m_bodyInertiaTensorInv[1][1], m_bodyInertiaTensorInv[1][2], m_bodyInertiaTensorInv[2][0], m_bodyInertiaTensorInv[2][1], m_bodyInertiaTensorInv[2][2]);
+    // m_bodyInertiaTensorInv = InertiaTensor::calculateInertiaTensor(this);
+    // printf("body inertia tensor inv:\n\t%f %f %f\n\t%f %f %f\n\t%f %f %f\n", m_bodyInertiaTensorInv[0][0], m_bodyInertiaTensorInv[0][1], m_bodyInertiaTensorInv[0][2], m_bodyInertiaTensorInv[1][0], m_bodyInertiaTensorInv[1][1], m_bodyInertiaTensorInv[1][2], m_bodyInertiaTensorInv[2][0], m_bodyInertiaTensorInv[2][1], m_bodyInertiaTensorInv[2][2]);
 }
 
 OOBB * RigidBody::getBoundingBox()
@@ -113,8 +113,8 @@ void RigidBody::addImpulse(const vec3 impulse, const vec3 position) {
     
     m_active = true;
     
-//    printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
-//    printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
+    // printf("impulse: %f %f %f\n", impulse.x, impulse.y, impulse.z);
+    // printf("torqueImpulse: %f %f %f\n", torqueImpulse.x, torqueImpulse.y, torqueImpulse.z);
 }
 
 void RigidBody::addTorque(const glm::vec3 torque) {
@@ -124,7 +124,7 @@ void RigidBody::addTorque(const glm::vec3 torque) {
 std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, mat4 & modelTwo, mat4 & invBox2MoldeMatTimesBox1ModelMat)
 {
     std::vector<Contact> intersectionPoints = std::vector<Contact>();
-//    countBoxBox++;
+    // countBoxBox++;
     if (IntersectionTest::intersectionBoxBox(one->getOrigin(), one->getRadii(), two->getOrigin(), two->getRadii(), invBox2MoldeMatTimesBox1ModelMat)) {
         
         std::vector<OOBB> * childrenOne = one->getChildren();
@@ -172,7 +172,7 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
 
                     glm::vec3 intersectionPoint;
                     glm::vec3 intersectionNormal;
-//                    countTriangleTriangle++;
+                    // countTriangleTriangle++;
                     if (IntersectionTest::intersectionTriangleTriangle(trianglesOneWorld[i], trianglesTwoWorld[j], intersectionPoint, intersectionNormal))
                     {
                         
@@ -182,10 +182,10 @@ std::vector<Contact> intersectOctrees(OOBB * one, mat4 & modelOne, OOBB * two, m
                         
                         if (intersectionNormal == trianglesTwoWorld[j].normal)
                         {
-//                            printf("changed normal: %f %f %f\n", contact.n.x, contact.n.y, contact.n.z);
+                            // printf("changed normal: %f %f %f\n", contact.n.x, contact.n.y, contact.n.z);
                             contact.n *= -1.f;
                         } else {
-//                            printf("non changed normal: %f %f %f\n", contact.n.x, contact.n.y, contact.n.z);
+                            // printf("non changed normal: %f %f %f\n", contact.n.x, contact.n.y, contact.n.z);
                         }
                         
                         intersectionPoints.push_back(contact);
@@ -202,10 +202,10 @@ std::vector<Contact> RigidBody::intersectWith(RigidBody & body)
 {
     std::vector<Contact> intersectionPoints = std::vector<Contact>();
     
-//    int oldcountBoxBox = countBoxBox;
-//    int oldcountTriangleTriangle = countTriangleTriangle;
-//    countBoxBox = 0;
-//    countTriangleTriangle = 0;
+    // int oldcountBoxBox = countBoxBox;
+    // int oldcountTriangleTriangle = countTriangleTriangle;
+    // countBoxBox = 0;
+    // countTriangleTriangle = 0;
     
     mat4 myModel = model();
     mat4 bodyModel = body.model();
@@ -214,9 +214,9 @@ std::vector<Contact> RigidBody::intersectWith(RigidBody & body)
     mat4 invBox2MoldeMatTimesBox1ModelMat = inverse(bodyModel) * myModel;
     intersectionPoints = intersectOctrees(myBoundingBox, myModel, bodyBoundingBox, bodyModel, invBox2MoldeMatTimesBox1ModelMat);
     
-//    countBoxBox = max(countBoxBox, oldcountBoxBox);
-//    countTriangleTriangle = max(countTriangleTriangle, oldcountTriangleTriangle);
-//    printf("box: %d triangle: %d\n", countBoxBox, countTriangleTriangle);
+    // countBoxBox = max(countBoxBox, oldcountBoxBox);
+    // countTriangleTriangle = max(countTriangleTriangle, oldcountTriangleTriangle);
+    // printf("box: %d triangle: %d\n", countBoxBox, countTriangleTriangle);
     
     return intersectionPoints;
 }
@@ -232,7 +232,7 @@ float RigidBody::distanceToGround()
     
     for (int i = 0; i < m_boundingBox->getNumVertices(); i += 3) {
         vec4 tmp = myModel * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
-//        printf("boundingBox: %f %f %f\n", vertices[i], vertices[i+1], vertices[i+2]);
+        // printf("boundingBox: %f %f %f\n", vertices[i], vertices[i+1], vertices[i+2]);
         if (tmp.y < dist)
         {
             dist = tmp.y;
@@ -247,10 +247,10 @@ float RigidBody::distanceToGround()
         for (int i = 0; i < m_mesh->getNumDistinctVertices(); i += 3)
         {
             vec4 tmp = myModel * vec4(vertices[i], vertices[i+1], vertices[i+2], 1.f);
-//            printf("x: %f y: %f z: %f\n", tmp.x, tmp.y, tmp.z);
+            // printf("x: %f y: %f z: %f\n", tmp.x, tmp.y, tmp.z);
             if (tmp.y < dist)
             {
-//                printf("relevant vertex: %d\n", i/3);
+                // printf("relevant vertex: %d\n", i/3);
                 dist = tmp.y;
             }
         }
@@ -264,12 +264,12 @@ float RigidBody::distanceToGround()
 // The first entry is the one for collision response. The others are for the friction
 std::vector<vec3> RigidBody::intersectWithGround()
 {
-//    vec3 normal = vec3(0,1,0);
+    // vec3 normal = vec3(0,1,0);
     std::vector<vec3> points = std::vector<vec3>();
     
     GLfloat * vertices = m_mesh->getDistinctVertices();
     GLuint numVertices = m_mesh->getNumDistinctVertices();
-//    GLfloat * normals = m_mesh->getNormarls();
+    // GLfloat * normals = m_mesh->getNormarls();
     
     mat4 myModel = model();
     
@@ -279,8 +279,8 @@ std::vector<vec3> RigidBody::intersectWithGround()
         vec4 tmp = myModel * vec4(vertex.x, vertex.y, vertex.z, 1.0f); // world space
         vertex = vec3(tmp.x, tmp.y, tmp.z);
         
-//        tmp = transpose(inverse(model())) * vec4(normals[i], normals[i+1], normals[i+2], 1.f);
-//        vec3 vertexNormal = vec3(tmp.x, tmp.y, tmp.z);
+        // tmp = transpose(inverse(model())) * vec4(normals[i], normals[i+1], normals[i+2], 1.f);
+        // vec3 vertexNormal = vec3(tmp.x, tmp.y, tmp.z);
         if (vertex.y < 0)
         {
             if (points.empty()) {
@@ -321,7 +321,7 @@ std::vector<vec3> RigidBody::intersectWithGround()
             point = points[0];
         }
         
-//        printf("LINE:\npoints[0]: %f %f %f\npoints[1]: %f %f %f\npoint: %f %f %f\n", points[0].x, points[0].y, points[0].z, points[1].x, points[1].y, points[1].z, point.x, point.y, point.z);
+        // printf("LINE:\npoints[0]: %f %f %f\npoints[1]: %f %f %f\npoint: %f %f %f\n", points[0].x, points[0].y, points[0].z, points[1].x, points[1].y, points[1].z, point.x, point.y, point.z);
     }
     
     if (points.size() > 1) {
@@ -335,7 +335,7 @@ void RigidBody::update(float dt) {
     
     if (!m_active)
     {
-//        return;      // Hacked "resting contacts"
+        // return;      // Hacked "resting contacts"
         m_angularMomentum *= 0.7f; // new attempt for resting contacts
         m_linearMomentum *= 0.7f;
     }
@@ -358,13 +358,13 @@ void RigidBody::update(float dt) {
     m_angularMomentum = m_angularMomentum + dt * m_torque;                                                                  // L(t) = L(t) + dt * tau(t)
     m_inertiaTensorInv = m_rotationMatrix * m_bodyInertiaTensorInv * transpose(m_rotationMatrix);                           // I(t)^-1 = R(t) * I_body^-1 * R(t)'
     m_angularVelocity = min(max(m_inertiaTensorInv * m_angularMomentum, -1.f * maxAngularVelocity), maxAngularVelocity);    // omega(t) = I(t)^-1 * L(t)
-//    m_linearVelocity = m_linearMomentum / m_mass;
+    // m_linearVelocity = m_linearMomentum / m_mass;
     
     float distanceGround = distanceToGround();
     vec3 normal = vec3(0, 1, 0);
     
-//    printf("m_torque: %f %f %f\n", m_torque.x, m_torque.y, m_torque.z);
-//    printf("m_angularVelocity.y: %f\n",m_angularVelocity.y);
+    // printf("m_torque: %f %f %f\n", m_torque.x, m_torque.y, m_torque.z);
+    // printf("m_angularVelocity.y: %f\n",m_angularVelocity.y);
     
     // Reset forces and torque
     m_force = glm::vec3(0, 0, 0);
@@ -380,13 +380,13 @@ void RigidBody::update(float dt) {
         double tBeforIntersection = glfwGetTime();
         std::vector<vec3> collisionPoints = intersectWithGround();
         double tAfterIntersection = glfwGetTime();
-//        printf("collisionPoints.size: %lu time used: %f\n", collisionPoints.size(), tAfterIntersection - tBeforIntersection);
+        // printf("collisionPoints.size: %lu time used: %f\n", collisionPoints.size(), tAfterIntersection - tBeforIntersection);
         
         vec3 org_linearMomentum = m_linearMomentum;
         
         // Impulse-Based Collision Response
         
-//        printf("THE collision point: %f %f %f\n", collisionPoints[0].x, collisionPoints[0].y, collisionPoints[0].z);
+        // printf("THE collision point: %f %f %f\n", collisionPoints[0].x, collisionPoints[0].y, collisionPoints[0].z);
         vec3 r = collisionPoints[0] - m_position;   // r_a = p - x(t)
         vec3 v = m_linearMomentum / m_mass + cross(m_angularVelocity, r);
         
@@ -401,7 +401,7 @@ void RigidBody::update(float dt) {
         float e = 0.3f;  // Coefficient of restitution
         float j = -(1.f+e)*dot(vrel, normal)/(1.f/m_mass + dot(normal, cross(m_inertiaTensorInv * cross(r, normal), r)));
         j = max(0.0f, j);   // not sure... part of 'Realtime Rigid Body Simulation Using Impulses' paper
-//      printf("j: %f\n", j);
+        // printf("j: %f\n", j);
         
         vec3 impulse = j * normal;
         
@@ -414,14 +414,14 @@ void RigidBody::update(float dt) {
                 r = collisionPoints[i] - m_position;
                 vrel = org_linearMomentum/m_mass + cross(m_angularVelocity, r); // http://en.wikipedia.org/wiki/Angular_velocity
 
-                //printf("bla: %f\n", abs(mat3(model()) * m_angularVelocity).y);
-                //if (abs(mat3(model()) * m_angularVelocity).y < 10)
-                //{
+                // printf("bla: %f\n", abs(mat3(model()) * m_angularVelocity).y);
+                // if (abs(mat3(model()) * m_angularVelocity).y < 10)
+                // {
                     addForce(vrel * 1.f /* (dot(m_angularMomentum, r) / length(part))*/, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
-                //m_angularMomentum *= 0.999f;
-                //} else {
+                // m_angularMomentum *= 0.999f;
+                // } else {
                 //    addForce(vrel * -1.f, collisionPoints[i] - vec3(0, distanceGround, 0)); // don't know why this works.
-                //}
+                // }
             }
             if (frictionMethod == 1)    // Impulse-Based Friction Model (Coulomb friction model)
             {
@@ -490,7 +490,7 @@ void RigidBody::update(float dt) {
                 float frictionForce; // F
                 float coulombFrictionForce = 20; // F_C; [N]
                 float breakawayFrictionForce = 25; // F_brk; [N];
-                float v = vrel.x;//m_linearMomentum.x / m_mass; // v
+                float v = vrel.x; //m_linearMomentum.x / m_mass; // v
                 velocityThreshold = 0.0001; // omega_th; should be between 10^-4 and 10^-6
                 viscousFrictionCoefficient = 10; // f; [N/(m//s)]; default = 100;
                 coefficient = 10; // c_v; [s/m]
@@ -505,7 +505,7 @@ void RigidBody::update(float dt) {
                 addForce(0.1f * vec3(-frictionForce / collisionPointsSize,0,0), collisionPoints[i] - vec3(0, distanceGround, 0));
                 
                 // y component
-                v = vrel.y;//m_linearMomentum.z / m_mass; // v
+                v = vrel.y; // m_linearMomentum.z / m_mass; // v
                 if (abs(v) >= velocityThreshold)
                 {
                     frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
@@ -516,7 +516,7 @@ void RigidBody::update(float dt) {
                 addForce(0.1f * vec3(0,-frictionForce / collisionPointsSize, 0), collisionPoints[i] - vec3(0, distanceGround, 0));
                 
                 // z component
-                v = vrel.z;//m_linearMomentum.z / m_mass; // v
+                v = vrel.z; // m_linearMomentum.z / m_mass; // v
                 if (abs(v) >= velocityThreshold)
                 {
                     frictionForce = (coulombFrictionForce + (breakawayFrictionForce - coulombFrictionForce) * exp(-coefficient * abs(v))) * sign(v) + viscousFrictionCoefficient * v;
@@ -542,20 +542,18 @@ void RigidBody::update(float dt) {
         }
         float average = std::accumulate(m_lastVelocities.begin(), m_lastVelocities.end(), 0.0);
         average /= m_lastVelocities.size();
-//        printf("vel: %f\n", average);
+        // printf("vel: %f\n", average);
         
         if (average < 0.6) m_active = false;
         
-//        if (length(m_linearMomentum) < 0.15 && length(m_angularMomentum) < 0.15) m_active = false;
+        // if (length(m_linearMomentum) < 0.15 && length(m_angularMomentum) < 0.15) m_active = false;
     }
     
     // Fake slowing down
-//    m_angularMomentum *= 0.999f;
-//    m_linearMomentum *= 0.999f;
+    // m_angularMomentum *= 0.999f;
+    // m_linearMomentum *= 0.999f;
     
-//    printState();
-    
-    
+    // printState();
 }
 
 void RigidBody::renderOctree()
@@ -620,6 +618,4 @@ void RigidBody::renderOctree()
             octreeMeshes->at(i).setPosition(tmp);
         }
     }
-    
-    
 }

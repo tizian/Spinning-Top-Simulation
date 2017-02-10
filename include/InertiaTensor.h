@@ -36,14 +36,14 @@ namespace InertiaTensor {
                 }
                 // get sample inside boundingbox
                 vec3 sample = origin + vec3((float)rand() / (float)RAND_MAX * radii.x, (float)rand() / (float)RAND_MAX * radii.y, (float)rand() / (float)RAND_MAX * radii.z);
-                //printf("sample: %f %f %f\n", sample.x, sample.y, sample.z);
+                // printf("sample: %f %f %f\n", sample.x, sample.y, sample.z);
                 vec3 rayOrigin = origin;
                 vec3 rayDirection = sample - origin;
                 float theT = sqrt(rayDirection.x * rayDirection.x + rayDirection.y * rayDirection.y + rayDirection.z * rayDirection.z); // needed later
                 rayDirection /= theT;
                 std::vector<float> ts = std::vector<float>();
                 
-                //printf("theT: %f\n", theT);
+                // printf("theT: %f\n", theT);
                 
                 for (int j = 0; j < numVertices; j += 9)
                 {
@@ -51,7 +51,7 @@ namespace InertiaTensor {
                     vec3 vertex2 = vec3(vertices[j+3], vertices[j+4], vertices[j+5]);
                     vec3 vertex3 = vec3(vertices[j+6], vertices[j+7], vertices[j+8]);
                     
-                    //printf("v1: %f %f %f\nv2: %f %f %f\nv3: %f %f %f\n");
+                    // printf("v1: %f %f %f\nv2: %f %f %f\nv3: %f %f %f\n");
                     
                     float t = 0;
                     
@@ -67,7 +67,7 @@ namespace InertiaTensor {
                 
                 for (int j = 0; j < ts.size(); ++j)
                 {
-                    //printf("ts[%d]: %f\n", j, ts[j]);
+                    // printf("ts[%d]: %f\n", j, ts[j]);
                     if (ts[j] < theT)
                     {
                         outside = !outside;

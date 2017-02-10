@@ -27,7 +27,7 @@ void resetCube(RigidBody &rb) {
 
 void resetSpinningTop1(RigidBody &rb) {
     reset(rb);
-    //    spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 3.4, 5)));
+    // spinningTop.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 3.4, 5)));
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(5, 1.5*5, 5)));
     
     rb.setMesh(Assets::getSpinningTop1());
@@ -38,7 +38,7 @@ void resetSpinningTop1(RigidBody &rb) {
 void resetSpinningTop2(RigidBody &rb) {
     reset(rb);
     
-//    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
+    // rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 4, 4.8)));
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(4.8, 1.5*4.8, 4.8)));
     
     rb.setMesh(Assets::getSpinningTop2());
@@ -51,7 +51,7 @@ void resetSpinningTop2(RigidBody &rb) {
 void resetSpinningTop3(RigidBody &rb) {
     reset(rb);
     
-//    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 2.4, 3.6)));
+    // rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 2.4, 3.6)));
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(3.6, 1.5*3.6, 3.6)));
     
     rb.setMesh(Assets::getSpinningTop3());
@@ -82,10 +82,10 @@ void resetSpinningTop4(RigidBody &rb) {
     
     rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.01, 2.0, 2.01)));
     
-    //        rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2, 2, 2)));
+    // rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2, 2, 2)));
     
-//    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.06, 2.03, 2.06)));    // After 1 Mio. samples
-//    rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2, 1.5 * 2.0, 2)));
+    // rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2.06, 2.03, 2.06)));    // After 1 Mio. samples
+    // rb.setBodyInertiaTensorInv(glm::diagonal3x3(glm::vec3(2, 1.5 * 2.0, 2)));
     
     rb.setMesh(Assets::getSpinningTop4());
     

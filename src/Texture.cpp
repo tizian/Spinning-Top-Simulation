@@ -20,8 +20,8 @@ Texture::Texture(const std::string & texturePath) {
     glGenerateMipmap(GL_TEXTURE_2D);
     SOIL_free_image_data(image);
     
-//    glBindTexture(GL_TEXTURE_2D, 0);
-//    glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, 0);
+    // glActiveTexture(GL_TEXTURE0);
 }
 
 Texture::Texture(const std::string & xpos, const std::string & xneg, const std::string & ypos, const std::string & yneg, const std::string & zpos, const std::string & zneg) {
@@ -78,5 +78,5 @@ GLint Texture::getTextureID() const {
 
 void Texture::use() {
     glActiveTexture(GL_TEXTURE0 + m_textureUnit);
-//    glBindTexture(GL_TEXTURE_2D, m_textureID);
+    // glBindTexture(GL_TEXTURE_2D, m_textureID);
 }

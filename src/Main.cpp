@@ -134,20 +134,20 @@ int main()
     time_t begin = time(0);
     lastMovement = time(0);
     
-	setupContext();
+    setupContext();
     
     if (timeStepMethod == 2) { // turn off vsync or so..
         glfwSwapInterval(0);
     }
     
-	// DEPTH TESTING
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+    // DEPTH TESTING
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
-	// CULLING
-	glEnable (GL_CULL_FACE); // cull face
-	glCullFace (GL_BACK); // cull back face
-	glFrontFace (GL_CCW); // GL_CCW for counter clock-wise
+    // CULLING
+    glEnable (GL_CULL_FACE); // cull face
+    glCullFace (GL_BACK); // cull back face
+    glFrontFace (GL_CCW); // GL_CCW for counter clock-wise
     
     // BLENDING
     glEnable(GL_BLEND);
@@ -195,12 +195,12 @@ int main()
     
     double accumulator = 0.0;
 
-	while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(window)) {
         
-		// Timer
-		static double previous = glfwGetTime();
-		double current = glfwGetTime();
-		float deltaTime = (float) current - (float) previous;
+        // Timer
+        static double previous = glfwGetTime();
+        double current = glfwGetTime();
+        float deltaTime = (float) current - (float) previous;
         previous = current;
         
         if (slowMotion) {
@@ -234,7 +234,7 @@ int main()
                 
                 accumulator += deltaTime;
                 
-//                printf("accumulator: %f\n", accumulator);
+                // printf("accumulator: %f\n", accumulator);
                 while (accumulator >= timeStep) {
                     simulation.forwardStep(timeStep);
                     accumulator -= timeStep;
@@ -284,22 +284,22 @@ int main()
         double updateTime = tAfterUpdate - tBeforeUpdate;
         double renderTime = tAfterRender - tBeforeRender;
         
-//        printf("time\tupdate: %f\trender: %f\n", updateTime, renderTime);
+        // printf("time\tupdate: %f\trender: %f\n", updateTime, renderTime);
         
         if ((int)difftime(time(0), lastMovement) > 3) {
             glfwWaitEvents();
             lastMovement = time(0);
         }
         
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
 
-	destroyContext();
+    destroyContext();
     time_t endtime = time(0);
     
     printf("The program ran for %d seconds.\n", (int)difftime(endtime, begin));
-	return 0;
+    return 0;
 }
 
 void render(vector<RigidBody> * state) {
@@ -364,7 +364,7 @@ void render(vector<RigidBody> * state) {
         
         glEnable(GL_DEPTH_TEST);
         
-//        plane.render();
+        // plane.render();
     }
     
     Assets::getShadowShader()->use();
@@ -531,7 +531,7 @@ void input(float dt) {
         resetCamera();
     }
     
-//    skybox.setPosition(camera.getPosition());
+    // skybox.setPosition(camera.getPosition());
     
     float deltaTheta = camera.getRotationSpeed() * dt;
     
@@ -594,57 +594,57 @@ void input(float dt) {
 }
 
 void setupContext() {
-	// start GL context
-	if (!glfwInit()) {
-		fprintf(stderr, "ERROR: could not start GLFW3\n");
-	}
+    // start GL context
+    if (!glfwInit()) {
+        fprintf(stderr, "ERROR: could not start GLFW3\n");
+    }
     
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	glfwWindowHint(GLFW_SAMPLES, 4);
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
-	window = glfwCreateWindow(width, height, "Spinning spinning tops and other things", NULL, NULL);
+    window = glfwCreateWindow(width, height, "Spinning spinning tops and other things", NULL, NULL);
 
-	if (!window) {
-		fprintf(stderr, "ERROR: could not open window with GLFW3\n");
-		glfwTerminate();
-	}
+    if (!window) {
+        fprintf(stderr, "ERROR: could not open window with GLFW3\n");
+        glfwTerminate();
+    }
 
     glfwSetWindowPos(window, 0, 0);
     
-	glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(window);
 
-	glfwSetWindowSizeCallback(window, glfwWindowResizeCallback);
+    glfwSetWindowSizeCallback(window, glfwWindowResizeCallback);
     glfwSetFramebufferSizeCallback(window, glfwFrameBufferSizeCallback);
 
-	// start GLEW extension handler
-	glewExperimental = GL_TRUE;
-	glewInit();
+    // start GLEW extension handler
+    glewExperimental = GL_TRUE;
+    glewInit();
 
-	// get version info
-	const GLubyte *renderer = glGetString(GL_RENDERER);	// get renderer string
-	const GLubyte *version = glGetString(GL_VERSION);	// get version string
-	std::cout << "Renderer: " << renderer << std::endl;
-	std::cout << "OpenGL version: " << version << std::endl;
+    // get version info
+    const GLubyte *renderer = glGetString(GL_RENDERER); // get renderer string
+    const GLubyte *version = glGetString(GL_VERSION);   // get version string
+    std::cout << "Renderer: " << renderer << std::endl;
+    std::cout << "OpenGL version: " << version << std::endl;
 }
 
 void destroyContext() {
-	// close GL context and any other GLFW resources
-	glfwDestroyWindow(window);
-	glfwTerminate();
+    // close GL context and any other GLFW resources
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }
 
 void glfwWindowResizeCallback(GLFWwindow *window, int w, int h) {
-		width = w;
-		height = h;
+        width = w;
+        height = h;
     
         glfwGetFramebufferSize(window, &width, &height);
         printf("Framebuffer width: %d height: %d\n", width, height);
     
-		camera.setAspectRatio((float)width/height);
+        camera.setAspectRatio((float)width/height);
 }
 
 void glfwFrameBufferSizeCallback(GLFWwindow* window, int w, int h)
