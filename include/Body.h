@@ -1,7 +1,7 @@
-#define GLM_FORCE_RADIANS
-
 #pragma once
 
+#define GLM_FORCE_RADIANS
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 

@@ -1,9 +1,7 @@
-#define GLM_FORCE_RADIANS       // TODO: Why is this necessary?!?!
-
 #pragma once
 
-#include <GL/glew.h>
-
+#include <GL/gl3w.h>
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
 #include <stdio.h>

@@ -2,7 +2,7 @@
 
 #include "Material.h"
 
-#include <GL/glew.h>
+#include <GL/gl3w.h>
 #include <glm/gtc/type_ptr.hpp>
 
 Material::Material(const glm::vec3 & specularFactor, const glm::vec3 & diffuseFactor, const glm::vec3 & ambientFactor, float shininess) {

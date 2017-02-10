@@ -1,9 +1,8 @@
 #include "Mesh.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include <tiny_obj_loader.h>
 #include <vector>
+#include <iostream>
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -51,7 +50,7 @@ void Mesh::setGeometry(GLfloat *vertices, int numVertices) {
     m_numDistinctVertices = (GLuint)distinctVertices.size() * 3;
     m_distinctVertices = new GLfloat[m_numDistinctVertices];
     
-    for (int i = 0; i < m_numDistinctVertices; i += 3) {
+    for (size_t i = 0; i < m_numDistinctVertices; i += 3) {
         m_distinctVertices[i] = distinctVertices[i/3].x;
         m_distinctVertices[i+1] = distinctVertices[i/3].y;
         m_distinctVertices[i+2] = distinctVertices[i/3].z;
@@ -170,59 +169,60 @@ void Mesh::render() {
 }
 
 void Mesh::loadFromFile(const std::string & filename) {
-    Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(filename, aiProcessPreset_TargetRealtime_Fast);
-    if (!scene) {
-        printf("ERROR: reading mesh %s\n", filename.c_str());
-        exit(-1);
+    using namespace tinyobj;
+
+    std::vector<shape_t>    shapes;
+    std::vector<material_t> materials;
+
+    std::string err = LoadObj(shapes, materials, filename.c_str());
+    if (shapes.size() == 0) {
+        printf("ERROR: Reading mesh %s. No shape found.\n", filename.c_str());
+    } else if (shapes.size() > 1) {
+        printf("Warning: Reading mesh %s. Multiple shapes found. Only using the first one.\n", filename.c_str());
     }
 
-    aiMesh *mesh = scene->mMeshes[0];
+    mesh_t &mesh = shapes[0].mesh;
 
-    float *vertexArray;
-    float *normalArray;
-    float *uvArray = new float[0];
+    assert(mesh.normals.size() % 3 == 0);
+    size_t normalCount = mesh.normals.size() / 3;
+    assert(mesh.texcoords.size() % 2 == 0);
+    size_t uvCount = mesh.texcoords.size() / 2;
+    assert(mesh.indices.size() % 3 == 0);
+    size_t faceCount = mesh.indices.size() / 3;
 
-    int numTriangles = mesh->mNumFaces*3;
+    float *vertexArray = new float[3*3*faceCount];
+    float *normalArray = new float[3*3*faceCount];
+    float *uvArray     = new float[2*3*faceCount];
 
-    int numUvCoords = mesh->GetNumUVChannels();
+    float *vertexArrayPtr = vertexArray;
+    float *normalArrayPtr = normalArray;
+    float *uvArrayPtr     = uvArray;
 
-    vertexArray = new float[numTriangles*3];
-    normalArray = new float[numTriangles*3];
-    if (numUvCoords > 0) {
-        uvArray = new float[numTriangles*2];
-    }
+    for (size_t i = 0; i < faceCount; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            int vertexIdx = mesh.indices[3*i+j];
 
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-        const aiFace &face = mesh->mFaces[i];
-
-        for (int j = 0; j < 3; j++) {
-            if (numUvCoords > 0) {
-                aiVector3D uv = mesh->mTextureCoords[0][face.mIndices[j]];
-                memcpy(uvArray, &uv, sizeof(float)*2);
-                uvArray += 2;
+            if (uvCount > 0) {
+                memcpy(uvArrayPtr, &mesh.texcoords[2*vertexIdx], sizeof(float)*2);
+                uvArrayPtr += 2;
             }
 
-            aiVector3D normal = mesh->mNormals[face.mIndices[j]];
-            memcpy(normalArray, &normal, sizeof(float)*3);
-            normalArray += 3;
+            if (normalCount > 0) {
+                memcpy(normalArrayPtr, &mesh.normals[3*vertexIdx], sizeof(float)*3);
+                normalArrayPtr += 3;
+            }
 
-            aiVector3D pos = mesh->mVertices[face.mIndices[j]];
-            memcpy(vertexArray, &pos, sizeof(float)*3);
-            vertexArray += 3;
+            memcpy(vertexArrayPtr, &mesh.positions[3*vertexIdx], sizeof(float)*3);
+            vertexArrayPtr += 3;
         }
     }
-
-    if (numUvCoords > 0) {
-        uvArray -= numTriangles*2;
-    }
-    normalArray -= numTriangles*3;
-    vertexArray -= numTriangles*3;
     
-    setGeometry(vertexArray, numTriangles*3);
-    setNormals(normalArray, numTriangles*3);
-    if (numUvCoords > 0) {
-        setTextureCoordinates(uvArray, numTriangles*2);
+    setGeometry(vertexArray, 3*3*faceCount);
+    if (normalCount > 0) {
+        setNormals(normalArray, 3*3*faceCount);
+    }
+    if (uvCount > 0) {
+        setTextureCoordinates(uvArray, 2*3*faceCount);
     }
 
     loadVBO();

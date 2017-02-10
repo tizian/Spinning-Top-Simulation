@@ -31,11 +31,11 @@ public:
     void destroy();
 
 private:
-    GLfloat * m_vertices;       // x, y, z
-    GLfloat * m_distinctVertices;// no vertex appears twice
-    GLfloat * m_normals;        // vertex normals
-    GLfloat * m_uvs;            // texture coordinates
-    GLfloat * m_colors;         // vertex colors
+    GLfloat * m_vertices;           // x, y, z
+    GLfloat * m_distinctVertices;   // no vertex appears twice
+    GLfloat * m_normals;            // vertex normals
+    GLfloat * m_uvs;                // texture coordinates
+    GLfloat * m_colors;             // vertex colors
     
     GLuint m_numVertices;
     GLuint m_numDistinctVertices;

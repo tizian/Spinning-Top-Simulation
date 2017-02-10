@@ -4,7 +4,7 @@
     #define M_PI 3.14159265358979323846
 #endif
 
-#include <GL/glew.h>
+#include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
@@ -620,9 +620,8 @@ void setupContext() {
     glfwSetWindowSizeCallback(window, glfwWindowResizeCallback);
     glfwSetFramebufferSizeCallback(window, glfwFrameBufferSizeCallback);
 
-    // start GLEW extension handler
-    glewExperimental = GL_TRUE;
-    glewInit();
+    // start gl3w extension handler
+    gl3wInit();
 
     // get version info
     const GLubyte *renderer = glGetString(GL_RENDERER); // get renderer string

@@ -1,6 +1,6 @@
 #include "PointLight.h"
 
-#include <GL/glew.h>
+#include <GL/gl3w.h>
 #include <glm/gtc/type_ptr.hpp>
 
 PointLight::PointLight() {
