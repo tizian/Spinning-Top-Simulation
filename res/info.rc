@@ -1,0 +1,25 @@
+id ICON "spinningtops.ico"
+
+1 VERSIONINFO
+FILEVERSION     1,0
+PRODUCTVERSION  1,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "080904E4"
+    BEGIN
+      VALUE "CompanyName", ""
+      VALUE "FileDescription", "SpinningTops"
+      VALUE "InternalName", "SpinningTops"
+      VALUE "LegalCopyright", "SpinningTops"
+      VALUE "OriginalFilename", "SpinningTops.exe"
+      VALUE "ProductName", "SpinningTops"
+      VALUE "ProductVersion", "0.1.0"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x809, 1252
+  END
+END

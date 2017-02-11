@@ -97,11 +97,21 @@ set(EXT_FILES
 	ext/tinyobjloader/tiny_obj_loader.cc
 )
 
-if (APPLE)
+if (WIN32)
+    add_executable(SpinningTops
+        ${MAIN_FILES}
+        ${EXT_FILES}
+        ${PROJECT_SOURCE_DIR}/res/info.rc
+    )
+    file(COPY res DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/SpinningTops.app/Contents/Resources)
+elseif (APPLE)
     add_executable(SpinningTops MACOSX_BUNDLE
         ${MAIN_FILES}
         ${EXT_FILES}
+        ${PROJECT_SOURCE_DIR}/res/spinningtops.icns
     )
+    set_target_properties(SpinningTops PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/res/info.plist)
+    set_source_files_properties(res/spinningtops.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     file(COPY res DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/SpinningTops.app/Contents/Resources)
 else()
     add_executable(SpinningTops
