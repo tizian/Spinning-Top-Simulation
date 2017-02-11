@@ -1,6 +1,6 @@
 # Spinning-Top-Simulation
 
-Course project for 'Physically-Based Simulation in Computer Graphics' at ETH Zürich.
+Course project for '[Physically-Based Simulation in Computer Graphics](https://cgl.ethz.ch/teaching/simulation14/home.php)' at ETH Zürich.
 
 <img src="screenshot.png" align="center" height="400" >
 
@@ -10,7 +10,7 @@ Course project for 'Physically-Based Simulation in Computer Graphics' at ETH Zü
 
 ## Installation
 
-The recommended way to compile is using cmake. Clone the repository with all dependencies and use CMake to generate project files for your favourite IDE or build system.
+The recommended way to compile is using CMake. Clone the repository with all dependencies and use CMake to generate project files for your favourite IDE or build system.
 
 ```
 git clone https://github.com/tizian/Spinning-Top-Simulation.git --recursive
@@ -19,12 +19,7 @@ mkdir build
 cd build
 cmake ..
 make
-```
-
-Run from the root directory
-
-```
-./build/spinningtops
+./build/SpinningTops
 ```
 
 ## Usage
