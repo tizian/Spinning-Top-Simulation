@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 project(spinningtops)
 
@@ -58,9 +58,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 endif()
 
-# find_package(ASSIMP REQUIRED)
-# find_package(SOIL REQUIRED)
-
 include_directories(
 	include
 	ext/stb
@@ -68,8 +65,6 @@ include_directories(
 	ext/gl3w/include
 	ext/glm
 	ext/tinyobjloader
-#	"${ASSIMP_INCLUDE_DIR}"
-#	"${SOIL_INCLUDE_DIRS}"
 )
 
 find_package(OpenGL REQUIRED)
@@ -102,12 +97,21 @@ set(EXT_FILES
 	ext/tinyobjloader/tiny_obj_loader.cc
 )
 
-add_executable(spinningtops
-	${MAIN_FILES}
-	${EXT_FILES}
-)
+if (APPLE)
+    add_executable(SpinningTops MACOSX_BUNDLE
+        ${MAIN_FILES}
+        ${EXT_FILES}
+    )
+    file(COPY res DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/SpinningTops.app/Contents/Resources)
+else()
+    add_executable(SpinningTops
+        ${MAIN_FILES}
+        ${EXT_FILES}
+    )
+    file(COPY res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endif()
 
-target_link_libraries(spinningtops
+target_link_libraries(SpinningTops
 	${OPENGL_LIBRARIES}
 	gl3w
 	glfw

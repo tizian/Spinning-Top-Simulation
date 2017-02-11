@@ -1,115 +1,115 @@
 #include "Assets.h"
 
 Shader *Assets::getPhongShader() {
-    static Shader phongShader = Shader("shaders/phong.glslv", "shaders/phong.glslf");
+    static Shader phongShader = Shader("res/shaders/phong.glslv", "res/shaders/phong.glslf");
     return &phongShader;
 }
 
 Shader *Assets::getTextureShader() {
-    static Shader textureShader = Shader("shaders/texturedPhong.glslv", "shaders/texturedPhong.glslf");
+    static Shader textureShader = Shader("res/shaders/texturedPhong.glslv", "res/shaders/texturedPhong.glslf");
     return &textureShader;
 }
 
 Shader *Assets::getShadowShader() {
-    static Shader shadowShader = Shader("shaders/planarShadows.glslv", "shaders/planarShadows.glslf");
+    static Shader shadowShader = Shader("res/shaders/planarShadows.glslv", "res/shaders/planarShadows.glslf");
     return &shadowShader;
 }
 
 Shader *Assets::getSkyboxShader() {
-    static Shader skyboxShader = Shader("shaders/skybox.glslv", "shaders/skybox.glslf");
+    static Shader skyboxShader = Shader("res/shaders/skybox.glslv", "res/shaders/skybox.glslf");
     return &skyboxShader;
 }
 
 // Sphere model with right texturecoords taken from: https://www.opengl.org/discussion_boards/showthread.php/176762-looking-for-a-simple-sphere-obj-file
 Mesh *Assets::getSphere() {
-    static Mesh sphere = Mesh("models/sphere.obj");
+    static Mesh sphere = Mesh("res/models/sphere.obj");
     return &sphere;
 }
 
 Mesh *Assets::getCube() {
-    static Mesh cube = Mesh("models/cube.obj");
+    static Mesh cube = Mesh("res/models/cube.obj");
     return &cube;
 }
 
 Mesh *Assets::getSpinningTop1() {
-    static Mesh spinningTop = Mesh("models/spinningTop1.obj");
+    static Mesh spinningTop = Mesh("res/models/spinningTop1.obj");
     return &spinningTop;
 }
 
 Mesh *Assets::getSpinningTop2() {
-    static Mesh spinningTop = Mesh("models/spinningTop2.obj");
+    static Mesh spinningTop = Mesh("res/models/spinningTop2.obj");
     return &spinningTop;
 }
 
 Mesh *Assets::getSpinningTop3() {
-    static Mesh spinningTop = Mesh("models/spinningTop3.obj");
+    static Mesh spinningTop = Mesh("res/models/spinningTop3.obj");
     return &spinningTop;
 }
 
 Mesh *Assets::getSpinningTop4() {
-    static Mesh spinningTop = Mesh("models/spinningTop4.obj");
+    static Mesh spinningTop = Mesh("res/models/spinningTop4.obj");
     return &spinningTop;
 }
 
 Mesh *Assets::getSpinningTop5() {
-    static Mesh spinningTop = Mesh("models/spinningTop5.obj");
+    static Mesh spinningTop = Mesh("res/models/spinningTop5.obj");
     return &spinningTop;
 }
 
 Mesh *Assets::getSpinningTop6() {
-    static Mesh spinningTop = Mesh("models/spinningTop6.obj");
+    static Mesh spinningTop = Mesh("res/models/spinningTop6.obj");
     return &spinningTop;
 }
 
 Mesh *Assets::getSpinningTop3Top() {
-    static Mesh spinningTop = Mesh("models/spinningTop3_TopHeavy.obj");
+    static Mesh spinningTop = Mesh("res/models/spinningTop3_TopHeavy.obj");
     return &spinningTop;
 }
 
 Mesh *Assets::getSpinningTop3Bottom() {
-    static Mesh spinningTop = Mesh("models/spinningTop3_BottomHeavy.obj");
+    static Mesh spinningTop = Mesh("res/models/spinningTop3_BottomHeavy.obj");
     return &spinningTop;
 }
 
 Mesh *Assets::getPlane() {
-    static Mesh plane = Mesh("models/plane.obj");
+    static Mesh plane = Mesh("res/models/plane.obj");
     return &plane;
 }
 
 Mesh *Assets::getTable() {
-    static Mesh table = Mesh("models/table.obj");
+    static Mesh table = Mesh("res/models/table.obj");
     return &table;
 }
 
 Mesh *Assets::getSkybox() {
-    static Mesh skyboxBox = Mesh("models/skybox.obj");
+    static Mesh skyboxBox = Mesh("res/models/skybox.obj");
     return &skyboxBox;
 }
 
 Texture *Assets::getLightWood() {
-    static Texture lightWood = Texture("textures/lightWood.png");
+    static Texture lightWood = Texture("res/textures/lightWood.png");
     return &lightWood;
 }
 
 Texture *Assets::getDarkWood() {
-    static Texture darkWood = Texture("textures/wood4096.png");
+    static Texture darkWood = Texture("res/textures/wood4096.png");
     return &darkWood;
 }
 
 Texture *Assets::getCheckerboard() {
-    static Texture checkerboard = Texture("textures/checkerboard_low.png");
+    static Texture checkerboard = Texture("res/textures/checkerboard_low.png");
     return &checkerboard;
 }
 
 Texture *Assets::getBrushedMetal() {
-    static Texture brushedMetal = Texture("textures/brushedMetal.png");
+    static Texture brushedMetal = Texture("res/textures/brushedMetal.png");
     return &brushedMetal;
 }
 
 // Skybox taken from: http://www.keithlantz.net/2011/10/rendering-a-skybox-using-a-cube-map-with-opengl-and-glsl/
 Texture *Assets::getSkyboxTexture() {
     static std::string skbx = "skybox-sea";
-    static Texture skybox = Texture("textures/"+skbx+"/xpos.png", "textures/"+skbx+"/xneg.png", "textures/"+skbx+"/ypos.png", "textures/"+skbx+"/yneg.png", "textures/"+skbx+"/zpos.png", "textures/"+skbx+"/zneg.png");
+    static Texture skybox = Texture("res/textures/"+skbx+"/xpos.png", "res/textures/"+skbx+"/xneg.png", "res/textures/"+skbx+"/ypos.png", "res/textures/"+skbx+"/yneg.png", "res/textures/"+skbx+"/zpos.png", "res/textures/"+skbx+"/zneg.png");
     
     return &skybox;
 }
