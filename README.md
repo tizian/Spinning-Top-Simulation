@@ -1,26 +1,20 @@
-#Spinning-Top-Simulation
+# Spinning-Top-Simulation
 
 Course project for 'Physically-Based Simulation in Computer Graphics' at ETH Zürich.
 
 <img src="screenshot.png" align="center" height="400" >
 
-##YouTube
+## YouTube
 
 [https://www.youtube.com/watch?v=vEoIFi5xuzk](https://www.youtube.com/watch?v=vEoIFi5xuzk)
 
-##Used Libraries
+## Installation
 
-* GLFW: Window and OpenGL context creation
-* GLEW: Extension loading
-* GLM: Math library
-* ASSIMP: 3D model loading
-* SOIL: Texture loading
-
-##Installation
-
-### CMake (Recommended)
+The recommended way to compile is using cmake. Clone the repository with all dependencies and use CMake to generate project files for your favourite IDE or build system.
 
 ```
+git clone https://github.com/tizian/Spinning-Top-Simulation.git --recursive
+cd Spinning-Top-Simulation
 mkdir build
 cd build
 cmake ..
@@ -33,16 +27,7 @@ Run from the root directory
 ./build/spinningtops
 ```
 
-### Do it yourself (Not recommended)
-
-Compile and run (change include and library directories accordingly):
-
-```
-$ g++ src/*.cpp -I /usr/local/include -I include -L /usr/local/lib -lglfw3 -lGLEW -lSOIL -lassimp -framework OpenGL -std=c++11 -o spinningtops
-$ ./spinningtops
-```
-
-##Usage
+## Usage
 
 The program is controlled via keyboard inputs.
 The currently active spinning top is highlighted with a green tint.
@@ -91,3 +76,11 @@ When the simulation is paused you can press:
 <kbd>N</kbd> Do a single forward step in the simulation.  
 <kbd>B</kbd> Do a single backward step in the simulation.  
 <kbd>M</kbd> + <kbd>N</kbd> or <kbd>B</kbd> Continuously do forward or backward steps in the simulation.
+
+## Used Libraries
+
+* [gl3w](https://github.com/skaslev/gl3w) - OpenGL core profile loading
+* [glfw](http://www.glfw.org/) - Window and OpenGL context creation
+* [glm](http://glm.g-truc.net/0.9.8/index.html) - Math library
+* [stb](https://github.com/nothings/stb) - PNG texture loading
+* [tinyobjloader](https://github.com/syoyo/tinyobjloader) - OBJ mesh parser
