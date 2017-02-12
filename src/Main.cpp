@@ -348,7 +348,7 @@ void render(vector<RigidBody> *state) {
         
         glEnable(GL_DEPTH_TEST);
         
-        // plane.render();
+         plane.render();
     }
     
     Assets::getShadowShader()->use();
@@ -586,7 +586,7 @@ void setupContext() {
         glfwTerminate();
     }
 
-    glfwSetWindowPos(window, 0, 0);
+    //glfwSetWindowPos(window, 0, 0);
     
     glfwMakeContextCurrent(window);
 

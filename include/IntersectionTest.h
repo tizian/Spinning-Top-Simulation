@@ -1,5 +1,8 @@
 #pragma once
 
+#undef min
+#undef max
+
 #include "Triangle.h"
 
 #include <algorithm>

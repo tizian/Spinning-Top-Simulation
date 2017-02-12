@@ -107,8 +107,8 @@ GLint Shader::getUniform(const std::string &name) {
 
 	GLint uniform = glGetUniformLocation(activeProgramID, name.c_str());
 	if (uniform == -1) {
-		printf("Could not get uniform location with name: %s.\n", name.c_str());
-		exit(-1);
+		// printf("Could not get uniform location with name: %s.\n", name.c_str());
+		// exit(-1);
 	}
 
 	return uniform;

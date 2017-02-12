@@ -1,5 +1,8 @@
 #include "OOBB.h"
 
+#undef min
+#undef max
+
 #include <queue>
 
 unsigned int maxNumberOfTriangles = 4;

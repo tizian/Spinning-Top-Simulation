@@ -103,7 +103,7 @@ if (WIN32)
         ${EXT_FILES}
         ${PROJECT_SOURCE_DIR}/res/info.rc
     )
-    file(COPY res DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/SpinningTops.app/Contents/Resources)
+    file(COPY res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 elseif (APPLE)
     add_executable(SpinningTops MACOSX_BUNDLE
         ${MAIN_FILES}
