@@ -22,6 +22,12 @@ make
 ./build/SpinningTops
 ```
 
+Pre-compiled binaries for Windows x64 and macOS are available here:
+
+[Windows x64](https://github.com/tizian/Spinning-Top-Simulation/releases/download/v0.1.0/SpinningTops_win64.zip)
+
+[macOS](https://github.com/tizian/Spinning-Top-Simulation/releases/download/v0.1.0/SpinningTops_mac.zip)
+
 ## Usage
 
 The program is controlled via keyboard inputs.
