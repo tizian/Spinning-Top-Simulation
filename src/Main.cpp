@@ -104,7 +104,7 @@ void addTorque(RigidBody *rb, vec3 force) {
 }
 
 // return (1-alpha) * fromState + alpha * toState;
-// interpolates positiona and orientation
+// interpolates position and orientation
 void interpolateStates(vector<RigidBody> *fromState, vector<RigidBody> *toState, vector<RigidBody> *interpolatedState, float alpha) {
     if (interpolatedState->size() > 0) {
         interpolatedState->clear();

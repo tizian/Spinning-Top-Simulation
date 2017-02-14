@@ -19,7 +19,7 @@ mkdir build
 cd build
 cmake ..
 make
-./build/SpinningTops
+./SpinningTops
 ```
 
 Pre-compiled binaries for Windows x64 and macOS are available here:

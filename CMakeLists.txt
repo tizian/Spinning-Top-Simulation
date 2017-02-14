@@ -105,6 +105,7 @@ if (WIN32)
     )
     file(COPY res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 elseif (APPLE)
+    # create .app file
     add_executable(SpinningTops MACOSX_BUNDLE
         ${MAIN_FILES}
         ${EXT_FILES}
@@ -113,6 +114,19 @@ elseif (APPLE)
     set_target_properties(SpinningTops PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/res/info.plist)
     set_source_files_properties(res/spinningtops.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     file(COPY res DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/SpinningTops.app/Contents/Resources)
+
+    # create binary executable for easier debugging
+    add_executable(SpinningTopsTMP
+        ${MAIN_FILES}
+        ${EXT_FILES}
+    )
+    file(COPY res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    target_link_libraries(SpinningTopsTMP
+        ${OPENGL_LIBRARIES}
+        gl3w
+        glfw
+    )
+set_target_properties(SpinningTopsTMP PROPERTIES  OUTPUT_NAME SpinningTops)
 else()
     add_executable(SpinningTops
         ${MAIN_FILES}
