@@ -350,9 +350,9 @@ void RigidBody::update(float dt) {
     
     // check for ground collision and do collision response
     if (distanceGround < 0) {
-        if (firstTime) {
-            printf("First contact with ground:\n\tdistance: %f\n", distanceGround);
-        }
+        // if (firstTime) {
+        //     printf("First contact with ground:\n\tdistance: %f\n", distanceGround);
+        // }
         
         double tBeforIntersection = glfwGetTime();
         std::vector<vec3> collisionPoints = intersectWithGround();
@@ -369,9 +369,9 @@ void RigidBody::update(float dt) {
         
         vec3 vrel = v - vec3(0, 0, 0);    // v_r = v_p2 - v_p1
         
-        if (firstTime) {
-            printf("\tvrel: %f %f %f\n", vrel.x, vrel.y, vrel.z);
-        }
+        // if (firstTime) {
+        //     printf("\tvrel: %f %f %f\n", vrel.x, vrel.y, vrel.z);
+        // }
         
         // Colliding contact
         
@@ -548,8 +548,9 @@ void RigidBody::renderOctree() {
                 octreeMeshes->push_back(point);
             }
             
+            // only horizontal lines, but not all
             int tmp[4] {5,4,7,6};
-            
+
             for (int i = 0; i < 3*4; i += 3) {
                 glm::vec3 vertex1 = vec3(box->getVertices()[i], box->getVertices()[i+1], box->getVertices()[i+2]);
                 glm::vec3 vertex2 = vec3(box->getVertices()[(3*tmp[i/3])%size], box->getVertices()[(3*tmp[i/3]+1)%size], box->getVertices()[(3*tmp[i/3]+2)%size]);

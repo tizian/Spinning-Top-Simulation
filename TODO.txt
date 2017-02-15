@@ -7,6 +7,8 @@ Functionality
 - high CPU usage when simulation is paused ('P') -> fix
 - NGH Actual physically accurate precession, nutation!
 - Maybe: Resting contacts if too much time.
+- Ignore key presses, when cmd is pressed.
+- reduce octree rendering workload. Create one single octree per rigidbody instead of hundreds of lines. 
 
 Tweaking
 --------
@@ -19,6 +21,12 @@ Cosmetic
 - NGH Shadow mapping
 - NGH GUI with labels which buttons can be pressed and their impact
 - NGH Sound (collision, fritcion, fade out)
+
+Bugs
+----
+
+- Variable firstTime in RigidBody.cpp seams to be wrongly set. Is set each time on ground contact and not only on first time.
+- camera moving sometimes gets stuck an continues moving in one direction till this button is pressed again.
 
 Done
 ----
