@@ -225,3 +225,33 @@ void Mesh::loadFromFile(const std::string &filename) {
 
     loadVBO();
 }
+
+void Mesh::flatten(glm::mat4 model) {
+
+    // vertices
+    for (int i = 0; i < m_numVertices; i += 3) {
+        glm::vec4 tmp = glm::vec4(m_vertices[i], m_vertices[i+1], m_vertices[i+2], 1.f);
+        tmp = model * tmp;
+        m_vertices[i] = tmp[0];
+        m_vertices[i+1] = tmp[1];
+        m_vertices[i+2] = tmp[2];
+    } 
+
+    // normals (not sure if correct)
+    for (int i = 0; i < m_numNormals; i += 3) {
+        glm::vec4 tmp = glm::vec4(m_normals[i], m_normals[i+1], m_normals[i+2], 0.f);
+        tmp = model * tmp;
+        float length = sqrt(tmp[0] * tmp[0] + tmp[1] * tmp[1] + tmp[2] * tmp[2]);
+        m_normals[i] = tmp[0]/length;
+        m_normals[i+1] = tmp[1]/length;
+        m_normals[i+2] = tmp[2]/length;
+    }
+
+    glDeleteBuffers(1, &m_vbo);
+    glDeleteVertexArrays(1, &m_vao);
+
+    glGenVertexArrays(1, &m_vao);       // Generate a VAO
+    glGenBuffers(1, &m_vbo);            // Generate a VBO
+
+    loadVBO();
+}

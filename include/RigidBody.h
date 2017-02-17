@@ -73,4 +73,5 @@ private:
     OOBB *m_boundingBox;
     
     std::vector<Body> *octreeMeshes;
+    Body *octreeMesh;
 };

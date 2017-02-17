@@ -26,6 +26,8 @@ public:
     void loadVBO();
     void render();
 
+    void flatten(glm::mat4 model); // incoporate translation, rotation and scaling from model into the vertices and normals of the mesh
+
     void destroy();
 
 private:

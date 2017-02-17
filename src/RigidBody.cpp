@@ -44,6 +44,7 @@ RigidBody::RigidBody() : Body() {
 }
 
 void RigidBody::setDefaults() {
+    printf("called setDefaults\n");
     m_active = true;
     m_mass = 1;
     m_linearMomentum = vec3(0, 0, 0);
@@ -55,6 +56,8 @@ void RigidBody::setDefaults() {
     m_lastVelocities = std::vector<float>();
     isCurrentlyActive = false;
     octreeMeshes = new std::vector<Body>();
+
+    octreeMesh = new Body();
 }
 
 void RigidBody::printState() {
@@ -521,6 +524,40 @@ void RigidBody::update(float dt) {
     // printState();
 }
 
+
+// Mesh * incorporateModelIntoMesh(glm::mat4 model, Mesh *mesh) {
+
+//     int numVertices = mesh->getNumVertices();
+//     float *vertices = new float[numVertices];
+    
+//     printf("model\n");
+//     const float *pSource = (const float*)glm::value_ptr(model);
+//     for (int i = 0; i < 16; i += 4) {
+//         printf("%f %f %f %f\n", pSource[i], pSource[i+1], pSource[i+2], pSource[i+3]);
+//     }
+//     printf("\n");
+
+//     GLfloat * oldVertices = mesh->getVertices();
+
+//     for (int i = 0; i < numVertices; i += 3) {
+//         glm::vec4 tmp = glm::vec4(oldVertices[i], oldVertices[i+1], oldVertices[i+2], 1.f);
+//         if (i == 0) {
+//             printf("tmp before: %f %f %f %f\n", tmp[0], tmp[1], tmp[2], tmp[3]);
+//         }
+//         tmp = model * tmp;
+//         if (i == 0) {
+//             printf("tmp after: %f %f %f %f\n", tmp[0], tmp[1], tmp[2], tmp[3]);
+//         }
+//         vertices[i] = tmp[0];
+//         vertices[i+1] = tmp[1];
+//         vertices[i+2] = tmp[2];
+//     }
+
+//     Mesh * newMesh = new Mesh(vertices, numVertices);
+//     return newMesh;
+// }
+
+
 void RigidBody::renderOctree() {
     if (octreeMeshes->size() == 0) {
         Material *pointMaterial = new Material(vec3(1,0,0));
@@ -534,45 +571,122 @@ void RigidBody::renderOctree() {
             OOBB *box = boxes.front();
             boxes.pop();
             
+            // walk along the edge and add lines
+            // 8 lines: 0->1, 1->2, ..., 6->7, 7->0
             for (int i = 0; i < size; i += 3) {
                 glm::vec3 vertex1 = vec3(box->getVertices()[i], box->getVertices()[i+1], box->getVertices()[i+2]);
                 glm::vec3 vertex2 = vec3(box->getVertices()[(i+3)%size], box->getVertices()[(i+4)%size], box->getVertices()[(i+5)%size]);
                 
-                Body point = Body((vertex1 + vertex2) * 0.5f);
-                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.007f));
-                point.setMesh(Assets::getCube());
-                point.setMaterial(pointMaterial);
+                Body line = Body((vertex1 + vertex2) * 0.5f);
+                line.setScale((vertex2 - vertex1) * 0.5f + vec3(0.007f));
+                line.setMesh(Assets::getCube());
+                line.setMaterial(pointMaterial);
                 
-                point.setOrientation(getOrientation());
+                line.setOrientation(getOrientation());
                 
-                octreeMeshes->push_back(point);
+                octreeMeshes->push_back(line);
             }
             
-            // only horizontal lines, but not all
+            // add the missing horizontal lines
             int tmp[4] {5,4,7,6};
-
+            
+            // 4 lines: 0->5, 1->4, 2->7, 3->6
             for (int i = 0; i < 3*4; i += 3) {
                 glm::vec3 vertex1 = vec3(box->getVertices()[i], box->getVertices()[i+1], box->getVertices()[i+2]);
                 glm::vec3 vertex2 = vec3(box->getVertices()[(3*tmp[i/3])%size], box->getVertices()[(3*tmp[i/3]+1)%size], box->getVertices()[(3*tmp[i/3]+2)%size]);
                 
-                Body point = Body((vertex1 + vertex2) * 0.5f);
-                point.setScale((vertex2 - vertex1) * 0.5f + vec3(0.007f));
-                point.setMesh(Assets::getCube());
-                point.setMaterial(pointMaterial);
+                Body line = Body((vertex1 + vertex2) * 0.5f);
+                line.setScale((vertex2 - vertex1) * 0.5f + vec3(0.007f));
+                line.setMesh(Assets::getCube());
+                line.setMaterial(pointMaterial);
                 
-                point.setOrientation(getOrientation());
+                line.setOrientation(getOrientation());
                 
-                octreeMeshes->push_back(point);
+                octreeMeshes->push_back(line);
             }
-            
+            /*
             for (size_t i = 0; i < box->getChildren()->size(); ++i) {
                 boxes.push(&box->getChildren()->at(i));
             }
+            */
+
+
+            printf("position first before: %f %f %f\n", octreeMeshes->at(0).getMesh()->getVertices()[0], octreeMeshes->at(0).getMesh()->getVertices()[1], octreeMeshes->at(0).getMesh()->getVertices()[2]);
+            // Mesh *newMesh = incorporateModelIntoMesh(octreeMeshes->at(0).model(), octreeMesh->getMesh());
+            // Mesh *newMesh = incorporateModelIntoMesh(glm::scale(glm::mat4(), glm::vec3(1, 1, 1)), Assets::getCube());
+            // Mesh *cube = Assets::getCube();
+
+            // int numVertices = cube->getNumVertices();
+            // float *vertices = new float[numVertices];
+
+            // for (int i = 0; i < numVertices; i++) {
+            //     vertices[i] = cube->getVertices()[i];
+            // }
+            //Mesh *otherMesh = new Mesh(vertices, numVertices);
+            // Mesh *otherMesh = new Mesh("res/models/cube.obj");
+            // for (int i = 0; i < otherMesh->getNumVertices(); i++) {
+            //     otherMesh->getVertices()[i] *= 2;
+            // }
+
+            // octreeMesh->setMesh(octreeMeshes->at(0).getMesh());
+            // octreeMesh->getMesh()->flatten(octreeMeshes->at(0).model());
+            // vertices
+            // for (int i = 0; i < octreeMesh->getMesh()->getNumVertices(); i+=3) {
+            //     glm::vec4 tmp = glm::vec4(octreeMesh->getMesh()->getVertices()[i], octreeMesh->getMesh()->getVertices()[i+1], octreeMesh->getMesh()->getVertices()[i+2], 1.f);
+            //     tmp = octreeMeshes->at(0).model() * tmp;
+            //     octreeMesh->getMesh()->getVertices()[i] = tmp[0];
+            //     octreeMesh->getMesh()->getVertices()[i+1] = tmp[1];
+            //     octreeMesh->getMesh()->getVertices()[i+2] = tmp[2];
+            //     // octreeMesh->getMesh()->getVertices()[i] *= 2;
+            //     // octreeMesh->getMesh()->getVertices()[i+1] *= 2;
+            //     // octreeMesh->getMesh()->getVertices()[i+2] *= 2;
+            // } 
+
+            // octreeMesh->getMesh()->loadVBO();
+
+            int numVertices = octreeMeshes->at(0).getMesh()->getNumVertices();
+            float *vertices = new float[numVertices];
+
+            for (int i = 0; i < numVertices; i += 3) {
+                glm::vec4 tmp = glm::vec4(octreeMeshes->at(0).getMesh()->getVertices()[i], octreeMeshes->at(0).getMesh()->getVertices()[i+1], octreeMeshes->at(0).getMesh()->getVertices()[i+2], 1.f);
+                tmp = octreeMeshes->at(0).model() * tmp;
+                vertices[i] = tmp[0];
+                vertices[i+1] = tmp[1];
+                vertices[i+2] = tmp[2];
+            }
+
+            Mesh *otherMesh = new Mesh(vertices, numVertices);
+            otherMesh->loadVBO();
+
+            octreeMesh->setMesh(otherMesh);
+
+            printf("position first after: %f %f %f\n", octreeMesh->getMesh()->getVertices()[0], octreeMesh->getMesh()->getVertices()[1], octreeMesh->getMesh()->getVertices()[2]);
+            // printf("normal: %f %f %f\n", octreeMesh->getMesh()->getNormals()[0], octreeMesh->getMesh()->getNormals()[1], octreeMesh->getMesh()->getNormals()[2]);
+            octreeMesh->setMaterial(octreeMeshes->at(0).getMaterial());
+
+            // octreeMesh->setOrientation(octreeMeshes->at(0).getOrientation());
+            // printf("octreeMesh.position: %f %f %f\n", octreeMesh->getPosition().x, octreeMesh->getPosition().y, octreeMesh->getPosition().z);
         }
     } else {
+        // printf("else octreeMesh.position: %f %f %f\n", octreeMesh->getPosition().x, octreeMesh->getPosition().y, octreeMesh->getPosition().z);
+        // printf("else position first: %f %f %f\n", octreeMesh->getMesh()->getVertices()[0], octreeMesh->getMesh()->getVertices()[1], octreeMesh->getMesh()->getVertices()[2]);
+        // while(true) {};
+
+        // if (octreeMesh->getMesh()->getVertices()[0] < -1.027000 || octreeMesh->getMesh()->getVertices()[0] > -1.026000 ) {
+        //     printf("else position first: %.20f %f %f\n", octreeMesh->getMesh()->getVertices()[0], octreeMesh->getMesh()->getVertices()[1], octreeMesh->getMesh()->getVertices()[2]);
+        //     while(true) {};
+        // }
+
         mat4 myModel = model();
         quat myOrientation = getOrientation();
-        
+            
+        glm::vec3 tmp = octreeMesh->getPosition();
+        octreeMesh->setOrientation(myOrientation);
+        octreeMesh->setPosition(vec3(myModel * vec4(tmp.x, tmp.y, tmp.z, 1.f)));
+        octreeMesh->render();
+        octreeMesh->setPosition(tmp);
+
+        /*
         for (size_t i = 0; i < octreeMeshes->size(); ++i) {
             glm::vec3 tmp = octreeMeshes->at(i).getPosition();
             octreeMeshes->at(i).setOrientation(myOrientation);
@@ -580,5 +694,6 @@ void RigidBody::renderOctree() {
             octreeMeshes->at(i).render();
             octreeMeshes->at(i).setPosition(tmp);
         }
+        */
     }
 }
