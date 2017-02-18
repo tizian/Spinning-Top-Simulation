@@ -8,7 +8,8 @@ Functionality
 - NGH Actual physically accurate precession, nutation!
 - Maybe: Resting contacts if too much time.
 - Ignore key presses, when cmd is pressed.
-- reduce octree rendering workload. Create one single octree per rigidbody instead of hundreds of lines. 
+- reduce octree rendering workload. Create one single octree per rigidbody instead of hundreds of lines.
+- speed up initial octreeMesh creation.
 
 Tweaking
 --------
@@ -27,6 +28,7 @@ Bugs
 
 - Variable firstTime in RigidBody.cpp seams to be wrongly set. Is set each time on ground contact and not only on first time.
 - camera moving sometimes gets stuck an continues moving in one direction till this button is pressed again.
+- RigidBody::renderOctree() ignores normals when creating the octreeMesh. May be incorrect.
 
 Done
 ----
