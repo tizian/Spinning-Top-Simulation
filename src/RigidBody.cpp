@@ -118,10 +118,10 @@ void RigidBody::addTorque(const glm::vec3 torque) {
     m_torque += torque;
 }
 
-std::vector<Contact> intersectOctrees(OOBB *one, mat4 &modelOne, OOBB *two, mat4 &modelTwo, mat4 &invBox2MoldeMatTimesBox1ModelMat) {
+std::vector<Contact> intersectOctrees(OOBB *one, mat4 &modelOne, OOBB *two, mat4 &modelTwo, mat4 &invBox2ModelMatTimesBox1ModelMat) {
     std::vector<Contact> intersectionPoints = std::vector<Contact>();
     // countBoxBox++;
-    if (IntersectionTest::intersectionBoxBox(one->getOrigin(), one->getRadii(), two->getOrigin(), two->getRadii(), invBox2MoldeMatTimesBox1ModelMat)) {
+    if (IntersectionTest::intersectionBoxBox(one->getOrigin(), one->getRadii(), two->getOrigin(), two->getRadii(), invBox2ModelMatTimesBox1ModelMat)) {
         
         std::vector<OOBB> * childrenOne = one->getChildren();
         std::vector<OOBB> * childrenTwo = two->getChildren();
@@ -129,18 +129,18 @@ std::vector<Contact> intersectOctrees(OOBB *one, mat4 &modelOne, OOBB *two, mat4
         if (childrenOne->size() > 0 && childrenTwo->size() > 0) {
             for (size_t i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
                 for (size_t j = 0; j < childrenTwo->size() && intersectionPoints.size() == 0; ++j) {
-                    std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, &childrenTwo->at(j), modelTwo, invBox2MoldeMatTimesBox1ModelMat);
+                    std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, &childrenTwo->at(j), modelTwo, invBox2ModelMatTimesBox1ModelMat);
                     intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
                 }
             }
         } else if (childrenOne->size() > 0) {
             for (size_t i = 0; i < childrenOne->size() && intersectionPoints.size() == 0; ++i) {
-                std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, two, modelTwo, invBox2MoldeMatTimesBox1ModelMat);
+                std::vector<Contact> newPoints = intersectOctrees(&childrenOne->at(i), modelOne, two, modelTwo, invBox2ModelMatTimesBox1ModelMat);
                 intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
             }
         } else if (childrenTwo->size() > 0) {
             for (size_t i = 0; i < childrenTwo->size() && intersectionPoints.size() == 0; ++i) {
-                std::vector<Contact> newPoints = intersectOctrees(one, modelOne, &childrenTwo->at(i), modelTwo, invBox2MoldeMatTimesBox1ModelMat);
+                std::vector<Contact> newPoints = intersectOctrees(one, modelOne, &childrenTwo->at(i), modelTwo, invBox2ModelMatTimesBox1ModelMat);
                 intersectionPoints.insert(intersectionPoints.end(), newPoints.begin(), newPoints.end());
             }
         } else {
@@ -199,8 +199,8 @@ std::vector<Contact> RigidBody::intersectWith(RigidBody &body) {
     mat4 bodyModel = body.model();
     OOBB *myBoundingBox = getBoundingBox();
     OOBB *bodyBoundingBox = body.getBoundingBox();
-    mat4 invBox2MoldeMatTimesBox1ModelMat = inverse(bodyModel) * myModel;
-    intersectionPoints = intersectOctrees(myBoundingBox, myModel, bodyBoundingBox, bodyModel, invBox2MoldeMatTimesBox1ModelMat);
+    mat4 invBox2ModelMatTimesBox1ModelMat = inverse(bodyModel) * myModel;
+    intersectionPoints = intersectOctrees(myBoundingBox, myModel, bodyBoundingBox, bodyModel, invBox2ModelMatTimesBox1ModelMat);
     
     // countBoxBox = max(countBoxBox, oldcountBoxBox);
     // countTriangleTriangle = max(countTriangleTriangle, oldcountTriangleTriangle);

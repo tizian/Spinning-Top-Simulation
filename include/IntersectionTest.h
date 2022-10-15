@@ -288,16 +288,16 @@ namespace IntersectionTest {
     static bool intersectionBoxBox(glm::vec3 box1Origin,
                                    glm::vec3 box1Radii, glm::vec3 box2Origin,
                                    glm::vec3 box2Radii,
-                                   glm::mat4 invBox2MoldeMatTimesBox1ModelMat) {
-        glm::vec3 realBox1Origin = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z, 1.f));
+                                   glm::mat4 invBox2ModelMatTimesBox1ModelMat) {
+        glm::vec3 realBox1Origin = glm::vec3(invBox2ModelMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z, 1.f));
         
-        glm::vec3 realBox1CornerX = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z, 1.f));
-        glm::vec3 realBox1CornerY = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y + box1Radii.y, box1Origin.z, 1.f));
-        glm::vec3 realBox1CornerZ = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z + box1Radii.z, 1.f));
-        glm::vec3 realBox1CornerXY = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y + box1Radii.y, box1Origin.z, 1.f));
-        glm::vec3 realBox1CornerXZ = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z + box1Radii.z, 1.f));
-        glm::vec3 realBox1CornerYZ = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y + box1Radii.y, box1Origin.z + box1Radii.z, 1.f));
-        glm::vec3 realBox1CornerXYZ = glm::vec3(invBox2MoldeMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y + box1Radii.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::vec3 realBox1CornerX = glm::vec3(invBox2ModelMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z, 1.f));
+        glm::vec3 realBox1CornerY = glm::vec3(invBox2ModelMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y + box1Radii.y, box1Origin.z, 1.f));
+        glm::vec3 realBox1CornerZ = glm::vec3(invBox2ModelMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::vec3 realBox1CornerXY = glm::vec3(invBox2ModelMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y + box1Radii.y, box1Origin.z, 1.f));
+        glm::vec3 realBox1CornerXZ = glm::vec3(invBox2ModelMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::vec3 realBox1CornerYZ = glm::vec3(invBox2ModelMatTimesBox1ModelMat * glm::vec4(box1Origin.x, box1Origin.y + box1Radii.y, box1Origin.z + box1Radii.z, 1.f));
+        glm::vec3 realBox1CornerXYZ = glm::vec3(invBox2ModelMatTimesBox1ModelMat * glm::vec4(box1Origin.x + box1Radii.x, box1Origin.y + box1Radii.y, box1Origin.z + box1Radii.z, 1.f));
         
         // adjacent to the origin of box1
         if (intersectionTriangleBox(realBox1Origin, realBox1CornerX, realBox1CornerXY, box2Origin, box2Radii)) {

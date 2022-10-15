@@ -20,6 +20,7 @@ cd build
 cmake ..
 make
 ./SpinningTops
+# SpinningTops.app is also in this folder
 ```
 
 Pre-compiled binaries for Windows x64 and macOS are available here:
